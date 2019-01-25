@@ -1,0 +1,43 @@
+group 'jumbodinosaurswebserver'
+version '.5'
+
+buildscript
+        {
+            repositories
+                    {
+                        jcenter()
+                    }
+            dependencies
+                    {
+
+                        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+                    }
+        }
+
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+
+sourceSets
+        {
+            main.java.srcDir "src/main"
+        }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    compile group: 'io.netty', name: 'netty-all', version: '4.0.4.Final'
+}
+
+
+jar
+        {
+            manifest.attributes "Main-Class": "com.jumbodinosaurs.Main"
+        }
