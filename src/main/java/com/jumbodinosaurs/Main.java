@@ -59,7 +59,6 @@ public class Main
             {
                 System.out.println("Args " + i + ": " + args[i]);
             }
-
             Scanner userInput = new Scanner(System.in);
             System.out.println("Start Server without a Domain? Y/N");
             String response = userInput.next();

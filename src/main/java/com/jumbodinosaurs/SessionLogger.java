@@ -33,18 +33,20 @@ public class SessionLogger implements Runnable
                 {
                     this.log(this.sessions.remove(0));
                 }
+                Thread.sleep(10);
             }
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("Error Logging Session");
+            OperatorConsole.printMessageFiltered("Error Logging Session",false, true);
         }
     }
 
 
     public void log(Session session)
     {
+        OperatorConsole.addHit(session);
         //GSON Objects for writeing and dealing with json
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
@@ -54,15 +56,10 @@ public class SessionLogger implements Runnable
         try
         {
             //File with log json
-            File logFile = this.dataIO.checkFor(this.dataIO.getLogsDir(), "logs.json");
+            File logFile = this.dataIO.getLogsJson();
             //Read in log json
-            Scanner logIn = new Scanner(logFile);
-            String fileContents = "";
-            while (logIn.hasNextLine())
-            {
-                fileContents += logIn.nextLine();
-            }
-            logIn.close();
+            String fileContents = this.dataIO.getFileContents(logFile);
+
 
             //try parsing file with json parser
             JsonElement element = null;
@@ -73,7 +70,7 @@ public class SessionLogger implements Runnable
             catch (Exception e)
             {
                 e.printStackTrace();
-                System.out.println("Error Parsing Json");
+                OperatorConsole.printMessageFiltered("Error Parsing Json",false, true);
             }
             JsonObject sessionList = new JsonObject();
             //If file already has contents
@@ -82,14 +79,12 @@ public class SessionLogger implements Runnable
                     element.getAsJsonObject().getAsJsonArray("loglist") != null &&
                     element.getAsJsonObject().getAsJsonArray("loglist").isJsonArray())
             {
-                System.out.println("LOGS IS JSON");
                 //Just add session
                 sessionList = element.getAsJsonObject();
                 sessionList.getAsJsonObject().getAsJsonArray("loglist").add(gson.toJson(session, Session.class));
             }
             else
             {
-                System.out.println("LOGS IS NOT JSON");
                 //else make new loglist and add session
                 sessionList.add("loglist", new JsonArray());
                 sessionList.getAsJsonArray("loglist").add(gson.toJson(session, Session.class));
@@ -98,12 +93,12 @@ public class SessionLogger implements Runnable
             PrintWriter logOut = new PrintWriter(logFile);
             logOut.write(sessionList.toString());
             logOut.close();
+            OperatorConsole.printMessageFiltered("Session Logged", true, false);
         }
         catch (Exception e)
         {
-            System.out.println("Error Writing to Logs");
             e.printStackTrace();
-            System.out.println(e.getCause());
+            OperatorConsole.printMessageFiltered("Error Writing to Logs",false, true);
         }
     }
 }

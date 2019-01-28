@@ -1,0 +1,1 @@
+wget "https://$1:$2@domains.google.com/nic/update?hostname=$3" -O renew.txt

@@ -57,8 +57,8 @@ public class HTTPRequest
                 File fileRequested;
 
                 //If if have file
-                System.out.println("File To Get: " + fileToGet);
-                if ((fileRequested = dataIO.getFileSafe(fileToGet)) != null)
+                OperatorConsole.printMessageFiltered("File To Get: " + fileToGet, true, false);
+                if ((fileRequested = dataIO.getFileFromAllowedDirectory(fileToGet)) != null)
                 {
                     //add Good Code
 
@@ -113,7 +113,7 @@ public class HTTPRequest
     {
         this.messageToSend += this.sC404;
         this.messageToSend += this.closeHeader;
-        this.messageToSend += dataIO.getFileContents(dataIO.getFile("404.html"));
+        this.messageToSend += dataIO.getFileContents(dataIO.getFileFromAllowedDirectory("404.html"));
     }
 
     public void setMessage501(DataController dataIO)

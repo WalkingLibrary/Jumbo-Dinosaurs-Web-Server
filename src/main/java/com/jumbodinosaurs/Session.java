@@ -24,7 +24,7 @@ public class Session
         this.when = new Date().toString();
         this.channel = channel;
         this.message = message;
-        System.out.println("Message From Client: \n" + this.message);
+        OperatorConsole.printMessageFiltered("Message From Client: \n" + this.message,true,false);
     }
 
     public Session(String who, String when, String message, String messageSent)

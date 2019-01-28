@@ -1,6 +1,5 @@
 package com.jumbodinosaurs;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -9,7 +8,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Scanner;
 
 /*
   Main Server Control
@@ -24,113 +22,47 @@ public class ServerControl
 
     private static Thread commandThread;
     private static DataController dataIO;
-    private final ClientTimer serverInt = new ClientTimer(5000, new ComponentsListener());//Five Second Timer
-    private final ClientTimer domainInt = new ClientTimer(3600000, new ComponentsListener());//One Hour Timer
-    private final ClientTimer fiveMin = new ClientTimer(300000, new ComponentsListener());//Five Minute Timer
-    private int count = 0;
-    private int startUpTries = 5;
+    private final ClientTimer oneHourTimer = new ClientTimer(3600000, new ComponentsListener());//One Hour Timer
+    private final ClientTimer fiveMinuteTimer = new ClientTimer(300000, new ComponentsListener());//Five Minute Timer
     private String[][] credentials;
     private String[] domains;
-    private boolean[] domainsInit;
+    private static OperatorConsole console;
 
 
     public ServerControl()
     {
-        System.out.println("Starting Jumbo Dinosaurs .5");
+        System.out.println("Starting Jumbo Dinosaurs .5");//G
         this.dataIO = new DataController();
+        this.console = new OperatorConsole(this.dataIO);
+        this.commandThread = new Thread(this.console);
+        this.commandThread.start();
         this.initServer();
 
     }
 
     public ServerControl(String[][] credentials, String[] domains)
     {
-        System.out.println("Starting Jumbo Dinosaurs .5");
+        System.out.println("Starting Jumbo Dinosaurs .5");//G
+
+        this.dataIO = new DataController(this.domains);
+        this.console = new OperatorConsole(this.dataIO);
+        this.commandThread = new Thread(this.console);
+        this.commandThread.start();
+
         this.credentials = credentials;
         this.domains = domains;
-        this.domainsInit = new boolean[this.credentials.length];
-        this.dataIO = new DataController(this.domains);
-        this.domainInt.start();
+        this.oneHourTimer.start();
         this.intDomain();
+
+
         this.initServer();
-
     }
 
 
-    private void intDomain()
-    {
-        try
-        {
-            //Process for int Domain
-            //First try to tell google domains to update with sh script
-            //read from renew.txt for code from google
-            //if code is a success status code then domain is initiated else start a 5 min timer to try again in 5 min
-            for (int i = 0; i < this.credentials.length; i++)
-            {
-
-                //https://username:password@domains.google.com/nic/update?hostname=subdomain.yourdomain.com
-                //Credentials Should be in Username Password Domain order
-                Runtime.getRuntime().exec("sudo bash reNewDomain.sh " +
-                        this.credentials[i][0] +
-                        " " +
-                        this.credentials[i][1] +
-                        " " +
-                        this.domains[i]);
-
-                File wgetOutput = new File(System.getProperty("user.dir") + "/renew.txt");
-                System.out.println("wgetOutput Path: " + wgetOutput.getPath());
-
-                String fileContents = "";
-                Scanner input = new Scanner(wgetOutput);
-                while (input.hasNextLine())
-                {
-                    fileContents += input.nextLine();
-                }
-                System.out.println(fileContents);
 
 
-                if (fileContents.contains("good") ||
-                        fileContents.contains("nochg"))
-                {
-                    this.domainsInit[i] = true;
-                }
-
-            }
-
-            boolean allInit = true;
-            for (boolean isInited : this.domainsInit)
-            {
-                if (!isInited)
-                {
-                    allInit = false;
-                    break;
-                }
-            }
-
-            if (allInit)
-            {
-                System.out.println("Domain Initialized");
-                this.fiveMin.stop();
-            }
-            else if (this.fiveMin.getStatus())
-            {
-                System.out.println("A Domain Failed To Initialize Starting 5 Min Timer");
-                this.fiveMin.start();
-            }
-            else
-            {
-                System.out.println("A Domain Failed To Initialize");
-            }
-        }
-        catch (Exception e)
-        {
-            System.out.println("Error Setting Up Initializing Domain(s)");
-            e.printStackTrace();
-            System.out.println(e.getCause());
-        }
-    }
-
-    /*
-     * @Function:
+    /* Code Starts BootStrapServer and Operator Console
+     *
      */
     private void initServer()
     {
@@ -138,30 +70,16 @@ public class ServerControl
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try
         {
-
-
              ServerBootstrap bootstrap = new ServerBootstrap()
                     .group(bossGroup,workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new SessionHandlerInitializer(this.dataIO));
-
-            Runnable userInput = new OperatorConsole(this.dataIO);
-            this.commandThread = new Thread(userInput);
-            this.commandThread.start();
-
-
-            if (!this.serverInt.getStatus())
-            {
-                this.serverInt.stop();
-            }
             bootstrap.bind(80).sync().channel().closeFuture().sync();
         }
         catch (Exception e)
         {
-            System.out.println("Error Creating Server on port 80");
             e.printStackTrace();
-            System.out.println(e.getCause());
-            this.serverInt.start();
+            OperatorConsole.printMessageFiltered("Error Creating Server on port 80",false, true);
         }
         finally
         {
@@ -170,7 +88,79 @@ public class ServerControl
         }
     }
 
+    private void intDomain()
+    {
+        try
+        {
+            boolean[] isDomainInitialized;
+            isDomainInitialized = new boolean[this.credentials.length];
+            boolean allDomainsInitialized = true;
 
+            //Process for Initializing Domains
+            //First the code will try to tell google to update our ip with a sh script
+            //Second The code will then read from renew.txt for the response from google
+            //The code will do this for each domain given through (String[] args)
+            //If google's response is that it failed then the code will start a 5 minutes timer to try again in 5 minutes
+            //If a single domain fails then all domains are tried again late -> WIP: should only be the ones that failed
+            for (int i = 0; i < this.credentials.length; i++)
+            {
+
+
+                //We pass the credentials to the url in the next line
+                //https://username:password@domains.google.com/nic/update?hostname=subdomain.yourdomain.com
+                //The sh script uses the linux command wget with the url above.
+                //Credentials Should be in Username Password Domain order
+                //Example: ksafj391 1k3o13fk1 www.jumbodinosaurs.com
+                Runtime.getRuntime().exec("sudo bash reNewDomain.sh " +
+                        this.credentials[i][0] +
+                        " " +
+                        this.credentials[i][1] +
+                        " " +
+                        this.domains[i]);
+                File wgetOutput = new File(System.getProperty("user.dir") + "/renew.txt");
+                OperatorConsole.printMessageFiltered("wgetOutput Path: " + wgetOutput.getPath(),true,false);
+                String fileContents = this.dataIO.getFileContents(wgetOutput);
+                OperatorConsole.printMessageFiltered(fileContents, true, false);
+
+                if (fileContents.contains("good") ||
+                        fileContents.contains("nochg"))
+                {
+                    isDomainInitialized[i] = true;
+                }
+
+            }
+
+
+            for (boolean isInitialized : isDomainInitialized)
+            {
+                if (!isInitialized)
+                {
+                    allDomainsInitialized = false;
+                    break;
+                }
+            }
+
+            if (allDomainsInitialized)
+            {
+                OperatorConsole.printMessageFiltered("Domain Initialized", true, false);
+                this.fiveMinuteTimer.stop();
+            }
+            else if (this.fiveMinuteTimer.getStatus())
+            {
+                OperatorConsole.printMessageFiltered("A Domain Failed To Initialize Starting 5 Min Timer", true, false);
+                this.fiveMinuteTimer.start();
+            }
+            else
+            {
+                OperatorConsole.printMessageFiltered("A Domain Failed To Initialize", true, false);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            OperatorConsole.printMessageFiltered("Error Setting Up Initializing Domain(s)", false, true);
+        }
+    }
 
 
 
@@ -179,27 +169,7 @@ public class ServerControl
     {
         public void actionPerformed(ActionEvent e)
         {
-            if (e.getSource().equals(serverInt))
-            {
-                if (count < 5)
-                {
-                    initServer();
-                    count++;
-                }
-                else if (count > 5)
-                {
-                    System.out.println("Tried " + startUpTries + " Times and Failed");
-                    System.exit(1);
-                }
-            }
-            else if (e.getSource().equals(domainInt))
-            {
                 intDomain();
-            }
-            else if (e.getSource().equals(fiveMin))
-            {
-                intDomain();
-            }
         }
     }
 }

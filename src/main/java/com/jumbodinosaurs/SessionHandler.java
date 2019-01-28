@@ -41,7 +41,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             }
 
         //Send Message
-            System.out.println("Message Sent to Client: \n" + request.getMessageToSend());
+            OperatorConsole.printMessageFiltered("Message Sent to Client: \n" + request.getMessageToSend(),true,false);
 
             if (request.isPictureRequest())
             {
@@ -51,16 +51,18 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             {
                 context.writeAndFlush(request.getMessageToSend()).addListener(ChannelFutureListener.CLOSE);
             }
+
+
             session.setMessageSent(request.getMessageToSend());
-            System.out.println("Adding Session to Logger");
+            OperatorConsole.printMessageFiltered("Adding Session to Logger",true,false);
             this.dataIO.log(session);
-            System.out.println("Session Complete");
+            OperatorConsole.printMessageFiltered("Session Complete",true,false);
         }
         catch (Exception e)
         {
-            System.out.println("Error Sending Message");
             e.printStackTrace();
-            System.out.println(e.getCause());
+            OperatorConsole.printMessageFiltered("Error Sending Message",false,true);
+
         }
 
     }

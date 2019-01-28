@@ -15,8 +15,8 @@ import java.util.Scanner;
 public class DataController implements Runnable
 {
     private static File allowedDirectory;
-    private static File imageJsonDir;
-    private static File logs;
+    private static File imageJsonDirectory;
+    private static File logsDirectory;
     private static ArrayList<String[]> pictureFilesContents = new ArrayList<String[]>();
     private static ArrayList<Session> sessionsToLog = new ArrayList<Session>();
     private static SessionLogger logger;
@@ -29,18 +29,17 @@ public class DataController implements Runnable
         try
         {
             this.allowedDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(), "Shared");
-            System.out.println(this.allowedDirectory.getAbsolutePath());
-            this.logs = checkFor(this.allowedDirectory.getParentFile(), "LOG");
-            this.imageJsonDir = checkFor(this.allowedDirectory.getParentFile(), "ImageJson");
+            OperatorConsole.printMessageFiltered(this.allowedDirectory.getAbsolutePath(), true, false);
+            this.logsDirectory = checkFor(this.allowedDirectory.getParentFile(), "LOG");
+            this.imageJsonDirectory = checkFor(this.allowedDirectory.getParentFile(), "ImageJson");
             this.setHost();
             this.makeSiteIndexand404PageDefault();
             this.init();
         }
         catch (Exception e)
         {
-            System.out.println("Error Creating DataController");
             e.printStackTrace();
-            System.out.println(e.getCause());
+            OperatorConsole.printMessageFiltered("Error Creating DataController", false,true);
         }
     }
 
@@ -49,9 +48,9 @@ public class DataController implements Runnable
         try
         {
             this.allowedDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(), "Shared");
-            System.out.println(this.allowedDirectory.getAbsolutePath());
-            this.logs = checkFor(this.allowedDirectory.getParentFile(), "LOG");
-            this.imageJsonDir = checkFor(this.allowedDirectory.getParentFile(), "ImageJson");
+            OperatorConsole.printMessageFiltered(this.allowedDirectory.getAbsolutePath(), true, false);
+            this.logsDirectory = checkFor(this.allowedDirectory.getParentFile(), "LOG");
+            this.imageJsonDirectory = checkFor(this.allowedDirectory.getParentFile(), "ImageJson");
             this.domains = domains;
             this.setHost();
             this.makeSiteIndexand404PageDomains();
@@ -59,11 +58,27 @@ public class DataController implements Runnable
         }
         catch (Exception e)
         {
+
             System.out.println("Error Creating DataController");
             e.printStackTrace();
-            System.out.println(e.getCause());
+            OperatorConsole.printMessageFiltered("Error Creating DataController", false, true);
         }
     }
+
+
+    public void init()
+    {
+        Thread initThread = new Thread(this);
+        initThread.start();
+        //For logging sessions thread
+        this.logger = new SessionLogger(this);
+        Thread loggerThread = new Thread(this.logger);
+        loggerThread.start();
+    }
+
+
+
+
 
     /* @Function: Checks for the String name in the given Dir of File file
      * returns it and makes it if not there.
@@ -100,15 +115,7 @@ public class DataController implements Runnable
         return neededFile;
     }
 
-    public void init()
-    {
-        Thread initThread = new Thread(this);
-        initThread.start();
-        //For logging sessions thread
-        this.logger = new SessionLogger(this);
-        Thread loggerThread = new Thread(this.logger);
-        loggerThread.start();
-    }
+
 
     public void run()
     {
@@ -119,7 +126,7 @@ public class DataController implements Runnable
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("Error Initializing Pictures");
+            OperatorConsole.printMessageFiltered("Error Initializing Pictures", false, true);
         }
 
     }
@@ -133,13 +140,13 @@ public class DataController implements Runnable
             BufferedReader sc = new BufferedReader(new InputStreamReader(address.openStream()));
 
             this.host = sc.readLine().trim();
-            System.out.println("Public IP: " + this.host);
+            OperatorConsole.printMessageFiltered("Public IP: " + this.host, false, false);
+
         }
         catch (Exception e)
         {
-            System.out.println("Error Setting Host");
             e.printStackTrace();
-            System.out.println(e.getCause());
+            OperatorConsole.printMessageFiltered("Error Setting Host", false, true);
         }
     }
 
@@ -210,7 +217,7 @@ public class DataController implements Runnable
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("Error Creating Index and 404 Page");
+            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
         }
     }
 
@@ -270,7 +277,7 @@ public class DataController implements Runnable
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("Error Creating Index and 404 Page");
+            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
         }
     }
 
@@ -280,7 +287,7 @@ public class DataController implements Runnable
     }
 
     //Reads all pictures in Shared and changes them to a "String" and stores them in picture File contents
-    // with there name as the first element and the second as the contents
+    // with their name as the first element and the second as the contents
     public void initPictures() throws Exception
     {
         System.out.println("Initializing Pictures");
@@ -356,7 +363,7 @@ public class DataController implements Runnable
 
         System.out.println(picture.getName());
         System.out.println("Saving Picture To Image Json");
-        File imageJson = this.checkFor(this.imageJsonDir, "pictures.json");
+        File imageJson = this.checkFor(this.imageJsonDirectory, "pictures.json");
         String fileContents = this.getFileContents(imageJson);
         //try parsing file with json parser
         JsonElement element = null;
@@ -388,7 +395,7 @@ public class DataController implements Runnable
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("Error Writing Picture to Json");
+            OperatorConsole.printMessageFiltered("Error Writing Picture to Json", false, true);
         }
 
     }
@@ -408,7 +415,7 @@ public class DataController implements Runnable
 
         System.out.println("Scanning In Files");
         //GET Pictures JSON
-        File imageJson = this.checkFor(this.imageJsonDir, "pictures.json");
+        File imageJson = this.checkFor(this.imageJsonDirectory, "pictures.json");
         String fileContents = this.getFileContents(imageJson);
         //try parsing file with json parser
         JsonElement element = null;
@@ -439,7 +446,7 @@ public class DataController implements Runnable
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("Error Reading Picture from Json");
+            OperatorConsole.printMessageFiltered("Error Reading Picture from Json", false, true);
         }
     }
 
@@ -453,10 +460,9 @@ public class DataController implements Runnable
         return temp;
     }
 
-    //Returns the fileWanted if within allowedDirectory
-    //No Checking of the requested file's name
-    //null if not in directory
-    public File getFile(String fileWanted)
+    //Returns the fileWanted if it is in allowedDirectory
+    //The Code Returns null if the file is not in the directory
+    public File getFileFromAllowedDirectory(String fileWanted)
     {
         File fileToGive = null;
         //Gets all files in allowedDir
@@ -477,7 +483,7 @@ public class DataController implements Runnable
         }
         if (fileToGive != null)
         {
-            System.out.println("GET FILE CALLED -> File Retrieved: " + fileToGive.getAbsolutePath());
+            OperatorConsole.printMessageFiltered("GET FILE CALLED -> File Retrieved: " + fileToGive.getAbsolutePath(), true, false);
         }
         else// invert slashes and try to find file for different operating systems
         {
@@ -495,12 +501,29 @@ public class DataController implements Runnable
         }
         if (count > 1)
         {
-            System.out.println("getFile() Count: " + count);
+            System.out.println("getFileFromAllowedDirectory() Count: " + count);
         }
         return fileToGive;
     }
 
-    //For files that are for sure in shard directory
+
+    public File getLogsJson()
+    {
+        try
+        {
+            File logFile = this.checkFor(this.logsDirectory, "logs.json");
+            return logFile;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            OperatorConsole.printMessageFiltered("Error get logs.json", false, true);
+        }
+
+        return null;
+    }
+
+    //For Reading any file on the system
     public String getFileContents(File file)
     {
         //Read File
@@ -515,9 +538,9 @@ public class DataController implements Runnable
         }
         catch (Exception e)
         {
-            System.out.println("Error Reading File Contents\n File Path: " + file.getPath());
             e.printStackTrace();
-            System.out.println(e.getCause());
+            OperatorConsole.printMessageFiltered("Error Reading File Contents\n File Path: " + file.getPath(), false, true);
+
         }
         return fileRequestedContents;
     }
@@ -564,7 +587,7 @@ public class DataController implements Runnable
         String contents = "";
         for (String[] content : this.pictureFilesContents)
         {
-            if (content[0].equals(this.getFile(pictureName).getAbsolutePath()))
+            if (content[0].equals(this.getFileFromAllowedDirectory(pictureName).getAbsolutePath()))
             {
                 contents = "" + content[1].getBytes().length;
                 break;
@@ -584,32 +607,20 @@ public class DataController implements Runnable
         }
         catch (Exception e)
         {
-            System.out.println("Error Reading Photo");
             e.printStackTrace();
-            System.out.println(e.getCause());
+            OperatorConsole.printMessageFiltered("Error Reading Photo", false, true);
+
         }
         return null;
     }
 
-    public File getLogsDir()
-    {
-        return this.logs;
-    }
 
-    public File getFileSafe(String fileWanted)
-    {
-        if (nameSafe(fileWanted))
-        {
-            return getFile(fileWanted);
-        }
-        return null;
-    }
 
-    //
-    public File[] listFilesRecursive(File fileToList)
+
+    public File[] listFilesRecursive(File directory)
     {
         ArrayList<File> files = new ArrayList<File>();
-        for (File file : fileToList.listFiles())
+        for (File file : directory.listFiles())
         {
             if (file.isDirectory())
             {
@@ -626,16 +637,6 @@ public class DataController implements Runnable
             filesToReturn[i] = files.get(i);
         }
         return filesToReturn;
-    }
-
-    public boolean nameSafe(String fileName)
-    {
-        if (fileName.contains("\\..") || fileName.contains("//.."))
-        {
-            return false;
-        }
-
-        return true;
     }
 
 }
