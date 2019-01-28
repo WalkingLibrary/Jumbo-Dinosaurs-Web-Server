@@ -133,11 +133,9 @@ public class OperatorConsole implements Runnable
         {
             hitsToday++;
             totalHits++;
-            System.out.println("Adding Session To Hits");
         }
         else
         {
-            System.out.println("Adding Session To Hits");
             updateTodaysDate();
             hitsToday++;
             totalHits++;

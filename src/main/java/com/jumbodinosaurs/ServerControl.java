@@ -43,16 +43,16 @@ public class ServerControl
     public ServerControl(String[][] credentials, String[] domains)
     {
         System.out.println("Starting Jumbo Dinosaurs .5");//G
-
+        this.credentials = credentials;
+        this.domains = domains;
         this.dataIO = new DataController(this.domains);
         this.console = new OperatorConsole(this.dataIO);
         this.commandThread = new Thread(this.console);
         this.commandThread.start();
-
-        this.credentials = credentials;
-        this.domains = domains;
         this.oneHourTimer.start();
         this.intDomain();
+
+
 
 
         this.initServer();
