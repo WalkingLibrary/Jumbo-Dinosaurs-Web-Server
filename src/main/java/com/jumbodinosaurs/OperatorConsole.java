@@ -2,9 +2,8 @@ package com.jumbodinosaurs;
 
 
 import com.google.gson.*;
-
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Scanner;
 
 public class OperatorConsole implements Runnable
@@ -22,7 +21,7 @@ public class OperatorConsole implements Runnable
     //private String mostRequestedFile;
     private static boolean debug = false;
     private static int hitsToday = 0;
-    private static Date today = new Date();
+    private static LocalDate today = LocalDate.now();
     private static int totalHits = 0;
     private static int exceptions = 0;
 
@@ -72,13 +71,11 @@ public class OperatorConsole implements Runnable
                 {
                     pastSessions.add(gson.fromJson(oldSession.getAsString(), Session.class));
                 }
-                this.today = new Date();
+
                 for(Session session: pastSessions)
                 {
-                    Date when = new Date(session.getWhen());
-                    if(when.getDay() == this.today.getDay()
-                            && when.getYear() == this.today.getYear()
-                            && when.getMonth() == this.today.getMonth())
+                    LocalDate when = LocalDate.parse(session.getDate());
+                    if(this.today.equals(when))
                     {
                         this.hitsToday++;
                     }
@@ -126,10 +123,8 @@ public class OperatorConsole implements Runnable
 
     public static void addHit(Session session)
     {
-        Date sessionDate = new Date(session.getWhen());
-        if(sessionDate.getDay() == today.getDay()
-                && sessionDate.getYear() == today.getYear()
-                && sessionDate.getMonth() == today.getMonth())
+        LocalDate sessionDate = LocalDate.parse(session.getDate());
+        if(sessionDate.equals(today))
         {
             hitsToday++;
             totalHits++;
@@ -144,15 +139,12 @@ public class OperatorConsole implements Runnable
 
     public static void updateTodaysDate()
     {
-        Date now = new Date();
-        if(now.getDay() == today.getDay()
-                && now.getYear() == today.getYear()
-                && now.getMonth() == today.getMonth())
+        LocalDate now = LocalDate.now();
+        if(!today.equals(now))
         {
-            return;
+            today = now;
+            hitsToday = 0;
         }
-        today = now;
-        hitsToday = 0;
     }
 
 

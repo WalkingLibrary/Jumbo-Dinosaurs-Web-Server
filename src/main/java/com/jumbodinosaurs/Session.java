@@ -6,12 +6,14 @@ import io.netty.channel.ChannelFutureListener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Session
 {
     private String who;
-    private String when;
+    private String date;
+    private String time;
     private String message;
     private String messageSent;
     private transient Channel channel;
@@ -21,16 +23,18 @@ public class Session
     public Session(Channel channel, String message) throws Exception
     {
         this.who = channel.remoteAddress().toString();
-        this.when = new Date().toString();
+        this.date = LocalDate.now().toString();
+        this.time = LocalTime.now().toString();
         this.channel = channel;
         this.message = message;
         OperatorConsole.printMessageFiltered("Message From Client: \n" + this.message,true,false);
     }
 
-    public Session(String who, String when, String message, String messageSent)
+    public Session(String who, String date, String time, String message, String messageSent)
     {
         this.who = who;
-        this.when = when;
+        this.date = date;
+        this.time = time;
         this.message = message;
         this.messageSent = messageSent;
     }
@@ -51,9 +55,14 @@ public class Session
         this.messageSent = messageSent;
     }
 
-    public String getWhen()
+    public String getTime()
     {
-        return this.when;
+        return this.time;
+    }
+
+    public String getDate()
+    {
+        return this.date;
     }
 
 
