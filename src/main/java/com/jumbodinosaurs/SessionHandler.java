@@ -7,11 +7,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 public class SessionHandler extends SimpleChannelInboundHandler<String>
 {
-    private static DataController dataIO;
 
-    public SessionHandler(DataController dataIO)
+    public SessionHandler()
     {
-        this.dataIO = dataIO;
     }
 
 
@@ -33,11 +31,11 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             HTTPRequest request = new HTTPRequest(session.getMessage());
             if (request.isHTTP())
             {
-                request.generateMessage(this.dataIO);
+                request.generateMessage();
             }
             else
             {
-                request.setMessage501(this.dataIO);
+                request.setMessage501();
             }
 
         //Send Message
@@ -45,17 +43,19 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
 
             if (request.isPictureRequest())
             {
-                context.writeAndFlush(request.getMessageToSend() + request.getPictureContents()).addListener(ChannelFutureListener.CLOSE);
+                FastResponse response = new FastResponse(request.getMessageToSend(), request.getPictureContents());
+                context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             }
             else
             {
-                context.writeAndFlush(request.getMessageToSend()).addListener(ChannelFutureListener.CLOSE);
+                FastResponse response = new FastResponse(request.getMessageToSend(), null);
+                context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             }
 
 
             session.setMessageSent(request.getMessageToSend());
             OperatorConsole.printMessageFiltered("Adding Session to Logger",true,false);
-            this.dataIO.log(session);
+            DataController.log(session);
             OperatorConsole.printMessageFiltered("Session Complete",true,false);
         }
         catch (Exception e)

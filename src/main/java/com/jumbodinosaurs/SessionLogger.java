@@ -9,11 +9,9 @@ import java.util.ArrayList;
 public class SessionLogger implements Runnable
 {
     private static ArrayList<Session> sessions;
-    private static DataController dataIO;
 
     public SessionLogger(DataController dataIO)
     {
-        this.dataIO = dataIO;
         this.sessions = new ArrayList<Session>();
     }
 
@@ -55,9 +53,9 @@ public class SessionLogger implements Runnable
         try
         {
             //File with log json
-            File logFile = this.dataIO.getLogsJson();
+            File logFile = DataController.getLogsJson();
             //Read in log json
-            String fileContents = this.dataIO.getFileContents(logFile);
+            String fileContents = DataController.getFileContents(logFile);
 
 
             //try parsing file with json parser

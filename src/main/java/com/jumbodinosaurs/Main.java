@@ -3,15 +3,15 @@ package com.jumbodinosaurs;
 import java.util.Scanner;
 
 /* @Author WalkingLibrary
- * @Date November 20, 2018
+ * @Date November 28, 2019
  * This Program is a Work In Progress being designed to properly serve HTML and most commonly used Photo File types
  *  to your most commonly used web-browsers. As of the date above it can server HTML, PNG, and ICO with plans to
  *  support other Photo File types. This Program or "Server" allows you to hook your domain name up with a dynamic IP
- *  using Google's Dynamic IP A.P.I. The Server also has a few safe Guards for malicious requests from clients. It
+ *  using Google's Dynamic IP API. The Server also has a few safe Guards for malicious requests from clients. It
  *  restricts all GET requests to a single Directory and only allows the files within that Directory to be requested.
  *  The Server Currently does not support Post requests.
  *
- *  Google A.P.I. with arguments
+ *  Google API with arguments
  *  Arguments Should be given in this order
  *     Username Password Domain
  *  If multiple domains continue this pattern

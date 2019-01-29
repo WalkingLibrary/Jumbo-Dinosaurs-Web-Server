@@ -9,11 +9,10 @@ import java.util.Scanner;
 public class OperatorConsole implements Runnable
 {
     private static final String[] commands = {"/?", "/help",// 0 1
-            "/reinitphotos", "/cleardomains", // 2 3
+            "/placeholder", "/cleardomains", // 2 3
             "/adddomain", "/editdomain", // 4 5
             "/stop", "/stats",//6 7
             "/toggledebug"};//8 9
-    private static DataController dataIO;
     private ArrayList<String> queue = new ArrayList<String>();
 
 
@@ -28,7 +27,6 @@ public class OperatorConsole implements Runnable
 
     public OperatorConsole(DataController dataIO)
     {
-        this.dataIO = dataIO;
         this.exceptions = 0;
         this.debug = false;
 
@@ -41,7 +39,7 @@ public class OperatorConsole implements Runnable
         try
         {
 
-        String logFileContents = this.dataIO.getFileContents(this.dataIO.getLogsJson());
+        String logFileContents = DataController.getFileContents(DataController.getLogsJson());
 
             JsonElement element = null;
             try
@@ -168,20 +166,6 @@ public class OperatorConsole implements Runnable
                     for (String str : this.commands)
                     {
                         System.out.println(str);
-                    }
-                }
-                //ReInit Photos
-                else if (command.contains(this.commands[2]))///reinitphotos
-                {
-                    try
-                    {
-                        Thread initThread = new Thread(this.dataIO);
-                        initThread.start();
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        System.out.println("Error Initializing Pictures");
                     }
                 }
                 else if (command.contains(commands[6]))///stop

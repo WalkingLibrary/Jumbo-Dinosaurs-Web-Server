@@ -31,7 +31,7 @@ public class SessionHandlerInitializer extends ChannelInitializer<SocketChannel>
             pipeline.addLast("decoder", new StringDecoder());
             pipeline.addLast("encoder",new ResponseEncoder());
             pipeline.addLast(new ChunkedWriteHandler());
-            pipeline.addLast("handler", new SessionHandler(this.dataIO));
+            pipeline.addLast("handler", new SessionHandler());
 
 
         }

@@ -12,16 +12,13 @@ import java.util.Scanner;
 /*
 
  */
-public class DataController implements Runnable
+public class DataController
 {
     private static File allowedDirectory;
-    private static File imageJsonDirectory;
     private static File logsDirectory;
-    private static ArrayList<String[]> pictureFilesContents = new ArrayList<String[]>();
-    private static ArrayList<Session> sessionsToLog = new ArrayList<Session>();
     private static SessionLogger logger;
-    private String[] domains;
-    private String host = "";
+    private static String[] domains;
+    private static String host = "";
 
 
     public DataController()
@@ -31,10 +28,12 @@ public class DataController implements Runnable
             this.allowedDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(), "Shared");
             OperatorConsole.printMessageFiltered(this.allowedDirectory.getAbsolutePath(), true, false);
             this.logsDirectory = checkFor(this.allowedDirectory.getParentFile(), "LOG");
-            this.imageJsonDirectory = checkFor(this.allowedDirectory.getParentFile(), "ImageJson");
             this.setHost();
             this.makeSiteIndexand404PageDefault();
-            this.init();
+            //For logging sessions thread
+            this.logger = new SessionLogger(this);
+            Thread loggerThread = new Thread(this.logger);
+            loggerThread.start();
         }
         catch (Exception e)
         {
@@ -50,11 +49,13 @@ public class DataController implements Runnable
             this.allowedDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(), "Shared");
             OperatorConsole.printMessageFiltered(this.allowedDirectory.getAbsolutePath(), true, false);
             this.logsDirectory = checkFor(this.allowedDirectory.getParentFile(), "LOG");
-            this.imageJsonDirectory = checkFor(this.allowedDirectory.getParentFile(), "ImageJson");
             this.domains = domains;
             this.setHost();
             this.makeSiteIndexand404PageDomains();
-            this.init();
+            //For logging sessions thread
+            this.logger = new SessionLogger(this);
+            Thread loggerThread = new Thread(this.logger);
+            loggerThread.start();
         }
         catch (Exception e)
         {
@@ -64,19 +65,6 @@ public class DataController implements Runnable
             OperatorConsole.printMessageFiltered("Error Creating DataController", false, true);
         }
     }
-
-
-    public void init()
-    {
-        Thread initThread = new Thread(this);
-        initThread.start();
-        //For logging sessions thread
-        this.logger = new SessionLogger(this);
-        Thread loggerThread = new Thread(this.logger);
-        loggerThread.start();
-    }
-
-
 
 
 
@@ -116,21 +104,6 @@ public class DataController implements Runnable
     }
 
 
-
-    public void run()
-    {
-        try
-        {
-            this.initPictures();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Initializing Pictures", false, true);
-        }
-
-    }
-
     private void setHost()
     {
         try
@@ -155,9 +128,9 @@ public class DataController implements Runnable
         return this.host;
     }
 
-    public void log(Session session)
+    public static void log(Session session)
     {
-        this.logger.addSession(session);
+        logger.addSession(session);
     }
 
     public void makeSiteIndexand404PageDefault()
@@ -281,176 +254,14 @@ public class DataController implements Runnable
         }
     }
 
-    public String[] getDomains()
+    public static String[] getDomains()
     {
-        return this.domains;
+        return domains;
     }
 
-    //Reads all pictures in Shared and changes them to a "String" and stores them in picture File contents
-    // with their name as the first element and the second as the contents
-    public void initPictures() throws Exception
-    {
-        System.out.println("Initializing Pictures");
-        File[] files = this.listFilesRecursive(this.allowedDirectory);
-
-        ArrayList<File> picturesFiles = new ArrayList<File>();
-        //Gets Files in shared that are pictures
-        for (File file : files)
-        {
-            if ((getType(file).contains("png") ||
-                    getType(file).contains("jpeg") ||
-                    getType(file).contains("jpg") ||
-                    getType(file).contains("ico")))
-            {
-                picturesFiles.add(file);
-            }
-        }
-
-        //Load Pictures From Json
-        this.loadPicturesFromJsonintoArray();
-        for (File file : picturesFiles)
-        {
-            //Check To See if the file has already be initialized
-            boolean needToInit = true;
-            for (String[] strings : this.pictureFilesContents)
-            {
-                if (strings[0].contains(file.getName()))
-                {
-                    needToInit = false;
-                }
-            }
 
 
-            if (needToInit)
-            {
-                System.out.println("INITIALIZING: " + file.getName());
-                byte[] contentBytes = this.readPhoto(file);
-                System.out.println("File Size: " + contentBytes.length);
-                String imageContents = "";
-                for (int i = 0; i < contentBytes.length; i++)
-                {
-                    byte byt = contentBytes[i];
-                    imageContents += (char) byt;
-
-                    String print = "Byte: " + i + " : Out of " + contentBytes.length;
-                    System.out.print(print);
-                    String clr = "";
-                    for (int b = 0; b < print.length(); b++)
-                    {
-                        clr += "\b";
-                    }
-                    System.out.print(clr);
-
-                }
-                //Add To "MEMORY"
-                FastPicture picture = new FastPicture(file.getAbsolutePath(), imageContents, "" + contentBytes.length);
-                this.pictureFilesContents.add(picture.getAsArray());
-                this.savePictureToImageJson(picture);
-            }
-        }
-
-
-        System.out.println("Done Initializing Pictures");
-    }
-
-    public void savePictureToImageJson(FastPicture picture) throws Exception
-    {
-        //GSON Objects for writeing and dealing with json
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
-        Gson gson = builder.create();
-        JsonParser parser = new JsonParser();
-
-        System.out.println(picture.getName());
-        System.out.println("Saving Picture To Image Json");
-        File imageJson = this.checkFor(this.imageJsonDirectory, "pictures.json");
-        String fileContents = this.getFileContents(imageJson);
-        //try parsing file with json parser
-        JsonElement element = null;
-        try
-        {
-            element = parser.parse(fileContents);
-            JsonObject fastPictureList = new JsonObject();
-
-            //If file already has contents
-            if (element != null &&
-                    element.isJsonObject() &&
-                    element.getAsJsonObject().getAsJsonArray("picturelist") != null &&
-                    element.getAsJsonObject().getAsJsonArray("picturelist").isJsonArray())
-            {
-                fastPictureList = element.getAsJsonObject();
-                fastPictureList.getAsJsonObject().getAsJsonArray("picturelist").add(gson.toJson(picture, FastPicture.class));
-            }
-            else//MAKE FILES CONTENTS?
-            {
-                fastPictureList.add("picturelist", new JsonArray());
-                fastPictureList.getAsJsonObject().getAsJsonArray("picturelist").add(gson.toJson(picture, FastPicture.class));
-            }
-            //write contents of fastPictureList to imageJson and close()
-            PrintWriter logOut = new PrintWriter(imageJson);
-            logOut.write(fastPictureList.toString());
-            logOut.close();
-            System.out.println("Done Saving Picture To Image Json");
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Writing Picture to Json", false, true);
-        }
-
-    }
-
-    /* Loads all Files in imageJson to pictureFileContents in form of
-     * {File Name and Extension, File in String Format, File Length in Bytes}
-     *
-     */
-    public void loadPicturesFromJsonintoArray() throws Exception
-    {
-        //GSON Objects for writeing and dealing with json
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
-        Gson gson = builder.create();
-        JsonParser parser = new JsonParser();
-
-
-        System.out.println("Scanning In Files");
-        //GET Pictures JSON
-        File imageJson = this.checkFor(this.imageJsonDirectory, "pictures.json");
-        String fileContents = this.getFileContents(imageJson);
-        //try parsing file with json parser
-        JsonElement element = null;
-        try
-        {
-            element = parser.parse(fileContents);
-            //If file already has contents
-            if (element != null &&
-                    element.isJsonObject() &&
-                    element.getAsJsonObject().getAsJsonArray("picturelist") != null &&
-                    element.getAsJsonObject().getAsJsonArray("picturelist").isJsonArray())
-            {
-                ArrayList<FastPicture> fastPictures = new ArrayList<FastPicture>();
-                JsonArray preInitilizedPics = element.getAsJsonObject().getAsJsonArray("picturelist");
-                //Read
-                for (JsonElement fastPicture : preInitilizedPics)
-                {
-                    fastPictures.add(gson.fromJson(fastPicture.getAsString(), FastPicture.class));
-                }
-                for (FastPicture picture : fastPictures)
-                {
-                    String[] temp = {picture.getName(), picture.getContents(), picture.getLength()};
-                    this.pictureFilesContents.add(temp);
-                }
-                System.out.println("Done Scanning Files");
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Reading Picture from Json", false, true);
-        }
-    }
-
-    public String getType(File file)
+    public static String getType(File file)
     {
         String temp = file.getName();
         while (temp.indexOf(".") > -1)
@@ -462,11 +273,11 @@ public class DataController implements Runnable
 
     //Returns the fileWanted if it is in allowedDirectory
     //The Code Returns null if the file is not in the directory
-    public File getFileFromAllowedDirectory(String fileWanted)
+    public static File getFileFromAllowedDirectory(String fileWanted)
     {
         File fileToGive = null;
         //Gets all files in allowedDir
-        File[] filesInAllowedDir = this.listFilesRecursive(this.allowedDirectory);
+        File[] filesInAllowedDir = listFilesRecursive(allowedDirectory);
         //If count is greater than 1 might have duplicate files and could be a problem
         int count = 0;
 
@@ -487,7 +298,7 @@ public class DataController implements Runnable
         }
         else// invert slashes and try to find file for different operating systems
         {
-            String invertedWanted = this.invertSlashes(fileWanted);
+            String invertedWanted = invertSlashes(fileWanted);
             for (File file : filesInAllowedDir)
             {
                 int indexOfFileWanted = file.getAbsolutePath().indexOf(invertedWanted);
@@ -507,11 +318,11 @@ public class DataController implements Runnable
     }
 
 
-    public File getLogsJson()
+    public static File getLogsJson()
     {
         try
         {
-            File logFile = this.checkFor(this.logsDirectory, "logs.json");
+            File logFile = checkFor(logsDirectory, "logs.json");
             return logFile;
         }
         catch (Exception e)
@@ -524,7 +335,7 @@ public class DataController implements Runnable
     }
 
     //For Reading any file on the system
-    public String getFileContents(File file)
+    public static String getFileContents(File file)
     {
         //Read File
         String fileRequestedContents = "";
@@ -546,7 +357,7 @@ public class DataController implements Runnable
     }
 
     //Cycles thru the given string and if there are any forward slashes or backward slashes it will invert them
-    public String invertSlashes(String str)
+    public static String invertSlashes(String str)
     {
         String invertedStr = str;
         for (int i = 0; i < str.length() - 1; i++)
@@ -568,20 +379,8 @@ public class DataController implements Runnable
         return invertedStr;
     }
 
-    public String getPictureContents(String pictureName)
-    {
-        String contents = "";
-        for (String[] content : pictureFilesContents)
-        {
-            if (content[0].indexOf(pictureName) > -1)
-            {
-                contents = content[1];
-                break;
-            }
-        }
-        return contents;
-    }
 
+    /*
     public String getPictureLength(String pictureName)
     {
         String contents = "";
@@ -595,8 +394,11 @@ public class DataController implements Runnable
         }
         return contents;
     }
+    */
 
-    public byte[] readPhoto(File file)
+
+
+    public static byte[] readPhoto(File file)
     {
         try
         {
@@ -617,14 +419,14 @@ public class DataController implements Runnable
 
 
 
-    public File[] listFilesRecursive(File directory)
+    public static File[] listFilesRecursive(File directory)
     {
         ArrayList<File> files = new ArrayList<File>();
         for (File file : directory.listFiles())
         {
             if (file.isDirectory())
             {
-                files.addAll(Arrays.asList(this.listFilesRecursive(file)));
+                files.addAll(Arrays.asList(listFilesRecursive(file)));
             }
             else
             {

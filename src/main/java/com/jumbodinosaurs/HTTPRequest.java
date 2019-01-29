@@ -21,7 +21,7 @@ public class HTTPRequest
     private final String acceptedLanguageHeader = "\r\nAccept-Language: en-US";
     private final String originHeader = "\r\nOrigin: http://www.jumbodinosaurs.com/";
     private String message, messageToSend;
-    private String pictureContents = "";
+    private byte[] pictureContents;
     private Boolean pictureRequest = false;
     private String contentTextHeader = "\r\nContent-Type: text/";
     private String contentImageHeader = "\r\nContent-Type: image/";
@@ -43,7 +43,7 @@ public class HTTPRequest
         return this.message.indexOf(" HTTP/1.1") > -1;
     }
 
-    public void generateMessage(DataController dataIO)
+    public void generateMessage()
     {
         //If Get Request
         if (isGet())
@@ -52,36 +52,36 @@ public class HTTPRequest
             String requestCheck = this.getGetRequest();
             if (requestCheck != null)
             {
-                String fileToGet = this.mendPageRequest(requestCheck, dataIO);
+                String fileToGet = this.mendPageRequest(requestCheck);
 
                 File fileRequested;
 
                 //If if have file
                 OperatorConsole.printMessageFiltered("File To Get: " + fileToGet, true, false);
-                if ((fileRequested = dataIO.getFileFromAllowedDirectory(fileToGet)) != null)
+                if ((fileRequested = DataController.getFileFromAllowedDirectory(fileToGet)) != null)
                 {
                     //add Good Code
 
 
-                    if (dataIO.getType(fileRequested).contains("png") ||
-                            dataIO.getType(fileRequested).contains("jpeg") ||
-                            dataIO.getType(fileRequested).contains("jpg") ||
-                            dataIO.getType(fileRequested).contains("ico"))
+                    String fileType = DataController.getType(fileRequested);
+                    if (fileType.contains("png") ||
+                            fileType.contains("jpeg") ||
+                            fileType.contains("jpg") ||
+                            fileType.contains("ico"))
                     {
-
-                        if (!dataIO.getPictureContents(fileRequested.getAbsolutePath()).equals(""))
+                        if (!DataController.readPhoto(fileRequested).equals(""))
                         {
                             this.messageToSend += this.sC200;
-                            this.messageToSend += this.contentImageHeader + dataIO.getType(fileRequested);
+                            this.messageToSend += this.contentImageHeader + DataController.getType(fileRequested);
                             //this.messageToSend += this.contentLengthHeader + dataIO.getPictureLength(fileRequested.getName());
                             this.messageToSend += this.closeHeader;
                             this.pictureRequest = true;
-                            this.pictureContents = dataIO.getPictureContents(fileRequested.getName());
+                            this.pictureContents = DataController.readPhoto(fileRequested);
 
                         }
                         else
                         {
-                            this.setMessage404(dataIO);
+                            this.setMessage404();
                         }
 
 
@@ -89,34 +89,34 @@ public class HTTPRequest
                     else
                     {
                         this.messageToSend += this.sC200;
-                        this.messageToSend += this.contentTextHeader + dataIO.getType(fileRequested);
+                        this.messageToSend += this.contentTextHeader + DataController.getType(fileRequested);
                         this.messageToSend += this.closeHeader;
-                        this.messageToSend += dataIO.getFileContents(fileRequested);
+                        this.messageToSend += DataController.getFileContents(fileRequested);
 
                     }
                 }
                 else//Send 404 not found
                 {
-                    this.setMessage404(dataIO);
+                    this.setMessage404();
                 }
             }
             else
             {
-                this.setMessage501(dataIO);
+                this.setMessage501();
             }
         }
 
     }
 
     //Sets the message to send as 404
-    public void setMessage404(DataController dataIO)
+    public void setMessage404()
     {
         this.messageToSend += this.sC404;
         this.messageToSend += this.closeHeader;
-        this.messageToSend += dataIO.getFileContents(dataIO.getFileFromAllowedDirectory("404.html"));
+        this.messageToSend += DataController.getFileContents(DataController.getFileFromAllowedDirectory("404.html"));
     }
 
-    public void setMessage501(DataController dataIO)
+    public void setMessage501()
     {
         this.messageToSend += this.sC501;
         this.messageToSend += this.closeHeader;
@@ -136,12 +136,12 @@ public class HTTPRequest
 
     //Returns the path for the home page of the hosted domains
     //Example if we host www.spawnmasons.com this should return /spawnmasons/home.html
-    public String getHostedDomainPathHomePage(DataController dataIO)
+    public String getHostedDomainPathHomePage()
     {
         String hostHead = "Host: ";
-        if (dataIO.getDomains() != null)
+        if (DataController.getDomains() != null)
         {
-            for (String host : dataIO.getDomains())
+            for (String host : DataController.getDomains())
             {
                 if (this.message.contains(hostHead + host))
                 {
@@ -155,12 +155,12 @@ public class HTTPRequest
     }
 
     //If there is a host header server will try and limit file search to host file
-    public String addDomainPathfromHost(DataController dataIO, String fileRequested)
+    public String addDomainPathfromHost(String fileRequested)
     {
         String hostHead = "Host: ";
-        if (dataIO.getDomains() != null)
+        if (DataController.getDomains() != null)
         {
-            for (String host : dataIO.getDomains())
+            for (String host : DataController.getDomains())
             {
                 if (this.message.contains(hostHead + host))
                 {
@@ -177,7 +177,7 @@ public class HTTPRequest
     //For Polishing of Get Requests File Name
     //Example If  I request "/" The server will return /domainnamehere/home.html, Site index
     // if no host header and the request if not "/"
-    public String mendPageRequest(String request, DataController dataIO)
+    public String mendPageRequest(String request)
     {
         if (!request.contains("index.html"))
         {
@@ -185,7 +185,7 @@ public class HTTPRequest
             {
                 if (this.hasHostHeader())
                 {
-                    String temp = this.getHostedDomainPathHomePage(dataIO);
+                    String temp = this.getHostedDomainPathHomePage();
                     if (temp != null)
                     {
                         return temp;
@@ -199,7 +199,7 @@ public class HTTPRequest
             }
             else if (this.hasHostHeader())
             {
-                return this.addDomainPathfromHost(dataIO, request);
+                return this.addDomainPathfromHost(request);
             }
         }
         return request;
@@ -224,7 +224,7 @@ public class HTTPRequest
         return this.pictureRequest;
     }
 
-    public String getPictureContents()
+    public byte[] getPictureContents()
     {
         return this.pictureContents;
     }
