@@ -3,7 +3,7 @@ package com.jumbodinosaurs;
 import java.util.Scanner;
 
 /* @Author WalkingLibrary
- * @Date November 28, 2019
+ * @Date January 28, 2019
  * This Program is a Work In Progress being designed to properly serve HTML and most commonly used Photo File types
  *  to your most commonly used web-browsers. As of the date above it can server HTML, PNG, and ICO with plans to
  *  support other Photo File types. This Program or "Server" allows you to hook your domain name up with a dynamic IP
@@ -25,6 +25,7 @@ public class Main
 
     public static void main(String[] args)
     {
+        Scanner userInput = new Scanner(System.in);
         if (!(args.length == 0) && (args.length % 3 == 0))
         {
             String[][] credentials = new String[args.length / 3][2];
@@ -49,7 +50,10 @@ public class Main
                     domains[rotation] = args[i];
                 }
             }
-            controler = new ServerControl(credentials, domains);
+            System.out.println("Enter Certificate Password or Press Enter if No Certificate.");
+            String response = "";
+            response += userInput.nextLine();
+            controler = new ServerControl(credentials, domains, response);
         }
         else
         {
@@ -59,12 +63,15 @@ public class Main
             {
                 System.out.println("Args " + i + ": " + args[i]);
             }
-            Scanner userInput = new Scanner(System.in);
+
             System.out.println("Start Server without a Domain? Y/N");
             String response = userInput.next();
             if (response.toLowerCase().contains("y") || response.toLowerCase().contains("yes"))
             {
-                controler = new ServerControl();
+                System.out.println("Enter Certificate Password or Press Enter if No Certificate.");
+                response = "";
+                response += userInput.nextLine();
+                controler = new ServerControl(response);
             }
             System.exit(0);
         }

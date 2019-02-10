@@ -1,10 +1,4 @@
 package com.jumbodinosaurs;
-
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -20,73 +14,59 @@ import java.io.File;
 public class ServerControl
 {
 
-    private static Thread commandThread;
+    private static Thread commandThread, port80Thread, port443Thread;
     private static DataController dataIO;
     private final ClientTimer oneHourTimer = new ClientTimer(3600000, new ComponentsListener());//One Hour Timer
     private final ClientTimer fiveMinuteTimer = new ClientTimer(300000, new ComponentsListener());//Five Minute Timer
     private String[][] credentials;
     private String[] domains;
-    private static OperatorConsole console;
 
 
-    public ServerControl()
+
+    public ServerControl(String certificatePassword)
     {
         System.out.println("Starting Jumbo Dinosaurs .5");//G
         this.dataIO = new DataController();
-        this.console = new OperatorConsole(this.dataIO);
-        this.commandThread = new Thread(this.console);
+        this.commandThread = new Thread(new OperatorConsole());
         this.commandThread.start();
-        this.initServer();
+
+        this.port80Thread = new Thread(new SessionHandlerInitializer());
+        this.port80Thread.start();
+
+
+        if(!certificatePassword.equals(""))//if user has a ssl certificate
+        {
+            this.port443Thread = new Thread(new SecureSessionHandlerInitializer(certificatePassword));
+            this.port443Thread.start();
+        }
+
 
     }
 
-    public ServerControl(String[][] credentials, String[] domains)
+    public ServerControl(String[][] credentials, String[] domains, String certificatePassword)
     {
         System.out.println("Starting Jumbo Dinosaurs .5");//G
+
         this.credentials = credentials;
         this.domains = domains;
         this.dataIO = new DataController(this.domains);
-        this.console = new OperatorConsole(this.dataIO);
-        this.commandThread = new Thread(this.console);
+        this.commandThread = new Thread(new OperatorConsole());
         this.commandThread.start();
         this.oneHourTimer.start();
         this.intDomain();
+        this.port80Thread = new Thread(new SessionHandlerInitializer());
+        this.port80Thread.start();
 
 
 
-
-        this.initServer();
-    }
-
-
-
-
-    /* Code Starts BootStrapServer and Operator Console
-     *
-     */
-    private void initServer()
-    {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try
+        if(!certificatePassword.equals(""))//if user has a ssl certificate
         {
-             ServerBootstrap bootstrap = new ServerBootstrap()
-                    .group(bossGroup,workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new SessionHandlerInitializer(this.dataIO));
-            bootstrap.bind(80).sync().channel().closeFuture().sync();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating Server on port 80",false, true);
-        }
-        finally
-        {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+            this.port443Thread = new Thread(new SecureSessionHandlerInitializer(certificatePassword));
+            this.port443Thread.start();
         }
     }
+
+
 
     private void intDomain()
     {

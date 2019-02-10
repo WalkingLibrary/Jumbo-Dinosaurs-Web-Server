@@ -20,6 +20,8 @@ public class HTTPRequest
     private final String closeHeader = " \r\nConnection: Close\r\n\r\n";
     private final String acceptedLanguageHeader = "\r\nAccept-Language: en-US";
     private final String originHeader = "\r\nOrigin: http://www.jumbodinosaurs.com/";
+    private final String locationHeader = "\r\nLocation:";
+
     private String message, messageToSend;
     private byte[] pictureContents;
     private Boolean pictureRequest = false;
@@ -108,6 +110,24 @@ public class HTTPRequest
 
     }
 
+    public void setMessage301RedirectHTTPS()
+    {
+        if(this.getHost().equals("www.jumbodinosaurs.com"))
+        {
+            this.messageToSend += this.sC301;//Redirect Header
+
+            //Need To Craft Location Header From Host header.
+            //if no host header then server should redirect to current ip
+            this.messageToSend += this.locationHeader + " https://" + this.getHost() + this.getGetRequest();
+
+            this.messageToSend += this.closeHeader;
+        }
+        else
+        {
+            this.generateMessage();
+        }
+    }
+
     //Sets the message to send as 404
     public void setMessage404()
     {
@@ -134,72 +154,56 @@ public class HTTPRequest
     }
 
 
-    //Returns the path for the home page of the hosted domains
-    //Example if we host www.spawnmasons.com this should return /spawnmasons/home.html
-    public String getHostedDomainPathHomePage()
+    public String getHost()
     {
-        String hostHead = "Host: ";
         if (DataController.getDomains() != null)
         {
+            String hostHead = "Host: ";
             for (String host : DataController.getDomains())
             {
-                if (this.message.contains(hostHead + host))
+                if (this.message.contains(hostHead + host) ||
+                        this.message.contains(hostHead + host.substring(4)))
                 {
-                    //TO BE MENDED IN THE FUTURE. All Hosted domains at this time are www.something.com
-                    //indexOF(".") safe cause it's operator input
-                    return "/" + host.substring(host.indexOf(".") + 1, host.lastIndexOf(".")) + "/home.html";
+                    return host;
                 }
             }
-        }
-        return null;
-    }
 
-    //If there is a host header server will try and limit file search to host file
-    public String addDomainPathfromHost(String fileRequested)
-    {
-        String hostHead = "Host: ";
-        if (DataController.getDomains() != null)
-        {
-            for (String host : DataController.getDomains())
-            {
-                if (this.message.contains(hostHead + host))
-                {
-                    //TO BE MENDED IN THE FUTURE. All Hosted domains at this time are www.something.com
-                    //indexOF(".") safe cause it's operator input
-                    return "/" + host.substring(host.indexOf(".") + 1, host.lastIndexOf(".")) + fileRequested;
-                }
-            }
         }
-        return fileRequested;
+        return DataController.host;
     }
 
 
-    //For Polishing of Get Requests File Name
-    //Example If  I request "/" The server will return /domainnamehere/home.html, Site index
-    // if no host header and the request if not "/"
+
+    /*
+    For Polishing of Get Requests
+    Examples:
+
+    If I Request "/index.html" with a host the server wil return /index.html instead of /host/index.html
+
+    If I Request "/" with a Host Header The the Server will look for the file /host/home.html
+
+    If I Request "/picture.png" with a Host Header the Server will look for the file /host/picture.png
+
+     */
+
+
     public String mendPageRequest(String request)
     {
-        if (!request.contains("index.html"))
+        if (!request.equals("/index.html"))
         {
-            if (request.equals("/"))
+            if (this.hasHostHeader())
             {
-                if (this.hasHostHeader())
+                if (!this.getHost().equals(DataController.host))//If it's a domain the server hosts
                 {
-                    String temp = this.getHostedDomainPathHomePage();
-                    if (temp != null)
+                    if (request.equals("/"))
                     {
-                        return temp;
+                        return this.getHost() + "/home.html";
                     }
-                    else
+                    else//some other file request then "home.html"
                     {
-                        return "index.html";
+                        return this.getHost() + request;
                     }
                 }
-
-            }
-            else if (this.hasHostHeader())
-            {
-                return this.addDomainPathfromHost(request);
             }
         }
         return request;

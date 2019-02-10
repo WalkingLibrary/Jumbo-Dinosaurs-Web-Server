@@ -18,7 +18,7 @@ public class DataController
     private static File logsDirectory;
     private static SessionLogger logger;
     private static String[] domains;
-    private static String host = "";
+    public static String host = "";
 
 
     public DataController()
@@ -284,8 +284,13 @@ public class DataController
         //Try with given slashes to find file
         for (File file : filesInAllowedDir)
         {
+
             int indexOfFileWanted = file.getAbsolutePath().indexOf(fileWanted);
             int lengthOfAbsolutePath = file.getAbsolutePath().length();
+            //This Function is Not as simple as ->  If file is in shared return said file
+            //fileWanted can sometimes be a local path and we need to check that path with the absolute path of the current
+            //iteration of the loop's file's path to avoid returning domain duplicate Example: /jumbodinosaurs.com/home.html vs /2b2t.buisness/home.html
+            //Same as below in inverted slashes check
             if (indexOfFileWanted > -1 && indexOfFileWanted + fileWanted.length() == lengthOfAbsolutePath)//MAKE SURE FILES NAMED THE SAME HAVE DIFFERENT PARENT FOLDERS
             {
                 fileToGive = file;
@@ -310,6 +315,8 @@ public class DataController
                 }
             }
         }
+
+        //DEBUG
         if (count > 1)
         {
             System.out.println("getFileFromAllowedDirectory() Count: " + count);

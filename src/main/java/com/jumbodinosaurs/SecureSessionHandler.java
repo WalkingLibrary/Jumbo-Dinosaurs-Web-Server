@@ -5,8 +5,9 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-public class SessionHandler extends SimpleChannelInboundHandler<String>
+public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
 {
+
 
 
     @Override
@@ -20,15 +21,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             HTTPRequest request = new HTTPRequest(session.getMessage());
             if (request.isHTTP())
             {
-
-                if(SecureSessionHandlerInitializer.running)
-                {
-                    request.setMessage301RedirectHTTPS();
-                }
-                else
-                {
-                    request.generateMessage();
-                }
+                request.generateMessage();
             }
             else
             {
@@ -36,7 +29,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             }
 
             //Send Message
-            OperatorConsole.printMessageFiltered("Message Sent to Client: \n" + request.getMessageToSend(), true, false);
+            OperatorConsole.printMessageFiltered("Message Sent to Client: \n" + request.getMessageToSend(),true,false);
 
             if (request.isPictureRequest())
             {
@@ -51,29 +44,22 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
 
 
             session.setMessageSent(request.getMessageToSend());
-            OperatorConsole.printMessageFiltered("Adding Session to Logger", true, false);
+            OperatorConsole.printMessageFiltered("Adding Session to Logger",true,false);
             DataController.log(session);
-            OperatorConsole.printMessageFiltered("Session Complete", true, false);
+            OperatorConsole.printMessageFiltered("Session Complete",true,false);
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Sending Message", false, true);
+            OperatorConsole.printMessageFiltered("Error Sending Message",false,true);
 
         }
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext context, Throwable cause)
-    {
-        System.out.println("Netty Exception Caught will Dispatch Flying Monkeys To Fix that Dave");
-        context.close();
     }
 
 
     @Override
     public void channelRead0(ChannelHandlerContext context, String message)
     {
-        context.fireChannelRead(message);
+        context.fireChannelRead(message);//Tail Exception Fix?
     }
 }

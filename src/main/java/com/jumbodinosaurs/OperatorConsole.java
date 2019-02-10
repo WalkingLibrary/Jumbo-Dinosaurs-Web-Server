@@ -12,7 +12,7 @@ public class OperatorConsole implements Runnable
             "/placeholder", "/cleardomains", // 2 3
             "/adddomain", "/editdomain", // 4 5
             "/stop", "/stats",//6 7
-            "/toggledebug"};//8 9
+            "/toggledebug", "/togglesslredirect"};//8 9
     private ArrayList<String> queue = new ArrayList<String>();
 
 
@@ -25,7 +25,7 @@ public class OperatorConsole implements Runnable
     private static int exceptions = 0;
 
 
-    public OperatorConsole(DataController dataIO)
+    public OperatorConsole()
     {
         this.exceptions = 0;
         this.debug = false;
@@ -192,6 +192,20 @@ public class OperatorConsole implements Runnable
                         System.out.println("Debug Mode is Now On");
                         this.debug = true;
                     }
+                }
+                else if(command.contains(commands[9]))//toggleSSLRedirect
+                {
+                    if(SecureSessionHandlerInitializer.running)
+                    {
+                        SecureSessionHandlerInitializer.running = false;
+                        System.out.println("HTTP requests will no longer be Redirected to HTTPS");
+                    }
+                    else
+                    {
+                        SecureSessionHandlerInitializer.running = true;
+                        System.out.println("HTTP requests will now Redirect To HTTPS");
+                    }
+
                 }
                 else
                 {
