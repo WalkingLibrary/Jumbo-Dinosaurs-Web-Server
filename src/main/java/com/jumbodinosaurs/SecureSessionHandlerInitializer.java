@@ -4,36 +4,77 @@ package com.jumbodinosaurs;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.ssl.*;
 import io.netty.handler.stream.ChunkedWriteHandler;
-
+import io.netty.util.DomainNameMapping;
+import io.netty.util.Mapping;
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 
 
-
 public class SecureSessionHandlerInitializer extends ChannelInitializer<SocketChannel> implements Runnable
 {
     private String certificatePassword;
-    public static boolean running= true;
+    public static boolean running = true;
+    private Mapping<String, SslContext> mapping;
 
     public SecureSessionHandlerInitializer(String certificatePassword)
     {
         this.certificatePassword = certificatePassword;
+
+
+        try
+        {
+            if(DataController.getCertificates().length > 0)
+            {
+                //DomainMapping Needs a Default SslContext
+                KeyStore keyStoreDefault = KeyStore.getInstance("JKS");
+                keyStoreDefault.load(new FileInputStream(DataController.getCertificates()[0]), this.certificatePassword.toCharArray());
+                TrustManagerFactory trustManagerFactoryDefault = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                KeyStore temporaryKeyStoreDefault = null;
+                trustManagerFactoryDefault.init(temporaryKeyStoreDefault);
+                KeyManagerFactory keyManagerFactoryDefault = KeyManagerFactory.getInstance("SunX509");
+                keyManagerFactoryDefault.init(keyStoreDefault, this.certificatePassword.toCharArray());
+                DomainNameMapping domainmap = new DomainNameMapping(SslContextBuilder.forServer(keyManagerFactoryDefault).build());
+
+
+                for (File certificateFile: DataController.getCertificates())
+                {
+                    KeyStore keyStore = KeyStore.getInstance("JKS");
+                    keyStore.load(new FileInputStream(certificateFile), this.certificatePassword.toCharArray());
+                    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                    KeyStore temporaryKeyStore = null;
+                    trustManagerFactory.init(temporaryKeyStore);
+                    KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+                    keyManagerFactory.init(keyStore, this.certificatePassword.toCharArray());
+                    SslContext context = SslContextBuilder.forServer(keyManagerFactory).build();
+
+                    //Certificates Should be JKS with .ks ending
+                    domainmap.add(certificateFile.getName().substring(0,certificateFile.getName().length() - 3), context);
+                }
+                this.mapping = domainmap;
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+        catch (Exception e)
+        {
+            OperatorConsole.printMessageFiltered("Error Creating SSL Context", false,true);
+            e.printStackTrace();
+        }
     }
+
 
     public void run()
     {
@@ -52,7 +93,7 @@ public class SecureSessionHandlerInitializer extends ChannelInitializer<SocketCh
         {
             e.printStackTrace();
             OperatorConsole.printMessageFiltered("Error Creating Server on port 443",false, true);
-            running = false;
+            this.running = false;
         }
         finally
         {
@@ -64,30 +105,24 @@ public class SecureSessionHandlerInitializer extends ChannelInitializer<SocketCh
     @Override
     protected void initChannel(SocketChannel channel) throws Exception
     {
+
+
         ChannelPipeline pipeline = channel.pipeline();
 
 
-        File keystore = new File("/etc/letsencrypt/live/www.jumbodinosaurs.com/jumbodinosaurs.ks");
+        //SSLEngine sslEngine = jumboContext.newEngine(channel.alloc());
+        //sslEngine.setUseClientMode(false);
+        //sslEngine.setEnabledProtocols(sslEngine.getSupportedProtocols());
+        //sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
+        //sslEngine.setEnableSessionCreation(true);
+        //pipeline.addLast("ssl",new SslHandler(sslEngine));
 
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(keystore), this.certificatePassword.toCharArray());
 
-        TrustManagerFactory tmFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        KeyStore tmpKS = null;
-        tmFactory.init(tmpKS);
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-        kmf.init(ks, this.certificatePassword.toCharArray());
 
-        SSLContext sslContext = SSLContext.getInstance("TLS");
 
-        sslContext.init(kmf.getKeyManagers(), tmFactory.getTrustManagers(), null);
+        //SNI Handler Auto Replaces It's Self with SSLHandler
+        pipeline.addLast("sni", new SniHandler(this.mapping));
 
-        SSLEngine sslEngine = sslContext.createSSLEngine();
-        sslEngine.setUseClientMode(false);
-        sslEngine.setEnabledProtocols(sslEngine.getSupportedProtocols());
-        sslEngine.setEnabledCipherSuites(sslEngine.getSupportedCipherSuites());
-        sslEngine.setEnableSessionCreation(true);
-        pipeline.addLast("ssl", new SslHandler(sslEngine));
 
 
         String delimiter = "\r\n\r\n";

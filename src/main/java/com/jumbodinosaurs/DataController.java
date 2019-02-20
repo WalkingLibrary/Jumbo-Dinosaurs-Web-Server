@@ -1,7 +1,7 @@
 package com.jumbodinosaurs;
 
 
-import com.google.gson.*;
+
 
 import java.io.*;
 import java.net.URL;
@@ -16,9 +16,11 @@ public class DataController
 {
     private static File allowedDirectory;
     private static File logsDirectory;
+    private static File certificateDirectory;
     private static SessionLogger logger;
     private static String[] domains;
     public static String host = "";
+
 
 
     public DataController()
@@ -26,6 +28,7 @@ public class DataController
         try
         {
             this.allowedDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(), "Shared");
+            this.certificateDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(),"Certificates");
             OperatorConsole.printMessageFiltered(this.allowedDirectory.getAbsolutePath(), true, false);
             this.logsDirectory = checkFor(this.allowedDirectory.getParentFile(), "LOG");
             this.setHost();
@@ -47,6 +50,7 @@ public class DataController
         try
         {
             this.allowedDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(), "Shared");
+            this.certificateDirectory = this.checkFor(new File(System.getProperty("user.dir")).getParentFile(),"Certificates");
             OperatorConsole.printMessageFiltered(this.allowedDirectory.getAbsolutePath(), true, false);
             this.logsDirectory = checkFor(this.allowedDirectory.getParentFile(), "LOG");
             this.domains = domains;
@@ -64,6 +68,12 @@ public class DataController
             e.printStackTrace();
             OperatorConsole.printMessageFiltered("Error Creating DataController", false, true);
         }
+    }
+
+
+    public static File[] getCertificates()
+    {
+        return listFilesRecursive(certificateDirectory);
     }
 
 

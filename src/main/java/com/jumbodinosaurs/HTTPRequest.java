@@ -37,7 +37,12 @@ public class HTTPRequest
 
     public boolean isGet()
     {
-        return this.message.indexOf("GET") > -1;
+        return this.message.substring(0, 4).contains("GET");
+    }
+
+    public boolean isPost()
+    {
+        return this.message.substring(0, 5).contains("POST");
     }
 
     public boolean isHTTP()
@@ -48,7 +53,7 @@ public class HTTPRequest
     public void generateMessage()
     {
         //If Get Request
-        if (isGet())
+        if (this.isGet())
         {
             //Clean Name from get Request for dataIO
             String requestCheck = this.getGetRequest();
@@ -107,25 +112,76 @@ public class HTTPRequest
                 this.setMessage501();
             }
         }
+        else if(this.isPost())
+        {
+            /*
+             Example Message:
+
+             POST /signsaver/Jimmy101/2b2t.org.json
+
+             {Credentials: Jimmy101, asdk1mnidn1oindkasdlda}
+
+
+
+             {SIGN DATA HERE}
+
+
+
+             Example of Json Being Written too
+             {"howtowrite": "addTolist"
+              "list": "signlist"
+              "objecttocast": "MinecraftSign"
+
+             "signlist":["{\n  \"text1\": \"\\\"ppl dont grief\\\"\",\n  \"text2\": \"\\\"here anymore\\\"\",\n  \"text3\": \"\",\n  \"text4\": \"\",\n  \"date\": \"Tue Oct 09 23:38:17 MDT 2018\",\n  \"x\": -3069,\n  \"y\": 5,\n  \"z\": -2745,\n  \"dimension\": 0\n}"]
+
+             }
+             */
+
+
+
+            //Have a post directory
+
+
+
+
+            //See what file they want To Write To
+
+            //Check Credentials and if allowed to modify file
+
+
+            //sanitize postings
+
+            //write data
+
+            //generate outcome message
+        }
 
     }
 
     public void setMessage301RedirectHTTPS()
     {
-        if(this.getHost().equals("www.jumbodinosaurs.com"))
+        boolean redirect = false;
+        for (String host: DataController.getDomains())
         {
-            this.messageToSend += this.sC301;//Redirect Header
+            if(this.getHost().equals(host))
+            {
+                this.messageToSend += this.sC301;//Redirect Header
 
-            //Need To Craft Location Header From Host header.
-            //if no host header then server should redirect to current ip
-            this.messageToSend += this.locationHeader + " https://" + this.getHost() + this.getGetRequest();
+                //Need To Craft Location Header From Host header.
+                //if no host header then server should redirect to current ip
+                this.messageToSend += this.locationHeader + " https://" + host + this.getGetRequest();
 
-            this.messageToSend += this.closeHeader;
+                this.messageToSend += this.closeHeader;
+                redirect = true;
+                break;
+            }
         }
-        else
+
+        if(!redirect)
         {
-            this.generateMessage();
+            generateMessage();
         }
+
     }
 
     //Sets the message to send as 404

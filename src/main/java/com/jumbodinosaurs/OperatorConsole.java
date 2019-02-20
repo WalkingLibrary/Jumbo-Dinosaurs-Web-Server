@@ -18,7 +18,7 @@ public class OperatorConsole implements Runnable
 
 
     //private String mostRequestedFile;
-    private static boolean debug = false;
+    private static boolean debug = true;
     private static int hitsToday = 0;
     private static LocalDate today = LocalDate.now();
     private static int totalHits = 0;
