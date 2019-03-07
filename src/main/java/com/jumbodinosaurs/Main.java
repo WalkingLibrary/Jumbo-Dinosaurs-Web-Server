@@ -1,5 +1,8 @@
 package com.jumbodinosaurs;
 
+import com.google.gson.Gson;
+
+import java.io.File;
 import java.util.Scanner;
 
 /* @Author WalkingLibrary
@@ -26,54 +29,41 @@ public class Main
     public static void main(String[] args)
     {
         Scanner userInput = new Scanner(System.in);
-        if (!(args.length == 0) && (args.length % 3 == 0))
+        if(args.length > 0)
         {
-            String[][] credentials = new String[args.length / 3][2];
-            String[] domains = new String[args.length / 3];
-            int rotation = 0;
-            for (int i = 0; i < args.length; i++)
+            for(int i = 0; i < args.length; i++)
             {
-                if (i % 3 == 0 && i != 0)
+                if(args[i].equals("-p"))
                 {
-                    rotation++;
-                }
-                if (i % 3 == 0)
-                {
-                    credentials[rotation][0] = args[i];
-                }
-                else if (i % 3 == 1)
-                {
-                    credentials[rotation][1] = args[i];
-                }
-                else if (i % 3 == 2)
-                {
-                    domains[rotation] = args[i];
+                    if(i + 1 < args.length)
+                    {
+                        String path = args[i + 1];
+                        File fileToRead = new File(path);
+                        String contents = DataController.getFileContents(fileToRead);
+                        RuntimeArguments arguments = new Gson().fromJson(contents, RuntimeArguments.class);
+                        controler = new ServerControl(arguments);
+                    }
+                    else
+                    {
+                        System.out.println("Unrecognized Argument(s)");
+                        System.exit(0);
+                    }
                 }
             }
-            System.out.println("Enter Certificate Password or Press Enter if No Certificate.");
-            String response = "";
-            response += userInput.nextLine();
-            controler = new ServerControl(credentials, domains, response);
         }
         else
         {
-            System.out.println("Not Enough Arguments Given For Google API");
-            System.out.println("Arguments Given: ");
-            for (int i = 0; i < args.length; i++)
-            {
-                System.out.println("Args " + i + ": " + args[i]);
-            }
-
-            System.out.println("Start Server without a Domain? Y/N");
+            System.out.println("No Arguments Given.\n Continue with default Server Controller? (y/n)");
             String response = userInput.next();
             if (response.toLowerCase().contains("y") || response.toLowerCase().contains("yes"))
             {
-                System.out.println("Enter Certificate Password or Press Enter if No Certificate.");
-                response = "";
-                response += userInput.nextLine();
-                controler = new ServerControl(response);
+                controler = new ServerControl();
             }
-            System.exit(0);
+            else
+            {
+                System.exit(0);
+            }
         }
+
     }
 }

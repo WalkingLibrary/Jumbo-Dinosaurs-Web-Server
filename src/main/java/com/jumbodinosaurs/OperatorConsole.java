@@ -18,7 +18,7 @@ public class OperatorConsole implements Runnable
 
 
     //private String mostRequestedFile;
-    private static boolean debug = true;
+    private static boolean debug = false;
     private static int hitsToday = 0;
     private static LocalDate today = LocalDate.now();
     private static int totalHits = 0;
@@ -195,15 +195,15 @@ public class OperatorConsole implements Runnable
                 }
                 else if(command.contains(commands[9]))//toggleSSLRedirect
                 {
-                    if(SecureSessionHandlerInitializer.running)
+                    if(SessionHandler.redirectToSSL)
                     {
-                        SecureSessionHandlerInitializer.running = false;
+                        SessionHandler.redirectToSSL = false;
                         System.out.println("HTTP requests will no longer be Redirected to HTTPS");
                     }
                     else
                     {
-                        SecureSessionHandlerInitializer.running = true;
-                        System.out.println("HTTP requests will now Redirect To HTTPS");
+                        SessionHandler.redirectToSSL = true;
+                        System.out.println("HTTP requests will now try to Redirect To HTTPS");
                     }
 
                 }

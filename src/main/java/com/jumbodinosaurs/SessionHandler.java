@@ -8,6 +8,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class SessionHandler extends SimpleChannelInboundHandler<String>
 {
 
+    public static boolean redirectToSSL = ServerControl.getArguments() == null;
 
     @Override
     public void channelRead(ChannelHandlerContext context, Object msg)
@@ -21,9 +22,9 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             if (request.isHTTP())
             {
 
-                if(SecureSessionHandlerInitializer.running)
+                if(this.redirectToSSL && SecureSessionHandlerInitializer.running)
                 {
-                    request.setMessage301RedirectHTTPS();
+                    request.tryToRedirectToHTTPS();
                 }
                 else
                 {
@@ -38,9 +39,9 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             //Send Message
             OperatorConsole.printMessageFiltered("Message Sent to Client: \n" + request.getMessageToSend(), true, false);
 
-            if (request.isPictureRequest())
+            if (request.hasByteArray())
             {
-                FastResponse response = new FastResponse(request.getMessageToSend(), request.getPictureContents());
+                FastResponse response = new FastResponse(request.getMessageToSend(), request.getByteArrayToSend());
                 context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             }
             else
@@ -66,7 +67,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
     @Override
     public void exceptionCaught(ChannelHandlerContext context, Throwable cause)
     {
-        System.out.println("Netty Exception Caught will Dispatch Flying Monkeys To Fix that Dave");
+        OperatorConsole.printMessageFiltered(cause.getMessage(),false, true);
         context.close();
     }
 

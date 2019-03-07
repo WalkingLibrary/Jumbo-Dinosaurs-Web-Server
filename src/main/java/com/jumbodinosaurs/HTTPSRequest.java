@@ -3,8 +3,9 @@ package com.jumbodinosaurs;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.time.LocalDate;
 
-public class HTTPRequest
+public class HTTPSRequest
 {
     //Status Codes
     private final String sC100 = "HTTP/1.1 100 Continue";
@@ -26,6 +27,7 @@ public class HTTPRequest
 
     private String messageFromClient;
     private String messageToSend;
+    private String ip;
     private byte[] byteArrayToSend;
     private Boolean hasByteArray = false;
     private String contentTextHeader = "\r\nContent-Type: text/";
@@ -33,9 +35,10 @@ public class HTTPRequest
     private String contentZipHeader = "\r\nContent-Type: application/";
     private String contentLengthHeader = "\r\nContent-Length: "; //[length in bytes of the image]\r\n
 
-    public HTTPRequest(String messageFromClient)
+    public HTTPSRequest(String messageFromClient, String ip)
     {
         this.messageFromClient = messageFromClient;
+        this.ip = ip;
         this.messageToSend = "";
     }
 
@@ -127,38 +130,187 @@ public class HTTPRequest
         }
         else if (this.isPost())
         {
-            this.tryToRedirectToHTTPS();
-        }
+           /*Post Message Examples
+           POST {"username":"joe", "password":"password", "command":"postBook", "content":"BlahBlah(BookJson)"}
 
-    }
-
-
-    public void tryToRedirectToHTTPS()
-    {
-        boolean redirect = false;
-        for (String host : DataController.getDomains())
-        {
-            if (this.getHost().equals(host))
+           //See Post Game Plan Diagram for more Post Insight
+           */
+            System.out.println("Message From Client: " + this.messageFromClient);
+            try
             {
-                this.messageToSend += this.sC301;//Redirect Header
+                PostRequest postRequest = new Gson().fromJson(this.messageFromClient.substring(5), PostRequest.class);
+                WritablePost post = null;
+                boolean send400Code = true;
+                String command = postRequest.getCommand();
 
-                //Need To Craft Location Header From Host header.
-                //if no host header then server should redirect to current ip
-                this.messageToSend += this.locationHeader + " https://" + host + this.getGetRequest();
+                if (command != null)
+                {
+                    System.out.println("Command: " + command);
+                    if (command.equals("createAccount"))
+                    {
+                        if (postRequest.getUsername() != null &&
+                                postRequest.getPassword() != null &&
+                                postRequest.getEmail() != null &&
+                                postRequest.getCaptchaCode() != null)
+                        {
+                            if (getCaptchaScore(postRequest.getCaptchaCode()) > .5)
+                            {
 
-                this.messageToSend += this.closeHeader;
-                redirect = true;
-                break;
+                                if (DataController.createUser(postRequest.getUsername(), postRequest.getPassword(), postRequest.getEmail()))
+                                {
+                                    send400Code = false;
+                                    this.messageToSend += sC200;
+                                    this.messageToSend += closeHeader;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        User user = null;
+                        if (!DataController.isIPCaptchaLocked(this.ip))
+                        {
+                            if (postRequest.getUsername() != null && postRequest.getPassword() != null)
+                            {
+                                user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                            }
+                            else if (postRequest.getToken() != null)
+                            {
+                                user = DataController.loginToken(postRequest.getToken(), this.ip);
+                            }
+
+                            if (user == null)
+                            {
+                                DataController.strikeIP(this.ip);
+                            }
+                        }
+                        else if (postRequest.getCaptchaCode() != null && getCaptchaScore(postRequest.getCaptchaCode()) > .5)
+                        {
+                            if (postRequest.getUsername() != null && postRequest.getPassword() != null)
+                            {
+                                user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                            }
+                            else if (postRequest.getToken() != null)
+                            {
+                                user = DataController.loginToken(postRequest.getToken(), this.ip);
+                            }
+                        }
+
+
+                        if (user != null)
+                        {
+
+
+                            String content = postRequest.getContent();
+                            switch (command)
+                            {
+                                case "postBook":
+                                    MinecraftWrittenBook book = new Gson().fromJson(content, MinecraftWrittenBook.class);
+                                    if (book.isGoodPost())
+                                    {
+                                        String localPath = "/booklist/books.json";
+                                        String username = user.getUsername();
+                                        content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(book));
+                                        String date = LocalDate.now().toString();
+                                        post = new WritablePost(localPath, username, content, date);
+                                        send400Code = false;
+                                        this.messageToSend += sC200;
+                                        this.messageToSend += closeHeader;
+                                    }
+                                    break;
+
+                                case "postSign":
+                                    MinecraftSign sign = new Gson().fromJson(content, MinecraftSign.class);
+                                    if (sign.isGoodPost())
+                                    {
+                                        String localPath = "/signlist/signlist.json";
+                                        String username = user.getUsername();
+                                        content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(sign));
+                                        String date = LocalDate.now().toString();
+                                        post = new WritablePost(localPath, username, content, date);
+                                        send400Code = false;
+                                        this.messageToSend += sC200;
+                                        this.messageToSend += closeHeader;
+                                    }
+                                    break;
+
+                                case "postComment":
+                                    //WIP
+                                    break;
+
+                                case "getToken":
+
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                if (post != null)
+                {
+                    DataController.writePostData(post);
+                    //Message to send is determined case by case
+                }
+
+                if (send400Code)
+                {
+                    this.setMessage400();
+                }
             }
+            catch (Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error Reading Post", true, true);
+                e.printStackTrace();
+                this.setMessage400();
+            }
+
         }
 
-        if (!redirect)
-        {
-            generateMessage();
-        }
+
 
     }
 
+
+    public double getCaptchaScore(String captchaCode)
+    {
+        double score;
+        if(ServerControl.getArguments().getCaptchaKey() == null)
+        {
+            return .5;
+        }
+
+        String url = "https://www.google.com/recaptcha/api/siteverify?secret=\"" + ServerControl.getArguments().getCaptchaKey() + "\"&response={" + captchaCode +"}";
+
+        return .5;
+    }
+
+
+    public String rewriteHTMLEscapeCharacters(String postData)
+    {
+        String[][] charsToChange = {{"&", "&amp;" }, {"<", "&lt;" }, {">", "&gt;" }, {"\"", "&quot;" }, {"\'", "&apos;" }};
+
+        String temp = postData;
+
+        for (int i = 0; i < temp.length(); i++)
+        {
+            for (String[] escapeChar : charsToChange)
+            {
+                if (temp.substring(i, i + 1).equals(escapeChar[0]))
+                {
+                    temp = temp.substring(0, i) + escapeChar[1] + temp.substring(i + 1);
+                    i += charsToChange[1].length;
+                }
+            }
+
+        }
+        return temp;
+    }
+
+    public void setMessage400()
+    {
+        this.messageToSend += this.sC400;
+        this.messageToSend += this.closeHeader;
+    }
 
     //Sets the message to send as 404
     public void setMessage404()
@@ -271,3 +423,4 @@ public class HTTPRequest
         return this.messageToSend;
     }
 }
+

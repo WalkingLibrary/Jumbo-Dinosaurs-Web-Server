@@ -5,6 +5,8 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
+import javax.net.ssl.SSLHandshakeException;
+
 public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
 {
 
@@ -18,7 +20,7 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
         {
             Channel channel = context.channel();
             Session session = new Session(channel, message);
-            HTTPRequest request = new HTTPRequest(session.getMessage());
+            HTTPSRequest request = new HTTPSRequest(session.getMessage(), session.getWho());
             if (request.isHTTP())
             {
                 request.generateMessage();
@@ -31,9 +33,9 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
             //Send Message
             OperatorConsole.printMessageFiltered("Message Sent to Client: \n" + request.getMessageToSend(),true,false);
 
-            if (request.isPictureRequest())
+            if (request.hasByteArray())
             {
-                FastResponse response = new FastResponse(request.getMessageToSend(), request.getPictureContents());
+                FastResponse response = new FastResponse(request.getMessageToSend(), request.getByteArrayToSend());
                 context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             }
             else
@@ -56,10 +58,23 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
         }
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext context, Throwable cause)
+    {
+
+        if(!cause.getMessage().contains("no cipher suites in common") ||
+                !cause.getMessage().contains("not an SSL/TLS record:") ||
+                !cause.getMessage().contains("Client requested protocol SSLv3 not enabled or not supported"))
+        {
+            OperatorConsole.printMessageFiltered(cause.getMessage(), false, true);
+        }
+        context.close();
+    }
+
 
     @Override
     public void channelRead0(ChannelHandlerContext context, String message)
     {
-        context.fireChannelRead(message);//Tail Exception Fix?
+        context.fireChannelRead(message);
     }
 }
