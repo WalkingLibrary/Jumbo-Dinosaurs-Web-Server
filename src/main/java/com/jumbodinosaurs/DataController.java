@@ -294,11 +294,15 @@ public class DataController
 
     public static String[] getDomains()
     {
-        ArrayList<Domain> hosts = ServerControl.getArguments().getDomains();
-        String[] domains = new String[hosts.size()];
-        for(int i = 0; i < domains.length; i++)
+        String[] domains = null;
+        if(ServerControl.getArguments() != null)
         {
-            domains[i] = hosts.get(i).getDomain();
+            ArrayList<Domain> hosts = ServerControl.getArguments().getDomains();
+            domains = new String[hosts.size()];
+            for (int i = 0; i < domains.length; i++)
+            {
+                domains[i] = hosts.get(i).getDomain();
+            }
         }
         return domains;
     }
@@ -740,7 +744,13 @@ public class DataController
         public void addUser(User userToAdd)
         {
             ArrayList<User> users = getUserList();
+            if(users == null)
+            {
+                users = new ArrayList<User>();
+
+            }
             users.add(userToAdd);
+
             String listToWrite = new Gson().toJson(users);
             try
             {
@@ -783,16 +793,19 @@ public class DataController
 
             ArrayList<User> users = getUserList();
 
-            for (User user : users)
+            if(users != null)
             {
-                if (username.equals(user.getUsername()))
+                for (User user : users)
                 {
-                    return false;
-                }
+                    if (username.equals(user.getUsername()))
+                    {
+                        return false;
+                    }
 
-                if (email.equals(user.getEmail()))
-                {
-                    return false;
+                    if (email.equals(user.getEmail()))
+                    {
+                        return false;
+                    }
                 }
             }
 

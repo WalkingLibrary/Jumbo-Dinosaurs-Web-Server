@@ -50,6 +50,12 @@ public class Session
         return this.message;
     }
 
+    public void setMessage(String message)
+    {
+        this.message = message;
+    }
+
+
     public void setMessageSent(String messageSent)
     {
         this.messageSent = messageSent;

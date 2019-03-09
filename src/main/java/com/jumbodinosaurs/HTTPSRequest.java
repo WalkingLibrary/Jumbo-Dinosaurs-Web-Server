@@ -30,6 +30,7 @@ public class HTTPSRequest
     private String ip;
     private byte[] byteArrayToSend;
     private Boolean hasByteArray = false;
+    private Boolean logMessageFromClient = true;
     private String contentTextHeader = "\r\nContent-Type: text/";
     private String contentImageHeader = "\r\nContent-Type: image/";
     private String contentZipHeader = "\r\nContent-Type: application/";
@@ -131,163 +132,220 @@ public class HTTPSRequest
         else if (this.isPost())
         {
            /*Post Message Examples
-           POST {"username":"joe", "password":"password", "command":"postBook", "content":"BlahBlah(BookJson)"}
+           POST /{"username":"joe", "password":"password", "command":"postBook", "content":"BlahBlah(BookJson)"} HTTP/1.1
 
            //See Post Game Plan Diagram for more Post Insight
            */
-            System.out.println("Message From Client: " + this.messageFromClient);
-            try
-            {
-                PostRequest postRequest = new Gson().fromJson(this.messageFromClient.substring(5), PostRequest.class);
-                WritablePost post = null;
-                boolean send400Code = true;
-                String command = postRequest.getCommand();
+            String POST = "POST /";
+            String HTTP = "HTTP/1.1";
+            int indexofPOST = this.messageFromClient.indexOf(POST);
+            int indexofHTTP = this.messageFromClient.indexOf(HTTP);
 
-                if (command != null)
+            if (indexofPOST >= 0 && indexofPOST < indexofHTTP)
+            {
+                String postJson = this.messageFromClient.substring(this.messageFromClient.indexOf(POST) + POST.length(),
+                        this.messageFromClient.indexOf(HTTP));
+
+                postJson = desanitizeDoubleQuote(postJson);
+                postJson = desanitizeLeftBracket(postJson);
+                postJson = desanitizeRightBracket(postJson);
+
+                //System.out.println("Message From Client: " + this.messageFromClient);
+                System.out.println(postJson);
+                try
                 {
-                    System.out.println("Command: " + command);
-                    if (command.equals("createAccount"))
+                    PostRequest postRequest = new Gson().fromJson(postJson, PostRequest.class);
+                    this.logMessageFromClient = false;
+                    WritablePost post = null;
+                    boolean send400Code = true;
+                    String command = postRequest.getCommand();
+
+                    if (command != null)
                     {
-                        if (postRequest.getUsername() != null &&
-                                postRequest.getPassword() != null &&
-                                postRequest.getEmail() != null &&
-                                postRequest.getCaptchaCode() != null)
+                        System.out.println(postRequest.toString());
+                        if (command.equals("createAccount"))
                         {
-                            if (getCaptchaScore(postRequest.getCaptchaCode()) > .5)
+                            if (postRequest.getUsername() != null &&
+                                    postRequest.getPassword() != null &&
+                                    postRequest.getEmail() != null &&
+                                    postRequest.getCaptchaCode() != null)
+                            {
+                                if (getCaptchaScore(postRequest.getCaptchaCode()) > .5)
+                                {
+
+                                    if (DataController.createUser(postRequest.getUsername(), postRequest.getPassword(), postRequest.getEmail()))
+                                    {
+                                        send400Code = false;
+                                        this.messageToSend += sC200;
+                                        this.messageToSend += closeHeader;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            User user = null;
+                            if (!DataController.isIPCaptchaLocked(this.ip))
+                            {
+                                if (postRequest.getUsername() != null && postRequest.getPassword() != null)
+                                {
+                                    user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                                }
+                                else if (postRequest.getToken() != null)
+                                {
+                                    user = DataController.loginToken(postRequest.getToken(), this.ip);
+                                }
+
+                                if (user == null)
+                                {
+                                    DataController.strikeIP(this.ip);
+                                }
+                            }
+                            else if (postRequest.getCaptchaCode() != null && getCaptchaScore(postRequest.getCaptchaCode()) > .5)
+                            {
+                                if (postRequest.getUsername() != null && postRequest.getPassword() != null)
+                                {
+                                    user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                                }
+                                else if (postRequest.getToken() != null)
+                                {
+                                    user = DataController.loginToken(postRequest.getToken(), this.ip);
+                                }
+                            }
+
+
+                            if (user != null)
                             {
 
-                                if (DataController.createUser(postRequest.getUsername(), postRequest.getPassword(), postRequest.getEmail()))
+
+                                String content = postRequest.getContent();
+                                switch (command)
                                 {
-                                    send400Code = false;
-                                    this.messageToSend += sC200;
-                                    this.messageToSend += closeHeader;
+                                    case "postBook":
+                                        MinecraftWrittenBook book = new Gson().fromJson(content, MinecraftWrittenBook.class);
+                                        if (book.isGoodPost())
+                                        {
+                                            String localPath = "/booklist/books.json";
+                                            String username = user.getUsername();
+                                            content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(book));
+                                            String date = LocalDate.now().toString();
+                                            post = new WritablePost(localPath, username, content, date);
+                                            send400Code = false;
+                                            this.messageToSend += sC200;
+                                            this.messageToSend += closeHeader;
+                                        }
+                                        break;
+
+                                    case "postSign":
+                                        MinecraftSign sign = new Gson().fromJson(content, MinecraftSign.class);
+                                        if (sign.isGoodPost())
+                                        {
+                                            String localPath = "/signlist/signlist.json";
+                                            String username = user.getUsername();
+                                            content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(sign));
+                                            String date = LocalDate.now().toString();
+                                            post = new WritablePost(localPath, username, content, date);
+                                            send400Code = false;
+                                            this.messageToSend += sC200;
+                                            this.messageToSend += closeHeader;
+                                        }
+                                        break;
+
+                                    case "postComment":
+                                        //WIP
+                                        break;
+
+                                    case "getToken":
+
+                                        break;
                                 }
                             }
                         }
                     }
-                    else
+
+                    if (post != null)
                     {
-                        User user = null;
-                        if (!DataController.isIPCaptchaLocked(this.ip))
-                        {
-                            if (postRequest.getUsername() != null && postRequest.getPassword() != null)
-                            {
-                                user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
-                            }
-                            else if (postRequest.getToken() != null)
-                            {
-                                user = DataController.loginToken(postRequest.getToken(), this.ip);
-                            }
-
-                            if (user == null)
-                            {
-                                DataController.strikeIP(this.ip);
-                            }
-                        }
-                        else if (postRequest.getCaptchaCode() != null && getCaptchaScore(postRequest.getCaptchaCode()) > .5)
-                        {
-                            if (postRequest.getUsername() != null && postRequest.getPassword() != null)
-                            {
-                                user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
-                            }
-                            else if (postRequest.getToken() != null)
-                            {
-                                user = DataController.loginToken(postRequest.getToken(), this.ip);
-                            }
-                        }
-
-
-                        if (user != null)
-                        {
-
-
-                            String content = postRequest.getContent();
-                            switch (command)
-                            {
-                                case "postBook":
-                                    MinecraftWrittenBook book = new Gson().fromJson(content, MinecraftWrittenBook.class);
-                                    if (book.isGoodPost())
-                                    {
-                                        String localPath = "/booklist/books.json";
-                                        String username = user.getUsername();
-                                        content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(book));
-                                        String date = LocalDate.now().toString();
-                                        post = new WritablePost(localPath, username, content, date);
-                                        send400Code = false;
-                                        this.messageToSend += sC200;
-                                        this.messageToSend += closeHeader;
-                                    }
-                                    break;
-
-                                case "postSign":
-                                    MinecraftSign sign = new Gson().fromJson(content, MinecraftSign.class);
-                                    if (sign.isGoodPost())
-                                    {
-                                        String localPath = "/signlist/signlist.json";
-                                        String username = user.getUsername();
-                                        content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(sign));
-                                        String date = LocalDate.now().toString();
-                                        post = new WritablePost(localPath, username, content, date);
-                                        send400Code = false;
-                                        this.messageToSend += sC200;
-                                        this.messageToSend += closeHeader;
-                                    }
-                                    break;
-
-                                case "postComment":
-                                    //WIP
-                                    break;
-
-                                case "getToken":
-
-                                    break;
-                            }
-                        }
+                        DataController.writePostData(post);
+                        //Message to send is determined case by case
                     }
-                }
 
-                if (post != null)
-                {
-                    DataController.writePostData(post);
-                    //Message to send is determined case by case
-                }
 
-                if (send400Code)
+                    if (send400Code)
+                    {
+                        this.setMessage400();
+                    }
+
+                }
+                catch (Exception e)
                 {
+                    OperatorConsole.printMessageFiltered("Error Reading Post", false, true);
+                    e.printStackTrace();
                     this.setMessage400();
                 }
             }
-            catch (Exception e)
+            else
             {
-                OperatorConsole.printMessageFiltered("Error Reading Post", true, true);
-                e.printStackTrace();
                 this.setMessage400();
             }
-
         }
+    }
+    
+    public Boolean logMessageFromClient()
+    {
+        return logMessageFromClient;
+    }
 
 
+    public String desanitizeDoubleQuote(String str)
+    {
+        String temp = str;
+        String doubleQuote = "%22";
+        while(temp.contains(doubleQuote))
+        {
+            temp = temp.substring(0, temp.indexOf(doubleQuote)) + "\"" + temp.substring(temp.indexOf(doubleQuote) + doubleQuote.length());
+        }
+        return temp;
+    }
 
+    public String desanitizeLeftBracket(String str)
+    {
+        String temp = str;
+        String leftBracket = "%7B";
+        while(temp.contains(leftBracket))
+        {
+            temp = temp.substring(0, temp.indexOf(leftBracket)) + "{" + temp.substring(temp.indexOf(leftBracket) + leftBracket.length());
+        }
+        return temp;
+    }
+
+    public String desanitizeRightBracket(String str)
+    {
+        String temp = str;
+        String rightBracket = "%7D";
+        while(temp.contains(rightBracket))
+        {
+            temp = temp.substring(0, temp.indexOf(rightBracket)) + "}" + temp.substring(temp.indexOf(rightBracket) + rightBracket.length());
+        }
+        return temp;
     }
 
 
     public double getCaptchaScore(String captchaCode)
     {
         double score;
-        if(ServerControl.getArguments().getCaptchaKey() == null)
+        if (ServerControl.getArguments() == null || ServerControl.getArguments().getCaptchaKey() == null)
         {
-            return .5;
+            return .8;
         }
 
-        String url = "https://www.google.com/recaptcha/api/siteverify?secret=\"" + ServerControl.getArguments().getCaptchaKey() + "\"&response={" + captchaCode +"}";
-
-        return .5;
+        String url = "https://www.google.com/recaptcha/api/siteverify?secret=\"" + ServerControl.getArguments().getCaptchaKey() + "\"&response={" + captchaCode + "}";
+        return .8;
     }
 
 
     public String rewriteHTMLEscapeCharacters(String postData)
     {
-        String[][] charsToChange = {{"&", "&amp;" }, {"<", "&lt;" }, {">", "&gt;" }, {"\"", "&quot;" }, {"\'", "&apos;" }};
+        String[][] charsToChange = {{"&", "&amp;"}, {"<", "&lt;"}, {">", "&gt;"}, {"\"", "&quot;"}, {"\'", "&apos;"}};
 
         String temp = postData;
 

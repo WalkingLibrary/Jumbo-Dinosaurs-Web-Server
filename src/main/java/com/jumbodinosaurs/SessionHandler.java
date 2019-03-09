@@ -18,13 +18,14 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
         {
             Channel channel = context.channel();
             Session session = new Session(channel, message);
-            HTTPRequest request = new HTTPRequest(session.getMessage());
+            //DEBUG TO BE CHANGE BACK TO HTTPRequest request = new HTTPRequest(session.getMessage());
+            HTTPSRequest request = new HTTPSRequest(session.getMessage(), session.getWho());
             if (request.isHTTP())
             {
 
                 if(this.redirectToSSL && SecureSessionHandlerInitializer.running)
                 {
-                    request.tryToRedirectToHTTPS();
+                    //request.tryToRedirectToHTTPS();
                 }
                 else
                 {

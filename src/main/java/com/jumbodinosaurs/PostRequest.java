@@ -63,4 +63,19 @@ public class PostRequest
     {
         return content;
     }
+
+    @Override
+    public String toString()
+    {
+        return "PostRequest{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", token='" + token + '\'' +
+                ", path='" + path + '\'' +
+                ", command='" + command + '\'' +
+                ", content='" + content + '\'' +
+                ", captchaCode='" + captchaCode + '\'' +
+                '}';
+    }
 }

@@ -44,8 +44,13 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
                 context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             }
 
-
             session.setMessageSent(request.getMessageToSend());
+
+            if(!request.logMessageFromClient())
+            {
+                session.setMessageSent("POST");
+            }
+
             OperatorConsole.printMessageFiltered("Adding Session to Logger",true,false);
             DataController.log(session);
             OperatorConsole.printMessageFiltered("Session Complete",true,false);
