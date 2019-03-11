@@ -10,8 +10,10 @@ public class PostRequest
     private String command;
     private String content;
     private String captchaCode;
+    private String emailCode;
 
-    public PostRequest(String username, String password, String email, String token, String path, String command, String information, String captchaCode)
+
+    public PostRequest(String username, String password, String email, String token, String path, String command, String content, String captchaCode, String emailCode)
     {
         this.username = username;
         this.password = password;
@@ -19,8 +21,9 @@ public class PostRequest
         this.token = token;
         this.path = path;
         this.command = command;
-        this.content = information;
+        this.content = content;
         this.captchaCode = captchaCode;
+        this.emailCode = emailCode;
     }
 
 
@@ -77,5 +80,10 @@ public class PostRequest
                 ", content='" + content + '\'' +
                 ", captchaCode='" + captchaCode + '\'' +
                 '}';
+    }
+
+    public String getEmailCode()
+    {
+        return emailCode;
     }
 }

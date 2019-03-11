@@ -2,8 +2,17 @@ package com.jumbodinosaurs;
 
 import com.google.gson.Gson;
 
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Hashtable;
 
 public class HTTPSRequest
 {
@@ -24,6 +33,10 @@ public class HTTPSRequest
     private final String acceptedLanguageHeader = "\r\nAccept-Language: en-US";
     private final String originHeader = "\r\nOrigin: http://www.jumbodinosaurs.com/";
     private final String locationHeader = "\r\nLocation:";
+    private final String contentTextHeader = "\r\nContent-Type: text/";
+    private final String contentImageHeader = "\r\nContent-Type: image/";
+    private final String contentApplicationHeader = "\r\nContent-Type: application/";
+    private final String contentLengthHeader = "\r\nContent-Length: "; //[length in bytes of the image]\r\n
 
     private String messageFromClient;
     private String messageToSend;
@@ -31,16 +44,51 @@ public class HTTPSRequest
     private byte[] byteArrayToSend;
     private Boolean hasByteArray = false;
     private Boolean logMessageFromClient = true;
-    private String contentTextHeader = "\r\nContent-Type: text/";
-    private String contentImageHeader = "\r\nContent-Type: image/";
-    private String contentZipHeader = "\r\nContent-Type: application/";
-    private String contentLengthHeader = "\r\nContent-Length: "; //[length in bytes of the image]\r\n
+
 
     public HTTPSRequest(String messageFromClient, String ip)
     {
         this.messageFromClient = messageFromClient;
         this.ip = ip;
         this.messageToSend = "";
+    }
+
+    public static String desanitizeDoubleQuote(String str)
+    {
+        String temp = str;
+        String doubleQuote = "%22";
+        while (temp.contains(doubleQuote))
+        {
+            temp = temp.substring(0, temp.indexOf(doubleQuote)) + "\"" + temp.substring(temp.indexOf(doubleQuote) + doubleQuote.length());
+        }
+        return temp;
+    }
+
+    public static String desanitizeLeftBracket(String str)
+    {
+        String temp = str;
+        String leftBracket = "%7B";
+        while (temp.contains(leftBracket))
+        {
+            temp = temp.substring(0, temp.indexOf(leftBracket)) + "{" + temp.substring(temp.indexOf(leftBracket) + leftBracket.length());
+        }
+        return temp;
+    }
+
+    public static String desanitizeRightBracket(String str)
+    {
+        String temp = str;
+        String rightBracket = "%7D";
+        while (temp.contains(rightBracket))
+        {
+            temp = temp.substring(0, temp.indexOf(rightBracket)) + "}" + temp.substring(temp.indexOf(rightBracket) + rightBracket.length());
+        }
+        return temp;
+    }
+
+    public static String desanitizeToken(String token)
+    {
+        return desanitizeDoubleQuote(desanitizeLeftBracket(desanitizeRightBracket(token)));
     }
 
     public boolean isGet()
@@ -73,7 +121,7 @@ public class HTTPSRequest
 
                 //If if have file
                 OperatorConsole.printMessageFiltered("File To Get: " + fileToGet, true, false);
-                if ((fileRequested = DataController.getFileFromAllowedDirectory(fileToGet)) != null)
+                if ((fileRequested = DataController.getFileFromGETDirectory(fileToGet)) != null)
                 {
                     //add Good Code
 
@@ -105,7 +153,7 @@ public class HTTPSRequest
                     {
                         ;
                         this.messageToSend += this.sC200;
-                        this.messageToSend += this.contentZipHeader + fileType;
+                        this.messageToSend += this.contentApplicationHeader + fileType;
                         this.messageToSend += this.closeHeader;
                         this.hasByteArray = true;
                         this.byteArrayToSend = DataController.readZip(fileRequested);
@@ -163,7 +211,45 @@ public class HTTPSRequest
                     if (command != null)
                     {
                         System.out.println(postRequest.toString());
-                        if (command.equals("createAccount"))
+                        if (command.equals("confirmMailServer"))
+                        {
+                            if (postRequest.getEmail() != null)
+                            {
+                                if (lookUpEmail(postRequest.getEmail()))
+                                {
+                                    this.messageToSend += sC200;
+                                    this.messageToSend += closeHeader;
+                                    send400Code = false;
+                                }
+                            }
+                        }
+                        else if (command.equals("usernameCheck"))
+                        {
+                            if (postRequest.getUsername() != null)
+                            {
+                                if (DataController.usernameAvailable(postRequest.getUsername()))
+                                {
+                                    this.messageToSend += sC200;
+                                    this.messageToSend += closeHeader;
+                                    send400Code = false;
+                                }
+                            }
+                        }
+                        else if (command.equals("emailCheck"))
+                        {
+                            if (postRequest.getEmail() != null && (!DataController.isIPCaptchaLocked(this.ip)))
+                            {
+                                if (!DataController.emailInUse(postRequest.getEmail()))
+                                {
+                                    this.messageToSend += sC200;
+                                    this.messageToSend += closeHeader;
+                                    send400Code = false;
+                                }
+
+                                DataController.emailStrikeIP(this.ip);
+                            }
+                        }
+                        else if (command.equals("createAccount"))
                         {
                             if (postRequest.getUsername() != null &&
                                     postRequest.getPassword() != null &&
@@ -198,7 +284,7 @@ public class HTTPSRequest
 
                                 if (user == null)
                                 {
-                                    DataController.strikeIP(this.ip);
+                                    DataController.loginStrikeIP(this.ip);
                                 }
                             }
                             else if (postRequest.getCaptchaCode() != null && getCaptchaScore(postRequest.getCaptchaCode()) > .5)
@@ -213,12 +299,13 @@ public class HTTPSRequest
                                 }
                             }
 
-
                             if (user != null)
                             {
 
 
                                 String content = postRequest.getContent();
+                                LocalDate dateNow = LocalDate.now();
+                                LocalTime timeNow = LocalTime.now();
                                 switch (command)
                                 {
                                     case "postBook":
@@ -256,7 +343,89 @@ public class HTTPSRequest
                                         break;
 
                                     case "getToken":
+                                        this.messageToSend += sC200;
+                                        this.messageToSend += closeHeader;
+                                        this.messageToSend += DataController.getUserToken(user, this.ip);
+                                        send400Code = false;
+                                        break;
 
+                                    case "debug":
+                                        this.messageToSend += sC200;
+                                        this.messageToSend += closeHeader;
+                                        this.messageToSend += "bugged";
+                                        send400Code = false;
+                                        break;
+
+                                    case "emailConfirm":
+                                        LocalDate emailCodeSendDate = LocalDate.parse(user.getEmailCodeSentDate());
+                                        if (!dateNow.minusDays((long) 1).isAfter(emailCodeSendDate))
+                                        {
+                                            try
+                                            {
+                                                String emailCode = this.ip + emailCodeSendDate.toString() + postRequest.getEmailCode();
+                                                if (PasswordStorage.verifyPassword(emailCode, user.getEmailCode()))
+                                                {
+                                                    User userConfirmedEmail = user;
+                                                    userConfirmedEmail.setEmailVerified(true);
+                                                    if (DataController.modifyUser(user, userConfirmedEmail))
+                                                    {
+                                                        this.messageToSend += sC200;
+                                                        this.messageToSend += closeHeader;
+                                                        send400Code = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        OperatorConsole.printMessageFiltered("Error Confirming Email", false, true);
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                OperatorConsole.printMessageFiltered("Error Confirming Email", false, true);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            send400Code = false;
+                                            this.setMessage400();
+                                            this.messageToSend += "resetCode";
+                                        }
+                                        break;
+                                    case "setEmailCode":
+                                        if (!user.isEmailVerified())
+                                        {
+                                            LocalTime timeLastCodeWasSent = LocalTime.parse(user.getEmailCodeSentTime());
+                                            if (user.getEmailCodesSentPastHour() < 3 || timeNow.minusHours(1).isAfter(timeLastCodeWasSent))
+                                            {
+                                                String randomEmailCode = User.generateRandomEmailCode();
+                                                String emailCode = this.ip + dateNow.toString() + randomEmailCode;
+                                                String safeHash = DataController.safeHashPassword(emailCode);
+                                                String message = "Code for Verification: " + randomEmailCode;
+                                                User newUser = user;
+                                                newUser.setEmailCode(safeHash);
+                                                newUser.setEmailCodeSentDate(dateNow.toString());
+                                                if (DataController.modifyUser(user, newUser))
+                                                {
+                                                    if (DataController.sendEmail(user.getEmail(), message))
+                                                    {
+
+                                                        this.messageToSend += sC200;
+                                                        this.messageToSend += closeHeader;
+                                                        send400Code = false;
+                                                    }
+                                                }
+                                                if (send400Code)
+                                                {
+                                                    OperatorConsole.printMessageFiltered("Error Setting Email Code", false, true);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                send400Code = false;
+                                                this.setMessage400();
+                                                this.messageToSend += "codeCoolDown";
+                                            }
+                                        }
                                         break;
                                 }
                             }
@@ -289,57 +458,76 @@ public class HTTPSRequest
             }
         }
     }
-    
+
     public Boolean logMessageFromClient()
     {
         return logMessageFromClient;
     }
 
-
-    public String desanitizeDoubleQuote(String str)
+    public boolean lookUpEmail(String email)
     {
-        String temp = str;
-        String doubleQuote = "%22";
-        while(temp.contains(doubleQuote))
+        boolean exists = false;
+        if (email.contains("@") && email.indexOf("@") + 1 < email.length())
         {
-            temp = temp.substring(0, temp.indexOf(doubleQuote)) + "\"" + temp.substring(temp.indexOf(doubleQuote) + doubleQuote.length());
+            String domain = email.substring(email.indexOf("@") + 1);
+            Hashtable env = new Hashtable();
+            env.put("java.naming.factory.initial",
+                    "com.sun.jndi.dns.DnsContextFactory");
+            try
+            {
+                DirContext ictx = new InitialDirContext(env);
+                Attributes attrs = ictx.getAttributes
+                        (domain, new String[]{"MX"});
+                Attribute attr = attrs.get("MX");
+                if (attr != null && attrs.size() > 0)
+                {
+                    exists = true;
+                }
+            }
+            catch (Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error Checking Email", false, true);
+            }
         }
-        return temp;
-    }
-
-    public String desanitizeLeftBracket(String str)
-    {
-        String temp = str;
-        String leftBracket = "%7B";
-        while(temp.contains(leftBracket))
-        {
-            temp = temp.substring(0, temp.indexOf(leftBracket)) + "{" + temp.substring(temp.indexOf(leftBracket) + leftBracket.length());
-        }
-        return temp;
-    }
-
-    public String desanitizeRightBracket(String str)
-    {
-        String temp = str;
-        String rightBracket = "%7D";
-        while(temp.contains(rightBracket))
-        {
-            temp = temp.substring(0, temp.indexOf(rightBracket)) + "}" + temp.substring(temp.indexOf(rightBracket) + rightBracket.length());
-        }
-        return temp;
+        System.out.println("Exists: " + exists);
+        return exists;
     }
 
 
     public double getCaptchaScore(String captchaCode)
     {
-        double score;
+        double score = 0;
+
         if (ServerControl.getArguments() == null || ServerControl.getArguments().getCaptchaKey() == null)
         {
+            //
             return .8;
         }
 
-        String url = "https://www.google.com/recaptcha/api/siteverify?secret=\"" + ServerControl.getArguments().getCaptchaKey() + "\"&response={" + captchaCode + "}";
-        return .8;
+        try
+        {
+            String url = "https://www.google.com/recaptcha/api/siteverify?secret=" + ServerControl.getArguments().getCaptchaKey() +
+                    "&response=" + captchaCode + "";
+
+            URL address = new URL(url);
+            BufferedReader sc = new BufferedReader(new InputStreamReader(address.openStream()));
+            String response = "";
+            while (sc.ready())
+            {
+                response += sc.readLine();
+            }
+            CaptchaResponse captchaResponse = new Gson().fromJson(response, CaptchaResponse.class);
+            System.out.println("Score: " + captchaResponse.getScore());
+            return captchaResponse.getScore();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            OperatorConsole.printMessageFiltered("Error Setting Host", false, true);
+        }
+
+
+        return score;
     }
 
 
@@ -375,7 +563,7 @@ public class HTTPSRequest
     {
         this.messageToSend += this.sC404;
         this.messageToSend += this.closeHeader;
-        this.messageToSend += DataController.getFileContents(DataController.getFileFromAllowedDirectory("/404.html"));
+        this.messageToSend += DataController.getFileContents(DataController.getFileFromGETDirectory("/404.html"));
     }
 
     public void setMessage501()

@@ -22,7 +22,15 @@ public class Session
 
     public Session(Channel channel, String message) throws Exception
     {
-        this.who = channel.remoteAddress().toString();
+        String ip = channel.remoteAddress().toString();
+        if(ip.contains(":"))
+        {
+            this.who = ip.substring(0, ip.indexOf(":"));
+        }
+        else
+        {
+            this.who = channel.remoteAddress().toString();
+        }
         this.date = LocalDate.now().toString();
         this.time = LocalTime.now().toString();
         this.channel = channel;

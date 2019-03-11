@@ -18,7 +18,7 @@ public class OperatorConsole implements Runnable
 
 
     //private String mostRequestedFile;
-    private static boolean debug = true;
+    private static boolean debug ;
     private static int hitsToday = 0;
     private static LocalDate today = LocalDate.now();
     private static int totalHits = 0;
@@ -28,7 +28,7 @@ public class OperatorConsole implements Runnable
     public OperatorConsole()
     {
         this.exceptions = 0;
-        this.debug = false;
+        this.debug = true;
 
         //GSON Objects for writeing and dealing with json
         GsonBuilder builder = new GsonBuilder();

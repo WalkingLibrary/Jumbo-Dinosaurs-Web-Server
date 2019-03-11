@@ -4,19 +4,24 @@ package com.jumbodinosaurs;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DataController
 {
     public static String host = "";
     private static File codeExecutionDir = new File(System.getProperty("user.dir")).getParentFile();
-    private static File allowedDirectory;
+    private static File getDirectory;
     private static File logsDirectory;
     private static File certificateDirectory;
     private static File userInfoDirectory;
@@ -30,7 +35,7 @@ public class DataController
         try
         {
 
-            this.allowedDirectory = this.checkFor(this.codeExecutionDir, "Shared");
+            this.getDirectory = this.checkFor(this.codeExecutionDir, "Shared");
             this.certificateDirectory = this.checkFor(this.codeExecutionDir, "Certificates");
             this.userInfoDirectory = this.checkFor(this.codeExecutionDir, "UserInfo");
             this.postDirectory = this.checkFor(this.codeExecutionDir, "Post");
@@ -38,10 +43,10 @@ public class DataController
 
             this.credentialsManager = new CredentialsManager();
 
-            OperatorConsole.printMessageFiltered(this.allowedDirectory.getAbsolutePath(), true, false);
-            this.logsDirectory = checkFor(this.allowedDirectory.getParentFile(), "LOG");
+            OperatorConsole.printMessageFiltered(this.getDirectory.getAbsolutePath(), true, false);
+            this.logsDirectory = checkFor(this.getDirectory.getParentFile(), "LOG");
             this.setHost();
-            if(makePageWithDomains)
+            if (makePageWithDomains)
             {
                 this.makeSiteIndexand404PageDomains();
             }
@@ -62,7 +67,6 @@ public class DataController
             OperatorConsole.printMessageFiltered("Error Creating DataController", false, true);
         }
     }
-
 
 
     public static File[] getCertificates()
@@ -118,7 +122,11 @@ public class DataController
                   Local Paths Should already have the operating systems File Path Separator in them
                   and start with the File Path Separator
 
+                  in other words don't give it \home\server/info.json or
+                                                home\server\info.json
+
                   This function should never have Non-Operator Made localPaths Run thru it.
+
      */
     public static File checkForLocalPath(File file, String localPath)
     {
@@ -205,38 +213,115 @@ public class DataController
 
     public static boolean isIPCaptchaLocked(String ip)
     {
-        for (FloatUser user : getWatchList())
+        if (getWatchList() != null)
         {
-            if (user.getIp().equals(ip))
+            for (FloatUser user : getWatchList())
             {
-                return user.isCaptchaLocked();
+                if (user.getIp().equals(ip))
+                {
+                    return user.isCaptchaLocked();
+                }
             }
         }
         return false;
     }
 
-    public static void strikeIP(String ip)
+
+    public static void emailStrikeIP(String ip)
     {
-        FloatUser newUser = new FloatUser(ip, LocalDate.now().toString(), 0, false);
+        FloatUser newUser = new FloatUser(ip,
+                LocalDate.now().toString(),
+                0,
+                0,
+                false,
+                false);
         boolean newAbuser = true;
         ArrayList<FloatUser> abusers = getWatchList();
-        for (FloatUser user : abusers)
+        if (abusers != null)
         {
-            if (user.equals(newUser))
+            for (FloatUser user : abusers)
             {
-                user = new FloatUser(newUser.getIp(), newUser.getDate(), user.getStrikes() + 1, false);
-                if (user.getStrikes() >= 15)
+                if (user.equals(newUser))//Float user .equals only checks ip
                 {
-                    user.setCaptchaLocked(true);
+                    user = new FloatUser(newUser.getIp(),
+                            newUser.getDate(),
+                            user.getLoginStrikes(),
+                            user.getEmailStrikes() + 1,
+                            user.isCaptchaLocked(),
+                            user.isEmailQuerryLocked());
+                    if (user.getLoginStrikes() >= 15)
+                    {
+                        user.setEmailQuerryLocked(true);
+                    }
+                    newAbuser = false;
+                    break;
                 }
-                newAbuser = false;
-                break;
             }
+        }
+        else
+        {
+            abusers = new ArrayList<FloatUser>();
         }
 
         if (newAbuser)
         {
-            newUser.setStrikes(1);
+            newUser.setEmailStrikes(1);
+            abusers.add(newUser);
+        }
+
+        try
+        {
+            File fileToWriteTo = checkFor(timeOutHelperDir, "watchlist.json");
+            String contentsToWrite = new Gson().toJson(abusers);
+            writeContents(fileToWriteTo, contentsToWrite, false);
+        }
+        catch (Exception e)
+        {
+            OperatorConsole.printMessageFiltered("Error Getting timoutFile", false, true);
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void loginStrikeIP(String ip)
+    {
+        FloatUser newUser = new FloatUser(ip,
+                LocalDate.now().toString(),
+                0,
+                0,
+                false,
+                false);
+        boolean newAbuser = true;
+        ArrayList<FloatUser> abusers = getWatchList();
+        if (abusers != null)
+        {
+            for (FloatUser user : abusers)
+            {
+                if (user.equals(newUser))
+                {
+                    user = new FloatUser(newUser.getIp(),
+                            newUser.getDate(),
+                            user.getLoginStrikes() + 1,
+                            user.getEmailStrikes(),
+                            false,
+                            user.isEmailQuerryLocked());
+                    if (user.getLoginStrikes() >= 15)
+                    {
+                        user.setCaptchaLocked(true);
+                    }
+                    newAbuser = false;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            abusers = new ArrayList<FloatUser>();
+        }
+
+        if (newAbuser)
+        {
+            newUser.setLoginStrikes(1);
             abusers.add(newUser);
         }
 
@@ -295,7 +380,7 @@ public class DataController
     public static String[] getDomains()
     {
         String[] domains = null;
-        if(ServerControl.getArguments() != null)
+        if (ServerControl.getArguments() != null && ServerControl.getArguments().getDomains() != null)
         {
             ArrayList<Domain> hosts = ServerControl.getArguments().getDomains();
             domains = new String[hosts.size()];
@@ -337,9 +422,7 @@ public class DataController
                 pastPosts.add(post);
             }
             String contentsToWrite = new Gson().toJson(pastPosts);
-            PrintWriter output = new PrintWriter(fileToWriteTo);
-            output.write(contentsToWrite);
-            output.close();
+            writeContents(fileToWriteTo, contentsToWrite, false);
         }
         catch (Exception e)
         {
@@ -348,21 +431,22 @@ public class DataController
         }
     }
 
-    //Returns the fileWanted if it is in allowedDirectory
+    //Returns the fileWanted if it is in getDirectory
     //The Code Returns null if the file is not in the directory
-    public static File getFileFromAllowedDirectory(String fileWanted)
+    //Works with local paths
+    public static File getFileFromGETDirectory(String fileWanted)
     {
 
         fileWanted = fixPathSeparator(fileWanted);
 
         File fileToGive = null;
         //Gets all files in allowedDir
-        File[] filesInAllowedDir = listFilesRecursive(allowedDirectory);
+        File[] filesInAllowedDir = listFilesRecursive(getDirectory);
         //If count is greater than 1 might have duplicate files and could be a problem
         int count = 0;
 
         //Try with given slashes to find file
-        String pathofRequestedFile = allowedDirectory.getAbsolutePath() + fileWanted;
+        String pathofRequestedFile = getDirectory.getAbsolutePath() + fileWanted;
         OperatorConsole.printMessageFiltered("Path of Requested File: " + pathofRequestedFile, true, false);
         for (File file : filesInAllowedDir)
         {
@@ -381,7 +465,7 @@ public class DataController
         //DEBUG
         if (count > 1)
         {
-            System.out.println("getFileFromAllowedDirectory() Count: " + count);
+            System.out.println("getFileFromGETDirectory() Count: " + count);
         }
         return fileToGive;
     }
@@ -471,6 +555,77 @@ public class DataController
     }
 
 
+    //https://dzone.com/articles/sending-mail-using-javamail-api-for-gmail-server
+    public static boolean sendEmail(String userEmailAddress, String message)
+    {
+        if (ServerControl.getArguments() != null && ServerControl.getArguments().getEmails() != null &&
+                ServerControl.getArguments().getEmails().size() > 0)
+        {
+            Email email = ServerControl.getArguments().getEmails().get(0);
+            String emailUsername, emailPassword;
+            emailUsername = email.getUsername();
+            emailPassword = email.getPassword();
+            //Setting up configurations for the email connection to the Google SMTP server using TLS
+            Properties props = new Properties();
+            props.put("mail.smtp.host", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", "smtp.gmail.com");
+            props.put("mail.smtp.port", "587");
+            props.put("mail.smtp.auth", "true");
+            //Establishing a session with required user details
+            javax.mail.Session session = javax.mail.Session.getInstance(props, new javax.mail.Authenticator()
+            {
+                protected PasswordAuthentication getPasswordAuthentication()
+                {
+                    return new PasswordAuthentication(emailUsername, emailPassword);
+                }
+            });
+            try
+            {
+                //Creating a Message object to set the email content
+                MimeMessage msg = new MimeMessage(session);
+                //Storing the comma seperated values to email addresses
+                String to = userEmailAddress;
+            /*Parsing the String with defualt delimiter as a comma by marking the boolean as true and storing the email
+            addresses in an array of InternetAddress objects*/
+                InternetAddress[] address = InternetAddress.parse(to, true);
+                //Setting the recepients from the address variable
+                msg.setRecipients(Message.RecipientType.TO, address);
+
+                msg.setSubject("Email Verification Code: ");
+                msg.setSentDate(new Date());
+                msg.setText(message);
+                msg.setHeader("XPriority", "1");
+                Transport.send(msg);
+                System.out.println("Mail has been sent successfully");
+                return true;
+            }
+            catch (Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error Sending E-Mail", false, true);
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+
+    public static boolean modifyUser(User oldUser, User newUser)
+    {
+        return credentialsManager.modifyUser(oldUser, newUser);
+    }
+
+
+    public static boolean emailInUse(String email)
+    {
+        return credentialsManager.emailInUse(email);
+    }
+
+    public static boolean usernameAvailable(String username)
+    {
+        return credentialsManager.usernameAvailable(username);
+    }
+
     public static byte[] readPhoto(File file)
     {
         try
@@ -511,6 +666,11 @@ public class DataController
         return filesToReturn;
     }
 
+    public static String getUserToken(User user, String ip)
+    {
+        return credentialsManager.getToken(user, ip);
+    }
+
     public static User loginUsernamePassword(String username, String password)
     {
         return credentialsManager.loginUsernamePassword(username, password);
@@ -528,7 +688,7 @@ public class DataController
         String contents = "";
         for (String[] content : this.pictureFilesContents)
         {
-            if (content[0].equals(this.getFileFromAllowedDirectory(pictureName).getAbsolutePath()))
+            if (content[0].equals(this.getFileFromGETDirectory(pictureName).getAbsolutePath()))
             {
                 contents = "" + content[1].getBytes().length;
                 break;
@@ -566,8 +726,7 @@ public class DataController
     {
         try
         {
-            File pageIndex = this.checkFor(this.allowedDirectory, "index.html");
-            PrintWriter output = new PrintWriter(pageIndex);
+            File pageIndex = this.checkFor(this.getDirectory, "index.html");
             String indexHTML = "<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<head>\n" +
@@ -581,7 +740,7 @@ public class DataController
                     "<body>\n" +
                     "<h4>\n" +
                     "Sites<br>";
-            for (File file : this.listFilesRecursive(this.allowedDirectory))
+            for (File file : this.listFilesRecursive(this.getDirectory))
             {
                 indexHTML += "<a href = http://" + this.host + "/" + file.getName() + ">" + this.host + "/" + file.getName() + "</a><br>";
             }
@@ -589,12 +748,9 @@ public class DataController
             indexHTML += "</h4>\n" +
                     "</body>\n" +
                     "</html>";
-            output.write(indexHTML);
-            output.close();
+            writeContents(pageIndex, indexHTML, false);
 
-            File page404 = this.checkFor(this.allowedDirectory, "404.html");
-            output = new PrintWriter(page404);
-
+            File page404 = this.checkFor(this.getDirectory, "404.html");
             String HTML404 = "<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<head>\n" +
@@ -612,9 +768,7 @@ public class DataController
                     "<a href = \"http://" + this.host + "/index.html\">Index</a>\n" +
                     "</body>\n" +
                     "</html>";
-            output.write(HTML404);
-            output.close();
-
+            writeContents(page404, HTML404, false);
         }
         catch (Exception e)
         {
@@ -627,8 +781,7 @@ public class DataController
     {
         try
         {
-            File pageIndex = this.checkFor(this.allowedDirectory, "index.html");
-            PrintWriter output = new PrintWriter(pageIndex);
+            File pageIndex = this.checkFor(this.getDirectory, "index.html");
             String indexHTML = "<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<head>\n" +
@@ -649,12 +802,9 @@ public class DataController
             indexHTML += "</h4>\n" +
                     "</body>\n" +
                     "</html>";
-            output.write(indexHTML);
-            output.close();
+            writeContents(pageIndex, indexHTML, false);
 
-            File page404 = this.checkFor(this.allowedDirectory, "404.html");
-            output = new PrintWriter(page404);
-
+            File page404 = this.checkFor(this.getDirectory, "404.html");
             String HTML404 = "<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<head>\n" +
@@ -672,8 +822,7 @@ public class DataController
                     "<a href = \"http://www.jumbodinosaurs.com/index.html\">Index</a>\n" +
                     "</body>\n" +
                     "</html>";
-            output.write(HTML404);
-            output.close();
+            writeContents(page404, HTML404, false);
 
         }
         catch (Exception e)
@@ -683,6 +832,46 @@ public class DataController
         }
     }
 
+    public static StringBuffer removeUTFCharacters(String data)
+    {
+        Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
+        Matcher m = p.matcher(data);
+        StringBuffer buf = new StringBuffer(data.length());
+        while (m.find())
+        {
+            String ch = String.valueOf((char) Integer.parseInt(m.group(1), 16));
+            m.appendReplacement(buf, Matcher.quoteReplacement(ch));
+        }
+        m.appendTail(buf);
+        return buf;
+    }
+
+    public static String safeHashPassword(String password)
+    {
+        try
+        {
+            String hashPassword = PasswordStorage.createHash(password);
+            String hashPasswordTemp;
+            String gsonPassword = new Gson().toJson(hashPassword);
+            hashPasswordTemp = "\"" + hashPassword + "\"";
+            if (hashPasswordTemp.equals(removeUTFCharacters(gsonPassword).toString()))
+            {
+                return hashPassword;
+            }
+            else
+            {
+                return safeHashPassword(password);
+            }
+        }
+        catch (Exception e)
+        {
+            OperatorConsole.printMessageFiltered("Error Hashing Password", false, true);
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+
     private class CredentialsManager
     {
         public CredentialsManager()
@@ -691,7 +880,118 @@ public class DataController
         }
 
 
-        public User loginToken(String token, String ip)
+        public synchronized String getToken(User userToMint, String ip)
+        {
+            String token = null;
+            LocalDate lastMintDate = LocalDate.parse(userToMint.getTokenDate());
+            LocalDate now = LocalDate.now();
+            if (now.minusDays((long) 30).isAfter(lastMintDate))
+            {
+                User updatedUserInfo = new User(userToMint.getUsername(), userToMint.getPassword(), now.toString(),
+                        User.generateRandom(), userToMint.getEmail(), userToMint.isEmailVerified());
+                modifyUser(userToMint, updatedUserInfo);
+                String tokenString = ip + updatedUserInfo.getTokenDate() + updatedUserInfo.getTokenRandom();
+                try
+                {
+                    token = PasswordStorage.createHash(tokenString);
+                }
+                catch (Exception e)
+                {
+                    OperatorConsole.printMessageFiltered("Error getting Token", false, true);
+                }
+            }
+            else
+            {
+                String tokenString = ip + userToMint.getTokenDate() + userToMint.getTokenRandom();
+                try
+                {
+                    token = PasswordStorage.createHash(tokenString);
+                }
+                catch (Exception e)
+                {
+                    OperatorConsole.printMessageFiltered("Error getting Token", false, true);
+                }
+            }
+
+            if (HTTPSRequest.desanitizeToken(token).equals(token))
+            {
+                return token;
+            }
+            else
+            {
+                return getToken(userToMint, ip);
+            }
+
+        }
+
+        /*
+         Checks current user list for old user data. if the user is in the list it replace that user with the newUser
+         if there is no list it makes one by adding new user
+
+         returns true if new user is written to the user file
+         */
+        public synchronized boolean modifyUser(User oldUser, User newUser)
+        {
+            ArrayList<User> users = getUserList();
+            if (users == null)
+            {
+                users = new ArrayList<User>();
+                users.add(newUser);
+                setUserList(users);
+                return true;
+            }
+            else
+            {
+                for (int i = 0; i < users.size(); i++)
+                {
+                    if (users.get(i).equals(oldUser))
+                    {
+                        users.remove(i);
+                        users.add(newUser);
+                        setUserList(users);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public synchronized boolean usernameAvailable(String username)
+        {
+            ArrayList<User> users = getUserList();
+            if (users != null)
+            {
+                for (User user : users)
+                {
+                    if (user.getUsername().equals(username))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+
+        }
+
+        public synchronized boolean emailInUse(String email)
+        {
+
+            ArrayList<User> users = getUserList();
+            if (users != null)
+            {
+                for (User user : users)
+                {
+                    if (user.getEmail().equals(email))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        public synchronized User loginToken(String token, String ip)
         {
             for (User user : this.getUserList())
             {
@@ -718,55 +1018,46 @@ public class DataController
             return null;
         }
 
-        public User loginUsernamePassword(String username, String password)
+        public synchronized User loginUsernamePassword(String username, String password)
         {
-            for (User user : this.getUserList())
+            ArrayList<User> users = getUserList();
+            if (users != null)
             {
-                if (user.getUsername().equals(username))
+                for (User user : users)
                 {
-                    try
+                    if (user.getUsername().equals(username))
                     {
-                        if (PasswordStorage.verifyPassword(password, user.getPassword()))
+                        try
                         {
-                            return user;
+                            if (PasswordStorage.verifyPassword(password, user.getPassword().toString()))
+                            {
+                                return user;
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        OperatorConsole.printMessageFiltered("Error Authenticating User", false, true);
-                        e.printStackTrace();
+                        catch (Exception e)
+                        {
+                            OperatorConsole.printMessageFiltered("Error Authenticating User", false, true);
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
             return null;
         }
 
-        public void addUser(User userToAdd)
+        public synchronized void addUser(User userToAdd)
         {
             ArrayList<User> users = getUserList();
-            if(users == null)
+            if (users == null)
             {
                 users = new ArrayList<User>();
-
             }
             users.add(userToAdd);
 
-            String listToWrite = new Gson().toJson(users);
-            try
-            {
-                File usersInfo = checkFor(userInfoDirectory, "userinfo.json");
-                PrintWriter output = new PrintWriter(usersInfo);
-                output.write(listToWrite);
-                output.close();
-            }
-            catch (Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error writing new User to UserList", false, true);
-                e.printStackTrace();
-            }
+            setUserList(users);
         }
 
-        public ArrayList<User> getUserList()
+        public synchronized ArrayList<User> getUserList()
         {
             ArrayList<User> users = new ArrayList<User>();
             try
@@ -777,6 +1068,13 @@ public class DataController
                 {
                 }.getType();
                 users = new Gson().fromJson(fileContents, typeToken);
+                if (users != null)
+                {
+                    for (User user : users)
+                    {
+                        user.setPassword(removeUTFCharacters(user.getPassword()).toString());
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -786,14 +1084,33 @@ public class DataController
             return users;
         }
 
-
-        public boolean createUser(String username, String password, String email)
+        public synchronized void setUserList(ArrayList<User> users)
         {
+            try
+            {
+                String listToWrite = new Gson().toJson(users);
+                File usersInfo = checkFor(userInfoDirectory, "userinfo.json");
+                writeContents(usersInfo, listToWrite, false);
+            }
+            catch (Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error writing to User List", false, true);
+                e.printStackTrace();
+            }
+        }
+
+
+        public synchronized boolean createUser(String username, String password, String email)
+        {
+            if (username.length() > 17)
+            {
+                return false;
+            }
             String whiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
 
             ArrayList<User> users = getUserList();
 
-            if(users != null)
+            if (users != null)
             {
                 for (User user : users)
                 {
@@ -817,25 +1134,28 @@ public class DataController
                 }
             }
 
-            try
-            {
-                User newUser = new User(username,
-                        PasswordStorage.createHash(password),
-                        LocalDate.now().toString(),
-                        User.generateRandom(),
-                        email,
-                        0,
-                        false);
-                addUser(newUser);
-                return true;
-            }
-            catch (Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error creating new User", false, true);
-                e.printStackTrace();
-            }
-            return false;
-        }
-    }
 
+            String hashedPassword = safeHashPassword(password);
+
+            if (hashedPassword.equals(""))
+            {
+                return false;
+            }
+
+            User newUser = new User(username,
+                    hashedPassword,
+                    LocalDate.now().toString(),
+                    User.generateRandom(),
+                    email,
+                    false);
+            addUser(newUser);
+            return true;
+        }
+
+
+    }
 }
+
+
+
+

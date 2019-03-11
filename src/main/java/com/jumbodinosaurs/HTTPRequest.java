@@ -1,7 +1,5 @@
 package com.jumbodinosaurs;
 
-import com.google.gson.Gson;
-
 import java.io.File;
 
 public class HTTPRequest
@@ -23,15 +21,16 @@ public class HTTPRequest
     private final String acceptedLanguageHeader = "\r\nAccept-Language: en-US";
     private final String originHeader = "\r\nOrigin: http://www.jumbodinosaurs.com/";
     private final String locationHeader = "\r\nLocation:";
+    private final String contentTextHeader = "\r\nContent-Type: text/";
+    private final String contentImageHeader = "\r\nContent-Type: image/";
+    private final String contentApplicationHeader = "\r\nContent-Type: application/";
+    private final String contentLengthHeader = "\r\nContent-Length: "; //[length in bytes of the image]\r\n
 
     private String messageFromClient;
     private String messageToSend;
     private byte[] byteArrayToSend;
     private Boolean hasByteArray = false;
-    private String contentTextHeader = "\r\nContent-Type: text/";
-    private String contentImageHeader = "\r\nContent-Type: image/";
-    private String contentZipHeader = "\r\nContent-Type: application/";
-    private String contentLengthHeader = "\r\nContent-Length: "; //[length in bytes of the image]\r\n
+
 
     public HTTPRequest(String messageFromClient)
     {
@@ -69,7 +68,7 @@ public class HTTPRequest
 
                 //If if have file
                 OperatorConsole.printMessageFiltered("File To Get: " + fileToGet, true, false);
-                if ((fileRequested = DataController.getFileFromAllowedDirectory(fileToGet)) != null)
+                if ((fileRequested = DataController.getFileFromGETDirectory(fileToGet)) != null)
                 {
                     //add Good Code
 
@@ -101,7 +100,7 @@ public class HTTPRequest
                     {
                         ;
                         this.messageToSend += this.sC200;
-                        this.messageToSend += this.contentZipHeader + fileType;
+                        this.messageToSend += this.contentApplicationHeader + fileType;
                         this.messageToSend += this.closeHeader;
                         this.hasByteArray = true;
                         this.byteArrayToSend = DataController.readZip(fileRequested);
@@ -165,7 +164,7 @@ public class HTTPRequest
     {
         this.messageToSend += this.sC404;
         this.messageToSend += this.closeHeader;
-        this.messageToSend += DataController.getFileContents(DataController.getFileFromAllowedDirectory("/404.html"));
+        this.messageToSend += DataController.getFileContents(DataController.getFileFromGETDirectory("/404.html"));
     }
 
     public void setMessage501()

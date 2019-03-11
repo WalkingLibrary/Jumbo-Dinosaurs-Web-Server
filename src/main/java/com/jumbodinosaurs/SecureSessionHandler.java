@@ -71,6 +71,7 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
                 !cause.getMessage().contains("not an SSL/TLS record:") ||
                 !cause.getMessage().contains("Client requested protocol SSLv3 not enabled or not supported"))
         {
+            System.out.println("Exception");
             OperatorConsole.printMessageFiltered(cause.getMessage(), false, true);
         }
         context.close();

@@ -6,18 +6,22 @@ public class User
     private String password;
     private String tokenDate;
     private String tokenRandom;
-    private String email;
-    private int loginTries;
-    private boolean emailVerified;
 
-    public User(String username, String password, String tokenDate, String tokenRandom, String email, int loginTries, boolean emailVerified)
+    private String email;
+    private boolean emailVerified;
+    private String emailCode;
+    private String emailCodeSentDate;
+    private String emailCodeSentTime;
+    private int emailCodesSentPastHour;
+
+
+    public User(String username, String password, String tokenDate, String tokenRandom, String email, boolean emailVerified)
     {
         this.username = username;
         this.password = password;
         this.tokenDate = tokenDate;
         this.tokenRandom = tokenRandom;
         this.email = email;
-        this.loginTries = loginTries;
         this.emailVerified = emailVerified;
     }
 
@@ -26,29 +30,35 @@ public class User
     {
         String whiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
         String random = "";
-        while(random.length() < 100)
+        while (random.length() <= 100)
         {
-            int randomNumber = (int)(Math.random() * whiteListedCharacters.length());
+            int randomNumber = (int) (Math.random() * whiteListedCharacters.length());
             random += whiteListedCharacters.toCharArray()[randomNumber];
         }
         return random;
     }
 
 
-    public int getLoginTries()
+    public static String generateRandomEmailCode()
     {
-        return loginTries;
+        String whiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+        String random = "";
+        while (random.length() <= 10)
+        {
+            int randomNumber = (int) (Math.random() * whiteListedCharacters.length());
+            random += whiteListedCharacters.toCharArray()[randomNumber];
+        }
+        return random;
     }
-
-    public void setLoginTries(int loginTries)
-    {
-        this.loginTries = loginTries;
-    }
-
 
     public String getEmail()
     {
         return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
     }
 
     public String getUsername()
@@ -56,10 +66,20 @@ public class User
         return this.username;
     }
 
+    public void setUsername(String username)
+    {
+        this.username = username;
+    }
+
     public String getPassword()
 
     {
         return this.password;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
     }
 
     public String getTokenDate()
@@ -92,4 +112,64 @@ public class User
         this.tokenRandom = tokenRandom;
     }
 
+    public boolean equals(User user)
+    {
+        if (this.password == user.password)
+        {
+            if (this.username == user.getUsername())
+            {
+                if (this.email == user.email)
+                {
+                    if (this.tokenRandom == user.tokenRandom)
+                    {
+                        if (this.tokenDate == user.getTokenDate())
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public String getEmailCode()
+    {
+        return emailCode;
+    }
+
+    public void setEmailCode(String emailCode)
+    {
+        this.emailCode = emailCode;
+    }
+
+    public String getEmailCodeSentDate()
+    {
+        return emailCodeSentDate;
+    }
+
+    public void setEmailCodeSentDate(String emailCodeSentDate)
+    {
+        this.emailCodeSentDate = emailCodeSentDate;
+    }
+
+    public String getEmailCodeSentTime()
+    {
+        return emailCodeSentTime;
+    }
+
+    public void setEmailCodeSentTime(String emailCodeSentTime)
+    {
+        this.emailCodeSentTime = emailCodeSentTime;
+    }
+
+    public int getEmailCodesSentPastHour()
+    {
+        return emailCodesSentPastHour;
+    }
+
+    public void setEmailCodesSentPastHour(int emailCodesSentPastHour)
+    {
+        this.emailCodesSentPastHour = emailCodesSentPastHour;
+    }
 }

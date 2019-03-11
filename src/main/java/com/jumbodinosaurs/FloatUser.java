@@ -5,15 +5,19 @@ public class FloatUser
 
     private String ip;
     private String date;
-    private int strikes;
+    private int loginStrikes;
+    private int emailStrikes;
     private boolean captchaLocked;
+    private boolean emailQuerryLocked;
 
-    public FloatUser(String ip, String date, int strikes, boolean captchaLocked)
+    public FloatUser(String ip, String date, int loginStrikes, int emailStrikes, boolean captchaLocked, boolean emailQuerryLocked)
     {
         this.ip = ip;
         this.date = date;
-        this.strikes = strikes;
+        this.loginStrikes = loginStrikes;
+        this.emailStrikes = emailStrikes;
         this.captchaLocked = captchaLocked;
+        this.emailQuerryLocked = emailQuerryLocked;
     }
 
 
@@ -27,9 +31,9 @@ public class FloatUser
         return date;
     }
 
-    public int getStrikes()
+    public int getLoginStrikes()
     {
-        return strikes;
+        return loginStrikes;
     }
 
 
@@ -49,9 +53,9 @@ public class FloatUser
     }
 
 
-    public void setStrikes(int strikes)
+    public void setLoginStrikes(int loginStrikes)
     {
-        this.strikes = strikes;
+        this.loginStrikes = loginStrikes;
     }
 
     public boolean equals(FloatUser user)
@@ -60,4 +64,23 @@ public class FloatUser
     }
 
 
+    public int getEmailStrikes()
+    {
+        return emailStrikes;
+    }
+
+    public void setEmailStrikes(int emailStrikes)
+    {
+        this.emailStrikes = emailStrikes;
+    }
+
+    public boolean isEmailQuerryLocked()
+    {
+        return emailQuerryLocked;
+    }
+
+    public void setEmailQuerryLocked(boolean emailQuerryLocked)
+    {
+        this.emailQuerryLocked = emailQuerryLocked;
+    }
 }
