@@ -1,28 +1,51 @@
 package com.jumbodinosaurs;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 public class User
 {
     private String username;
     private String password;
-    private String tokenDate;
+    private String token;
     private String tokenRandom;
-
-    private String email;
-    private boolean emailVerified;
     private String emailCode;
-    private String emailCodeSentDate;
-    private String emailCodeSentTime;
-    private int emailCodesSentPastHour;
+    private String email;
+    private boolean tokenIsOneUse;
+    private boolean emailVerified;
+    private boolean accountLocked;
+    private LocalDateTime joinDate;
+    private LocalDateTime emailDateTime;
+    private LocalDateTime lastLoginDate;
+    private LocalDateTime tokenDate;
 
-
-    public User(String username, String password, String tokenDate, String tokenRandom, String email, boolean emailVerified)
+    public User(String username, String password, String email, boolean emailVerified, LocalDateTime joinDate)
     {
         this.username = username;
         this.password = password;
-        this.tokenDate = tokenDate;
-        this.tokenRandom = tokenRandom;
         this.email = email;
         this.emailVerified = emailVerified;
+        this.joinDate = joinDate;
+    }
+
+    public User(String username, String password, String token, String tokenRandom, String emailCode, String email, boolean tokenIsOneUse, boolean emailVerified, boolean accountLocked, LocalDateTime joinDate, LocalDateTime emailDateTime, LocalDateTime lastLoginDate, LocalDateTime tokenDate)
+    {
+        this.username = username;
+        this.password = password;
+        this.token = token;
+        this.tokenRandom = tokenRandom;
+        this.emailCode = emailCode;
+        this.email = email;
+        this.tokenIsOneUse = tokenIsOneUse;
+        this.emailVerified = emailVerified;
+        this.accountLocked = accountLocked;
+        this.joinDate = joinDate;
+        this.emailDateTime = emailDateTime;
+        this.lastLoginDate = lastLoginDate;
+        this.tokenDate = tokenDate;
     }
 
 
@@ -51,19 +74,57 @@ public class User
         return random;
     }
 
-    public String getEmail()
+    public User clone()
     {
-        return email;
+        User clone = new Gson().fromJson(new Gson().toJson(this), this.getClass());
+        return clone;
     }
 
-    public void setEmail(String email)
+
+    public String getUserInfoJson()
     {
-        this.email = email;
+        JsonObject info = new JsonObject();
+        info.addProperty("username", this.username);
+        info.addProperty("joindate", this.joinDate.toString());
+        info.addProperty("emailVerified", this.emailVerified);
+        //Debug
+        System.out.println(info.toString());
+        return info.toString();
+    }
+
+
+
+    @Override
+    public String toString()
+    {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", joinDate='" + joinDate + '\'' +
+                ", lastLoginDate=" + lastLoginDate +
+                ", accountLocked=" + accountLocked +
+                ", token='" + token + '\'' +
+                ", tokenDate='" + tokenDate + '\'' +
+                ", tokenRandom='" + tokenRandom + '\'' +
+                ", tokenIsOneUse=" + tokenIsOneUse +
+                ", email='" + email + '\'' +
+                ", emailVerified=" + emailVerified +
+                ", emailCode='" + emailCode + '\'' +
+                ", emailDateTime=" + emailDateTime +
+                '}';
+    }
+
+
+    public boolean equals(User user)
+    {
+        String thisJSON = new Gson().toJson(this);
+        String userJSON = new Gson().toJson(user);
+        return thisJSON.equals(userJSON);
     }
 
     public String getUsername()
     {
-        return this.username;
+        return username;
     }
 
     public void setUsername(String username)
@@ -72,9 +133,8 @@ public class User
     }
 
     public String getPassword()
-
     {
-        return this.password;
+        return password;
     }
 
     public void setPassword(String password)
@@ -82,24 +142,14 @@ public class User
         this.password = password;
     }
 
-    public String getTokenDate()
+    public String getToken()
     {
-        return tokenDate;
+        return token;
     }
 
-    public void setTokenDate(String tokenDate)
+    public void setToken(String token)
     {
-        this.tokenDate = tokenDate;
-    }
-
-    public boolean isEmailVerified()
-    {
-        return emailVerified;
-    }
-
-    public void setEmailVerified(boolean emailVerified)
-    {
-        this.emailVerified = emailVerified;
+        this.token = token;
     }
 
     public String getTokenRandom()
@@ -112,27 +162,6 @@ public class User
         this.tokenRandom = tokenRandom;
     }
 
-    public boolean equals(User user)
-    {
-        if (this.password == user.password)
-        {
-            if (this.username == user.getUsername())
-            {
-                if (this.email == user.email)
-                {
-                    if (this.tokenRandom == user.tokenRandom)
-                    {
-                        if (this.tokenDate == user.getTokenDate())
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     public String getEmailCode()
     {
         return emailCode;
@@ -143,33 +172,83 @@ public class User
         this.emailCode = emailCode;
     }
 
-    public String getEmailCodeSentDate()
+    public String getEmail()
     {
-        return emailCodeSentDate;
+        return email;
     }
 
-    public void setEmailCodeSentDate(String emailCodeSentDate)
+    public void setEmail(String email)
     {
-        this.emailCodeSentDate = emailCodeSentDate;
+        this.email = email;
     }
 
-    public String getEmailCodeSentTime()
+    public boolean isTokenIsOneUse()
     {
-        return emailCodeSentTime;
+        return tokenIsOneUse;
     }
 
-    public void setEmailCodeSentTime(String emailCodeSentTime)
+    public void setTokenIsOneUse(boolean tokenIsOneUse)
     {
-        this.emailCodeSentTime = emailCodeSentTime;
+        this.tokenIsOneUse = tokenIsOneUse;
     }
 
-    public int getEmailCodesSentPastHour()
+    public boolean isEmailVerified()
     {
-        return emailCodesSentPastHour;
+        return emailVerified;
     }
 
-    public void setEmailCodesSentPastHour(int emailCodesSentPastHour)
+    public void setEmailVerified(boolean emailVerified)
     {
-        this.emailCodesSentPastHour = emailCodesSentPastHour;
+        this.emailVerified = emailVerified;
+    }
+
+    public boolean isAccountLocked()
+    {
+        return accountLocked;
+    }
+
+    public void setAccountLocked(boolean accountLocked)
+    {
+        this.accountLocked = accountLocked;
+    }
+
+    public LocalDateTime getJoinDate()
+    {
+        return joinDate;
+    }
+
+    public void setJoinDate(LocalDateTime joinDate)
+    {
+        this.joinDate = joinDate;
+    }
+
+    public LocalDateTime getEmailDateTime()
+    {
+        return emailDateTime;
+    }
+
+    public void setEmailDateTime(LocalDateTime emailDateTime)
+    {
+        this.emailDateTime = emailDateTime;
+    }
+
+    public LocalDateTime getLastLoginDate()
+    {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(LocalDateTime lastLoginDate)
+    {
+        this.lastLoginDate = lastLoginDate;
+    }
+
+    public LocalDateTime getTokenDate()
+    {
+        return tokenDate;
+    }
+
+    public void setTokenDate(LocalDateTime tokenDate)
+    {
+        this.tokenDate = tokenDate;
     }
 }

@@ -67,6 +67,12 @@ public class PostRequest
         return content;
     }
 
+
+    public String getEmailCode()
+    {
+        return emailCode;
+    }
+
     @Override
     public String toString()
     {
@@ -79,11 +85,7 @@ public class PostRequest
                 ", command='" + command + '\'' +
                 ", content='" + content + '\'' +
                 ", captchaCode='" + captchaCode + '\'' +
+                ", emailCode='" + emailCode + '\'' +
                 '}';
-    }
-
-    public String getEmailCode()
-    {
-        return emailCode;
     }
 }

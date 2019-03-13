@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Hashtable;
 
 public class HTTPSRequest
@@ -227,7 +227,7 @@ public class HTTPSRequest
                         {
                             if (postRequest.getUsername() != null)
                             {
-                                if (DataController.usernameAvailable(postRequest.getUsername()))
+                                if (DataController.getCredentialsManager().usernameAvailable(postRequest.getUsername()))
                                 {
                                     this.messageToSend += sC200;
                                     this.messageToSend += closeHeader;
@@ -237,9 +237,9 @@ public class HTTPSRequest
                         }
                         else if (command.equals("emailCheck"))
                         {
-                            if (postRequest.getEmail() != null && (!DataController.isIPCaptchaLocked(this.ip)))
+                            if (postRequest.getEmail() != null && (!DataController.isIPEmailCheckLocked(this.ip)))
                             {
-                                if (!DataController.emailInUse(postRequest.getEmail()))
+                                if (!DataController.getCredentialsManager().emailInUse(postRequest.getEmail()))
                                 {
                                     this.messageToSend += sC200;
                                     this.messageToSend += closeHeader;
@@ -259,7 +259,7 @@ public class HTTPSRequest
                                 if (getCaptchaScore(postRequest.getCaptchaCode()) > .5)
                                 {
 
-                                    if (DataController.createUser(postRequest.getUsername(), postRequest.getPassword(), postRequest.getEmail()))
+                                    if (DataController.getCredentialsManager().createUser(postRequest.getUsername(), postRequest.getPassword(), postRequest.getEmail()))
                                     {
                                         send400Code = false;
                                         this.messageToSend += sC200;
@@ -268,18 +268,54 @@ public class HTTPSRequest
                                 }
                             }
                         }
+                        else if (command.equals("resetPassword"))
+                        {
+                            if (postRequest.getEmail() != null)
+                            {
+                                if (DataController.getCredentialsManager().emailInUse(postRequest.getEmail()))
+                                {
+                                    User userToSendCodeTo = DataController.getCredentialsManager().getUserByEmail(postRequest.getEmail());
+                                    LocalDateTime now = LocalDateTime.now();
+                                    LocalDateTime tokenMintDate = userToSendCodeTo.getTokenDate();
+                                    boolean sendEmail = false;
+                                    if (tokenMintDate == null || !userToSendCodeTo.isTokenIsOneUse())
+                                    {
+                                        sendEmail = true;
+                                    }
+                                    else if(now.minusMinutes((long) 30).isAfter(tokenMintDate))
+                                    {
+                                        sendEmail = true;
+                                    }
+
+                                    if (sendEmail)
+                                    {
+                                        String token = DataController.getCredentialsManager().getTokenOneUse(userToSendCodeTo, this.ip);
+                                        String messageToSend = "There has been a password change request to the account linked to this email" +
+                                                " at https://jumbodinosaurs.com/. If this was not you feel free to contact us at jumbodinosaurs@gmail.com.\n\n" +
+                                                "If this was you visit https://www.jumbodinosaurs.com/changepassword.html and enter this code\n To change your password." +
+                                                "\n\n" + token;
+                                        DataController.sendEmail(userToSendCodeTo.getEmail(), messageToSend);
+                                    }
+                                }
+                            }
+                            send400Code = false;
+                            this.messageToSend += sC200;
+                            this.messageToSend += closeHeader;
+                        }
                         else
                         {
                             User user = null;
+                            boolean tokenLogin = true;
                             if (!DataController.isIPCaptchaLocked(this.ip))
                             {
                                 if (postRequest.getUsername() != null && postRequest.getPassword() != null)
                                 {
-                                    user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                                    user = DataController.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                                    tokenLogin = false;
                                 }
                                 else if (postRequest.getToken() != null)
                                 {
-                                    user = DataController.loginToken(postRequest.getToken(), this.ip);
+                                    user = DataController.getCredentialsManager().loginToken(postRequest.getToken(), this.ip);
                                 }
 
                                 if (user == null)
@@ -291,146 +327,214 @@ public class HTTPSRequest
                             {
                                 if (postRequest.getUsername() != null && postRequest.getPassword() != null)
                                 {
-                                    user = DataController.loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                                    user = DataController.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(), postRequest.getPassword());
+                                    tokenLogin = false;
                                 }
                                 else if (postRequest.getToken() != null)
                                 {
-                                    user = DataController.loginToken(postRequest.getToken(), this.ip);
+                                    user = DataController.getCredentialsManager().loginToken(postRequest.getToken(), this.ip);
                                 }
                             }
 
+
                             if (user != null)
                             {
-
-
                                 String content = postRequest.getContent();
-                                LocalDate dateNow = LocalDate.now();
-                                LocalTime timeNow = LocalTime.now();
-                                switch (command)
+                                LocalDateTime now = LocalDateTime.now();
+                                if (tokenLogin && user.isTokenIsOneUse())
                                 {
-                                    case "postBook":
-                                        MinecraftWrittenBook book = new Gson().fromJson(content, MinecraftWrittenBook.class);
-                                        if (book.isGoodPost())
+                                    if (command.equals("passwordChange"))
+                                    {
+                                        if (postRequest.getPassword() != null)
                                         {
-                                            String localPath = "/booklist/books.json";
-                                            String username = user.getUsername();
-                                            content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(book));
-                                            String date = LocalDate.now().toString();
-                                            post = new WritablePost(localPath, username, content, date);
-                                            send400Code = false;
-                                            this.messageToSend += sC200;
-                                            this.messageToSend += closeHeader;
-                                        }
-                                        break;
-
-                                    case "postSign":
-                                        MinecraftSign sign = new Gson().fromJson(content, MinecraftSign.class);
-                                        if (sign.isGoodPost())
-                                        {
-                                            String localPath = "/signlist/signlist.json";
-                                            String username = user.getUsername();
-                                            content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(sign));
-                                            String date = LocalDate.now().toString();
-                                            post = new WritablePost(localPath, username, content, date);
-                                            send400Code = false;
-                                            this.messageToSend += sC200;
-                                            this.messageToSend += closeHeader;
-                                        }
-                                        break;
-
-                                    case "postComment":
-                                        //WIP
-                                        break;
-
-                                    case "getToken":
-                                        this.messageToSend += sC200;
-                                        this.messageToSend += closeHeader;
-                                        this.messageToSend += DataController.getUserToken(user, this.ip);
-                                        send400Code = false;
-                                        break;
-
-                                    case "debug":
-                                        this.messageToSend += sC200;
-                                        this.messageToSend += closeHeader;
-                                        this.messageToSend += "bugged";
-                                        send400Code = false;
-                                        break;
-
-                                    case "emailConfirm":
-                                        LocalDate emailCodeSendDate = LocalDate.parse(user.getEmailCodeSentDate());
-                                        if (!dateNow.minusDays((long) 1).isAfter(emailCodeSendDate))
-                                        {
-                                            try
+                                            if (postRequest.getCaptchaCode() != null && this.getCaptchaScore(postRequest.getCaptchaCode()) > .7)
                                             {
-                                                String emailCode = this.ip + emailCodeSendDate.toString() + postRequest.getEmailCode();
-                                                if (PasswordStorage.verifyPassword(emailCode, user.getEmailCode()))
+                                                String password = postRequest.getPassword();
+                                                User updatedUserInfo = user.clone();
+                                                updatedUserInfo.setPassword(DataController.safeHashPassword(password));
+
+                                                if (DataController.getCredentialsManager().modifyUser(user, updatedUserInfo))
                                                 {
-                                                    User userConfirmedEmail = user;
-                                                    userConfirmedEmail.setEmailVerified(true);
-                                                    if (DataController.modifyUser(user, userConfirmedEmail))
-                                                    {
-                                                        this.messageToSend += sC200;
-                                                        this.messageToSend += closeHeader;
-                                                        send400Code = false;
-                                                    }
-                                                    else
-                                                    {
-                                                        OperatorConsole.printMessageFiltered("Error Confirming Email", false, true);
-                                                    }
+                                                    String messageToSend = "The password for your account at https://jumbodinosaurs/ has been changed." +
+                                                            "\nIf this was not you contact us at jumbodinosaurs@gmail.com.";
+                                                    DataController.sendEmail(updatedUserInfo.getEmail(), messageToSend);
+                                                    send400Code = false;
+                                                    this.messageToSend += sC200;
+                                                    this.messageToSend += closeHeader;
+                                                    this.messageToSend += "passwordChanged";
+
                                                 }
                                             }
-                                            catch (Exception e)
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    switch (command)
+                                    {
+                                        case "postBook":
+                                            MinecraftWrittenBook book = new Gson().fromJson(content, MinecraftWrittenBook.class);
+                                            if (book.isGoodPost())
                                             {
-                                                OperatorConsole.printMessageFiltered("Error Confirming Email", false, true);
+                                                String localPath = "/booklist/books.json";
+                                                String username = user.getUsername();
+                                                content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(book));
+                                                String date = LocalDate.now().toString();
+                                                post = new WritablePost(localPath, username, content, date);
+                                                send400Code = false;
+                                                this.messageToSend += sC200;
+                                                this.messageToSend += closeHeader;
                                             }
-                                        }
-                                        else
-                                        {
-                                            send400Code = false;
-                                            this.setMessage400();
-                                            this.messageToSend += "resetCode";
-                                        }
-                                        break;
-                                    case "setEmailCode":
-                                        if (!user.isEmailVerified())
-                                        {
-                                            LocalTime timeLastCodeWasSent = LocalTime.parse(user.getEmailCodeSentTime());
-                                            if (user.getEmailCodesSentPastHour() < 3 || timeNow.minusHours(1).isAfter(timeLastCodeWasSent))
-                                            {
-                                                String randomEmailCode = User.generateRandomEmailCode();
-                                                String emailCode = this.ip + dateNow.toString() + randomEmailCode;
-                                                String safeHash = DataController.safeHashPassword(emailCode);
-                                                String message = "Code for Verification: " + randomEmailCode;
-                                                User newUser = user;
-                                                newUser.setEmailCode(safeHash);
-                                                newUser.setEmailCodeSentDate(dateNow.toString());
-                                                if (DataController.modifyUser(user, newUser))
-                                                {
-                                                    if (DataController.sendEmail(user.getEmail(), message))
-                                                    {
+                                            break;
 
-                                                        this.messageToSend += sC200;
-                                                        this.messageToSend += closeHeader;
-                                                        send400Code = false;
+                                        case "postSign":
+                                            MinecraftSign sign = new Gson().fromJson(content, MinecraftSign.class);
+                                            if (sign.isGoodPost())
+                                            {
+                                                String localPath = "/signlist/signlist.json";
+                                                String username = user.getUsername();
+                                                content = this.rewriteHTMLEscapeCharacters(new Gson().toJson(sign));
+                                                String date = LocalDate.now().toString();
+                                                post = new WritablePost(localPath, username, content, date);
+                                                send400Code = false;
+                                                this.messageToSend += sC200;
+                                                this.messageToSend += closeHeader;
+                                            }
+                                            break;
+
+                                        case "postComment":
+                                            //WIP
+                                            break;
+
+                                        case "getToken":
+                                            if (!tokenLogin)
+                                            {
+                                                this.messageToSend += sC200;
+                                                this.messageToSend += closeHeader;
+                                                this.messageToSend += DataController.getCredentialsManager().getToken(user, this.ip);
+                                                send400Code = false;
+                                            }
+                                            break;
+                                        case "emailConfirm":
+                                            LocalDateTime emailCodeSendDate = user.getEmailDateTime();
+                                            if (!now.minusDays((long) 1).isAfter(emailCodeSendDate))
+                                            {
+                                                try
+                                                {
+                                                    String emailCode = this.ip + emailCodeSendDate.toString() + postRequest.getEmailCode();
+                                                    if (PasswordStorage.verifyPassword(emailCode, user.getEmailCode()))
+                                                    {
+                                                        User userConfirmedEmail = user.clone();
+                                                        userConfirmedEmail.setEmailVerified(true);
+                                                        if (DataController.getCredentialsManager().modifyUser(user, userConfirmedEmail))
+                                                        {
+                                                            this.messageToSend += sC200;
+                                                            this.messageToSend += closeHeader;
+                                                            this.messageToSend += "emailConfirmed";
+                                                            send400Code = false;
+                                                        }
+                                                        else
+                                                        {
+                                                            OperatorConsole.printMessageFiltered("Error Confirming Email", false, true);
+                                                        }
                                                     }
                                                 }
-                                                if (send400Code)
+                                                catch (Exception e)
                                                 {
-                                                    OperatorConsole.printMessageFiltered("Error Setting Email Code", false, true);
+                                                    OperatorConsole.printMessageFiltered("Error Confirming Email", false, true);
                                                 }
                                             }
                                             else
                                             {
                                                 send400Code = false;
                                                 this.setMessage400();
-                                                this.messageToSend += "codeCoolDown";
+                                                this.messageToSend += "resetCode";
                                             }
-                                        }
-                                        break;
+                                            break;
+                                        case "setEmailCode":
+                                            if (!user.isEmailVerified())
+                                            {
+
+                                                boolean sendEmail = false;
+
+                                                if (user.getEmailDateTime() != null)
+                                                {
+                                                    if (now.minusHours((long) 1).isAfter(user.getEmailDateTime()))
+                                                    {
+                                                        sendEmail = true;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    sendEmail = true;
+                                                }
+
+                                                if (sendEmail)
+                                                {
+                                                    String randomEmailCode = User.generateRandomEmailCode();
+                                                    String emailCode = this.ip + now.toString() + randomEmailCode;
+                                                    String safeHash = DataController.safeHashPassword(emailCode);
+                                                    String message = "You have been sent a code to verify your email at Jumbo Dinosaurs. \n" +
+                                                            "To verify your email you need to visit https://www.jumbodinosaurs.com/verifyemail.html and enter your code." +
+                                                            "\n\nCode for Verification: " + randomEmailCode + " \n\n\n   Regards, Jumbo";
+                                                    User updatedUserInfo = user.clone();
+                                                    updatedUserInfo.setEmailCode(safeHash);
+                                                    updatedUserInfo.setEmailDateTime(now);
+
+                                                    if (DataController.getCredentialsManager().modifyUser(user, updatedUserInfo))
+                                                    {
+                                                        if (DataController.sendEmail(user.getEmail(), message))
+                                                        {
+
+                                                            this.messageToSend += sC200;
+                                                            this.messageToSend += closeHeader;
+                                                            this.messageToSend += "codeSent";
+                                                            send400Code = false;
+                                                        }
+                                                        else
+                                                        {
+                                                            OperatorConsole.printMessageFiltered("Error Sending Email Code", false, true);
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        OperatorConsole.printMessageFiltered("Error Setting User Email Code", false, true);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    send400Code = false;
+                                                    this.setMessage400();
+                                                    this.messageToSend += "codeCoolDown";
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                send400Code = false;
+                                                this.setMessage400();
+                                                this.messageToSend += "emailAlreadyConfirmed";
+                                            }
+                                            break;
+                                        case "getUsername":
+                                            this.messageToSend += sC200;
+                                            this.messageToSend += closeHeader;
+                                            this.messageToSend += user.getUsername();
+                                            send400Code = false;
+                                            break;
+                                        case "getUserInfo":
+                                            this.messageToSend += sC200;
+                                            this.messageToSend += closeHeader;
+                                            this.messageToSend += user.getUserInfoJson();
+                                            send400Code = false;
+                                            break;
+                                    }
                                 }
                             }
                         }
                     }
+
 
                     if (post != null)
                     {
@@ -457,7 +561,9 @@ public class HTTPSRequest
                 this.setMessage400();
             }
         }
+
     }
+
 
     public Boolean logMessageFromClient()
     {

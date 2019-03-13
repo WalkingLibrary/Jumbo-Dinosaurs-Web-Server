@@ -3,7 +3,6 @@ package com.jumbodinosaurs;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
@@ -21,11 +20,11 @@ public class DataController
 {
     public static String host = "";
     private static File codeExecutionDir = new File(System.getProperty("user.dir")).getParentFile();
-    private static File getDirectory;
-    private static File logsDirectory;
-    private static File certificateDirectory;
-    private static File userInfoDirectory;
-    private static File postDirectory;
+    public static File getDirectory;
+    public static File logsDirectory;
+    public static File certificateDirectory;
+    public static File userInfoDirectory;
+    public static File postDirectory;
     private static File timeOutHelperDir;
     private static SessionLogger logger;
     private static CredentialsManager credentialsManager;
@@ -213,13 +212,30 @@ public class DataController
 
     public static boolean isIPCaptchaLocked(String ip)
     {
-        if (getWatchList() != null)
+        ArrayList<FloatUser> watchlist = getWatchList();
+        if (watchlist != null)
         {
-            for (FloatUser user : getWatchList())
+            for (FloatUser user : watchlist)
             {
                 if (user.getIp().equals(ip))
                 {
                     return user.isCaptchaLocked();
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isIPEmailCheckLocked(String ip)
+    {
+        ArrayList<FloatUser> watchlist = getWatchList();
+        if (watchlist != null)
+        {
+            for (FloatUser user : watchlist)
+            {
+                if (user.getIp().equals(ip))
+                {
+                    return user.isEmailQuerryLocked();
                 }
             }
         }
@@ -486,10 +502,7 @@ public class DataController
         return null;
     }
 
-    public static boolean createUser(String username, String password, String email)
-    {
-        return credentialsManager.createUser(username, password, email);
-    }
+
 
     //For Reading any file on the system
     public static String getFileContents(File file)
@@ -610,21 +623,7 @@ public class DataController
     }
 
 
-    public static boolean modifyUser(User oldUser, User newUser)
-    {
-        return credentialsManager.modifyUser(oldUser, newUser);
-    }
 
-
-    public static boolean emailInUse(String email)
-    {
-        return credentialsManager.emailInUse(email);
-    }
-
-    public static boolean usernameAvailable(String username)
-    {
-        return credentialsManager.usernameAvailable(username);
-    }
 
     public static byte[] readPhoto(File file)
     {
@@ -666,20 +665,6 @@ public class DataController
         return filesToReturn;
     }
 
-    public static String getUserToken(User user, String ip)
-    {
-        return credentialsManager.getToken(user, ip);
-    }
-
-    public static User loginUsernamePassword(String username, String password)
-    {
-        return credentialsManager.loginUsernamePassword(username, password);
-    }
-
-    public static User loginToken(String token, String ip)
-    {
-        return credentialsManager.loginToken(token, ip);
-    }
 
 
     /*
@@ -698,140 +683,6 @@ public class DataController
     }
     */
 
-    private void setHost()
-    {
-        try
-        {
-            URL address = new URL("http://bot.whatismyipaddress.com");
-
-            BufferedReader sc = new BufferedReader(new InputStreamReader(address.openStream()));
-
-            this.host = sc.readLine().trim();
-            OperatorConsole.printMessageFiltered("Public IP: " + this.host, false, false);
-
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Setting Host", false, true);
-        }
-    }
-
-    public String getHost()
-    {
-        return this.host;
-    }
-
-    public void makeSiteIndexand404PageDefault()
-    {
-        try
-        {
-            File pageIndex = this.checkFor(this.getDirectory, "index.html");
-            String indexHTML = "<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<head>\n" +
-                    "<style>\n" +
-                    "body\n" +
-                    "{\n" +
-                    "    background-color: lightgreen;\n" +
-                    "}\n" +
-                    "</style>\n" +
-                    "</head>\n" +
-                    "<body>\n" +
-                    "<h4>\n" +
-                    "Sites<br>";
-            for (File file : this.listFilesRecursive(this.getDirectory))
-            {
-                indexHTML += "<a href = http://" + this.host + "/" + file.getName() + ">" + this.host + "/" + file.getName() + "</a><br>";
-            }
-
-            indexHTML += "</h4>\n" +
-                    "</body>\n" +
-                    "</html>";
-            writeContents(pageIndex, indexHTML, false);
-
-            File page404 = this.checkFor(this.getDirectory, "404.html");
-            String HTML404 = "<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<head>\n" +
-                    "<style>\n" +
-                    "body\n" +
-                    "{\n" +
-                    "    background-color: lightgreen;\n" +
-                    "}\n" +
-                    "</style>\n" +
-                    "</head>\n" +
-                    "<body>\n" +
-                    "<h1>\n" +
-                    "404 - File has Either Been Moved or Relocated\n" +
-                    "</h1>\n" +
-                    "<a href = \"http://" + this.host + "/index.html\">Index</a>\n" +
-                    "</body>\n" +
-                    "</html>";
-            writeContents(page404, HTML404, false);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
-        }
-    }
-
-    public void makeSiteIndexand404PageDomains()
-    {
-        try
-        {
-            File pageIndex = this.checkFor(this.getDirectory, "index.html");
-            String indexHTML = "<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<head>\n" +
-                    "<style>\n" +
-                    "body\n" +
-                    "{\n" +
-                    "    background-color: lightgreen;\n" +
-                    "}\n" +
-                    "</style>\n" +
-                    "</head>\n" +
-                    "<body>\n" +
-                    "<h4>\n" +
-                    "Sites<br>";
-            for (String domain : getDomains())
-            {
-                indexHTML += "<a href = http://" + domain + ">" + domain + "</a><br>";
-            }
-            indexHTML += "</h4>\n" +
-                    "</body>\n" +
-                    "</html>";
-            writeContents(pageIndex, indexHTML, false);
-
-            File page404 = this.checkFor(this.getDirectory, "404.html");
-            String HTML404 = "<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<head>\n" +
-                    "<style>\n" +
-                    "body\n" +
-                    "{\n" +
-                    "    background-color: lightgreen;\n" +
-                    "}\n" +
-                    "</style>\n" +
-                    "</head>\n" +
-                    "<body>\n" +
-                    "<h1>\n" +
-                    "404 - File has Either Been Moved or Relocated\n" +
-                    "</h1>\n" +
-                    "<a href = \"http://www.jumbodinosaurs.com/index.html\">Index</a>\n" +
-                    "</body>\n" +
-                    "</html>";
-            writeContents(page404, HTML404, false);
-
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
-        }
-    }
-
     public static StringBuffer removeUTFCharacters(String data)
     {
         Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
@@ -846,6 +697,8 @@ public class DataController
         return buf;
     }
 
+
+    //Takes the given password and returns a gson safe hash
     public static String safeHashPassword(String password)
     {
         try
@@ -871,289 +724,161 @@ public class DataController
         return "";
     }
 
-
-    private class CredentialsManager
+    private void setHost()
     {
-        public CredentialsManager()
+        try
         {
+            URL address = new URL("http://bot.whatismyipaddress.com");
+
+            BufferedReader sc = new BufferedReader(new InputStreamReader(address.openStream()));
+
+            this.host = sc.readLine().trim();
+            OperatorConsole.printMessageFiltered("Public IP: " + this.host, false, false);
 
         }
-
-
-        public synchronized String getToken(User userToMint, String ip)
+        catch (Exception e)
         {
-            String token = null;
-            LocalDate lastMintDate = LocalDate.parse(userToMint.getTokenDate());
-            LocalDate now = LocalDate.now();
-            if (now.minusDays((long) 30).isAfter(lastMintDate))
-            {
-                User updatedUserInfo = new User(userToMint.getUsername(), userToMint.getPassword(), now.toString(),
-                        User.generateRandom(), userToMint.getEmail(), userToMint.isEmailVerified());
-                modifyUser(userToMint, updatedUserInfo);
-                String tokenString = ip + updatedUserInfo.getTokenDate() + updatedUserInfo.getTokenRandom();
-                try
-                {
-                    token = PasswordStorage.createHash(tokenString);
-                }
-                catch (Exception e)
-                {
-                    OperatorConsole.printMessageFiltered("Error getting Token", false, true);
-                }
-            }
-            else
-            {
-                String tokenString = ip + userToMint.getTokenDate() + userToMint.getTokenRandom();
-                try
-                {
-                    token = PasswordStorage.createHash(tokenString);
-                }
-                catch (Exception e)
-                {
-                    OperatorConsole.printMessageFiltered("Error getting Token", false, true);
-                }
-            }
-
-            if (HTTPSRequest.desanitizeToken(token).equals(token))
-            {
-                return token;
-            }
-            else
-            {
-                return getToken(userToMint, ip);
-            }
-
+            e.printStackTrace();
+            OperatorConsole.printMessageFiltered("Error Setting Host", false, true);
         }
-
-        /*
-         Checks current user list for old user data. if the user is in the list it replace that user with the newUser
-         if there is no list it makes one by adding new user
-
-         returns true if new user is written to the user file
-         */
-        public synchronized boolean modifyUser(User oldUser, User newUser)
-        {
-            ArrayList<User> users = getUserList();
-            if (users == null)
-            {
-                users = new ArrayList<User>();
-                users.add(newUser);
-                setUserList(users);
-                return true;
-            }
-            else
-            {
-                for (int i = 0; i < users.size(); i++)
-                {
-                    if (users.get(i).equals(oldUser))
-                    {
-                        users.remove(i);
-                        users.add(newUser);
-                        setUserList(users);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        public synchronized boolean usernameAvailable(String username)
-        {
-            ArrayList<User> users = getUserList();
-            if (users != null)
-            {
-                for (User user : users)
-                {
-                    if (user.getUsername().equals(username))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-
-        }
-
-        public synchronized boolean emailInUse(String email)
-        {
-
-            ArrayList<User> users = getUserList();
-            if (users != null)
-            {
-                for (User user : users)
-                {
-                    if (user.getEmail().equals(email))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-
-        public synchronized User loginToken(String token, String ip)
-        {
-            for (User user : this.getUserList())
-            {
-                String password = ip + user.getTokenDate() + user.getTokenRandom();
-                try
-                {
-                    if (PasswordStorage.verifyPassword(password, token))
-                    {
-                        LocalDate tokenMintDate = LocalDate.parse(user.getTokenDate());
-                        LocalDate now = LocalDate.now();
-                        if (now.minusDays(30).isAfter(tokenMintDate))
-                        {
-                            return null;
-                        }
-                        return user;
-                    }
-                }
-                catch (Exception e)
-                {
-                    OperatorConsole.printMessageFiltered("Error Authenticating User Token", false, true);
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        public synchronized User loginUsernamePassword(String username, String password)
-        {
-            ArrayList<User> users = getUserList();
-            if (users != null)
-            {
-                for (User user : users)
-                {
-                    if (user.getUsername().equals(username))
-                    {
-                        try
-                        {
-                            if (PasswordStorage.verifyPassword(password, user.getPassword().toString()))
-                            {
-                                return user;
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            OperatorConsole.printMessageFiltered("Error Authenticating User", false, true);
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        public synchronized void addUser(User userToAdd)
-        {
-            ArrayList<User> users = getUserList();
-            if (users == null)
-            {
-                users = new ArrayList<User>();
-            }
-            users.add(userToAdd);
-
-            setUserList(users);
-        }
-
-        public synchronized ArrayList<User> getUserList()
-        {
-            ArrayList<User> users = new ArrayList<User>();
-            try
-            {
-                File usersInfo = checkFor(userInfoDirectory, "userinfo.json");
-                String fileContents = getFileContents(usersInfo);
-                Type typeToken = new TypeToken<ArrayList<User>>()
-                {
-                }.getType();
-                users = new Gson().fromJson(fileContents, typeToken);
-                if (users != null)
-                {
-                    for (User user : users)
-                    {
-                        user.setPassword(removeUTFCharacters(user.getPassword()).toString());
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error Reading User Info", false, true);
-                e.printStackTrace();
-            }
-            return users;
-        }
-
-        public synchronized void setUserList(ArrayList<User> users)
-        {
-            try
-            {
-                String listToWrite = new Gson().toJson(users);
-                File usersInfo = checkFor(userInfoDirectory, "userinfo.json");
-                writeContents(usersInfo, listToWrite, false);
-            }
-            catch (Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error writing to User List", false, true);
-                e.printStackTrace();
-            }
-        }
-
-
-        public synchronized boolean createUser(String username, String password, String email)
-        {
-            if (username.length() > 17)
-            {
-                return false;
-            }
-            String whiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
-
-            ArrayList<User> users = getUserList();
-
-            if (users != null)
-            {
-                for (User user : users)
-                {
-                    if (username.equals(user.getUsername()))
-                    {
-                        return false;
-                    }
-
-                    if (email.equals(user.getEmail()))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            for (char character : username.toCharArray())
-            {
-                if (!whiteListedCharacters.contains("" + character))
-                {
-                    return false;
-                }
-            }
-
-
-            String hashedPassword = safeHashPassword(password);
-
-            if (hashedPassword.equals(""))
-            {
-                return false;
-            }
-
-            User newUser = new User(username,
-                    hashedPassword,
-                    LocalDate.now().toString(),
-                    User.generateRandom(),
-                    email,
-                    false);
-            addUser(newUser);
-            return true;
-        }
-
-
     }
+
+
+    public String getHost()
+    {
+        return this.host;
+    }
+
+    public void makeSiteIndexand404PageDefault()
+    {
+        try
+        {
+            File pageIndex = this.checkFor(this.getDirectory, "index.html");
+            String indexHTML = "<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "<head>\n" +
+                    "<style>\n" +
+                    "body\n" +
+                    "{\n" +
+                    "    background-color: lightgreen;\n" +
+                    "}\n" +
+                    "</style>\n" +
+                    "<title>\n" +
+                    "Index\n"+
+                    "</title>\n"+
+                    "</head>\n" +
+                    "<body>\n" +
+                    "<h4>\n" +
+                    "Sites<br>";
+            for (File file : this.listFilesRecursive(this.getDirectory))
+            {
+                indexHTML += "<a href = http://" + this.host + "/" + file.getName() + ">" + this.host + "/" + file.getName() + "</a><br>";
+            }
+
+            indexHTML += "</h4>\n" +
+                    "</body>\n" +
+                    "</html>";
+            writeContents(pageIndex, indexHTML, false);
+
+            File page404 = this.checkFor(this.getDirectory, "404.html");
+            String HTML404 = "<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "<head>\n" +
+                    "<style>\n" +
+                    "body\n" +
+                    "{\n" +
+                    "    background-color: lightgreen;\n" +
+                    "}\n" +
+                    "</style>\n" +
+                    "<title>\n" +
+                    "404 :(\n"+
+                    "</title>\n"+
+                    "</head>\n" +
+                    "<body>\n" +
+                    "<h1>\n" +
+                    "404 - File has Either Been Moved or Relocated\n" +
+                    "</h1>\n" +
+                    "<a href = \"http://" + this.host + "/index.html\">Index</a>\n" +
+                    "</body>\n" +
+                    "</html>";
+            writeContents(page404, HTML404, false);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
+        }
+    }
+
+
+
+    public void makeSiteIndexand404PageDomains()
+    {
+        try
+        {
+            File pageIndex = this.checkFor(this.getDirectory, "index.html");
+            String indexHTML = "<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "<head>\n" +
+                    "<style>\n" +
+                    "body\n" +
+                    "{\n" +
+                    "    background-color: lightgreen;\n" +
+                    "}\n" +
+                    "</style>\n" +
+                    "<title>\n" +
+                    "Index\n"+
+                    "</title>\n"+
+                    "</head>\n" +
+                    "<body>\n" +
+                    "<h4>\n" +
+                    "Sites<br>";
+            for (String domain : getDomains())
+            {
+                indexHTML += "<a href = http://" + domain + ">" + domain + "</a><br>";
+            }
+            indexHTML += "</h4>\n" +
+                    "</body>\n" +
+                    "</html>";
+            writeContents(pageIndex, indexHTML, false);
+
+            File page404 = this.checkFor(this.getDirectory, "404.html");
+            String HTML404 = "<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "<head>\n" +
+                    "<style>\n" +
+                    "body\n" +
+                    "{\n" +
+                    "    background-color: lightgreen;\n" +
+                    "}\n" +
+                    "</style>\n" +
+                    "<title>\n" +
+                    "404 :(\n"+
+                    "</title>\n"+
+                    "</head>\n" +
+                    "<body>\n" +
+                    "<h1>\n" +
+                    "404 - File has Either Been Moved or Relocated\n" +
+                    "</h1>\n" +
+                    "<a href = \"http://"+ this.host +"/index.html\">Index</a>\n" +
+                    "</body>\n" +
+                    "</html>";
+            writeContents(page404, HTML404, false);
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
+        }
+    }
+
+    public static CredentialsManager getCredentialsManager()
+    {
+        return credentialsManager;
+    }
+
+
 }
 
 
