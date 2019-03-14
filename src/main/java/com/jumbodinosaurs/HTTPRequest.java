@@ -264,46 +264,32 @@ public class HTTPRequest
         }
         return request;
     }
-
-
+    
+    
     public String getGetRequest()
     {
         String GET = "GET ";
         String HTTP = " HTTP/1.1";
         int indexofGET = this.messageFromClient.indexOf(GET);
-        int indexofHTTP = this.messageFromClient.indexOf(HTTP);
-        if(indexofHTTP >= 0)
-        {
-            while (this.messageFromClient.substring(indexofHTTP + HTTP.length()).contains(HTTP))
-            {
-                indexofHTTP = this.messageFromClient.substring(indexofHTTP + 1).indexOf(HTTP);
-            }
-        }
-
+        int indexofHTTP = this.messageFromClient.lastIndexOf(HTTP);
         if (indexofGET <= 0 && indexofGET < indexofHTTP)
         {
-            return this.messageFromClient.substring( indexofGET + GET.length(), indexofHTTP);
+            return this.messageFromClient.substring(indexofGET + GET.length(), indexofHTTP);
         }
         else
         {
             return null;
         }
     }
-
-
+    
+   
     public String getPostRequestUnchanged()
     {
         String POST = "POST /";
         String HTTP = " HTTP/1.1";
         int indexofPOST = this.messageFromClient.indexOf(POST);
-        int indexofHTTP = this.messageFromClient.indexOf(HTTP);
-        if(indexofHTTP >= 0)
-        {
-            while (this.messageFromClient.substring(indexofPOST + HTTP.length()).contains(HTTP))
-            {
-                indexofHTTP = this.messageFromClient.substring(indexofHTTP + 1).indexOf(HTTP);
-            }
-        }
+        int indexofHTTP = this.messageFromClient.lastIndexOf(HTTP);
+        
         if (indexofPOST >= 0 && indexofPOST < indexofHTTP)
         {
             String postJson = this.messageFromClient.substring(indexofPOST + POST.length(), indexofHTTP);
