@@ -1,16 +1,18 @@
 package com.jumbodinosaurs;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class SessionLogger implements Runnable
 {
-    private static ArrayList<Session> sessions;
+    public static ArrayList<Session> sessions;
 
-    public SessionLogger(DataController dataIO)
+    public SessionLogger()
     {
         this.sessions = new ArrayList<Session>();
     }
@@ -41,61 +43,25 @@ public class SessionLogger implements Runnable
     }
 
 
-    public void log(Session session)
+    public synchronized void log(Session session)
     {
         OperatorConsole.addHit(session);
-        //GSON Objects for writeing and dealing with json
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
-        Gson gson = builder.create();
-        JsonParser parser = new JsonParser();
-
-        try
+       
+        File logFile = DataController.getLogsJson();
+        String fileContents = DataController.getFileContents(logFile);
+        if(fileContents != null && fileContents != "")
         {
-            //File with log json
-            File logFile = DataController.getLogsJson();
-            //Read in log json
-            String fileContents = DataController.getFileContents(logFile);
-
-
-            //try parsing file with json parser
-            JsonElement element = null;
-            try
-            {
-                element = parser.parse(fileContents);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                OperatorConsole.printMessageFiltered("Error Parsing Json",false, true);
-            }
-            JsonObject sessionList = new JsonObject();
-            //If file already has contents
-            if (element != null &&
-                    element.isJsonObject() &&
-                    element.getAsJsonObject().getAsJsonArray("loglist") != null &&
-                    element.getAsJsonObject().getAsJsonArray("loglist").isJsonArray())
-            {
-                //Just add session
-                sessionList = element.getAsJsonObject();
-                sessionList.getAsJsonObject().getAsJsonArray("loglist").add(gson.toJson(session, Session.class));
-            }
-            else
-            {
-                //else make new loglist and add session
-                sessionList.add("loglist", new JsonArray());
-                sessionList.getAsJsonArray("loglist").add(gson.toJson(session, Session.class));
-            }
-            //write contents of sessionlist to logFile and close()
-            PrintWriter logOut = new PrintWriter(logFile);
-            logOut.write(sessionList.toString());
-            logOut.close();
-            OperatorConsole.printMessageFiltered("Session Logged", true, false);
+            fileContents = fileContents.substring(0, fileContents.length() - 1);
+            fileContents += "," + new Gson().toJson(session) + "]";
         }
-        catch (Exception e)
+        else
         {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Writing to Logs",false, true);
+            fileContents = "[" + new Gson().toJson(session) + "]";
         }
+
+        DataController.writeContents(logFile, fileContents, false);
+        OperatorConsole.printMessageFiltered("Session Logged", true, false);
     }
+
+
 }

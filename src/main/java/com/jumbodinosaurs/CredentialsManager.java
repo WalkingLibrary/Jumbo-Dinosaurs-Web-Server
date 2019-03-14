@@ -23,7 +23,7 @@ public class CredentialsManager
         String hundredCharRandom = User.generateRandom();
         String tokenTemp = hundredCharRandom.substring(0, 50);
         String tokenRandom = hundredCharRandom.substring(50);
-        String password = ip  + tokenTemp + now.toString() + tokenRandom;
+        String password = ip + tokenTemp + now.toString() + tokenRandom;
         try
         {
             String hash = DataController.safeHashPassword(password);
@@ -32,7 +32,7 @@ public class CredentialsManager
             updatedUserInfo.setTokenDate(now);
             updatedUserInfo.setToken(hash);
             updatedUserInfo.setTokenIsOneUse(true);
-            if(modifyUser(userToMint, updatedUserInfo))
+            if (modifyUser(userToMint, updatedUserInfo))
             {
                 token = tokenTemp;
             }
@@ -61,7 +61,7 @@ public class CredentialsManager
         String tokenTemp = hundredCharRandom.substring(0, 50);
         String tokenRandom = hundredCharRandom.substring(50);
 
-        String password = ip  + tokenTemp + now.toString() + tokenRandom;
+        String password = ip + tokenTemp + now.toString() + tokenRandom;
         try
         {
             String hash = DataController.safeHashPassword(password);
@@ -72,7 +72,7 @@ public class CredentialsManager
             updatedUserInfo.setToken(hash);
             updatedUserInfo.setTokenIsOneUse(false);
 
-            if(modifyUser(userToMint, updatedUserInfo))
+            if (modifyUser(userToMint, updatedUserInfo))
             {
                 token = tokenTemp;
             }
@@ -177,50 +177,59 @@ public class CredentialsManager
 
     public synchronized User loginToken(String token, String ip)
     {
-        for (User user : this.getUserList())
+        ArrayList<User> users = this.getUserList();
+        if(users != null)
         {
-            String password = ip + token + user.getTokenDate() + user.getTokenRandom();
-            try
+            for(User user : users)
             {
-                if (PasswordStorage.verifyPassword(password, user.getToken()))
+                String password = ip + token + user.getTokenDate() + user.getTokenRandom();
+                try
                 {
-                    LocalDateTime tokenMintDate = user.getTokenDate();
-                    LocalDateTime now = LocalDateTime.now();
-                    if (now.minusDays(30).isAfter(tokenMintDate))
+                    if(user.getToken() != null)
                     {
-                        return null;
-                    }
-
-                    if(user.isTokenIsOneUse())
-                    {
-                        LocalDateTime lastLogin = user.getLastLoginDate();
-                        if(lastLogin.isAfter(tokenMintDate))
+                        if(PasswordStorage.verifyPassword(password, user.getToken()))
                         {
-                            return null;
-                        }
-                        else if(now.minusHours((long)1).isAfter(tokenMintDate))
-                        {
-                            return null;
-                        }
-
-                    }
-
-                    if(!user.isAccountLocked())
-                    {
-                        User updatedUserInfo = user.clone();
-                        updatedUserInfo.setLastLoginDate(now);
-
-                        if(modifyUser(user, updatedUserInfo))
-                        {
-                            return updatedUserInfo;
+                            LocalDateTime tokenMintDate = user.getTokenDate();
+                            LocalDateTime now = LocalDateTime.now();
+                            if(now.minusDays(30).isAfter(tokenMintDate))
+                            {
+                                return null;
+                            }
+                    
+                            if(user.isTokenIsOneUse())
+                            {
+                                LocalDateTime lastLogin = user.getLastLoginDate();
+                                if(lastLogin != null && lastLogin.isAfter(tokenMintDate))
+                                {
+                            
+                                    return null;
+                            
+                                }
+                                else if(now.minusHours((long) 1).isAfter(tokenMintDate))
+                                {
+                                    return null;
+                                }
+                        
+                            }
+                    
+                            if(!user.isAccountLocked())
+                            {
+                                User updatedUserInfo = user.clone();
+                                updatedUserInfo.setLastLoginDate(now);
+                        
+                                if(modifyUser(user, updatedUserInfo))
+                                {
+                                    return updatedUserInfo;
+                                }
+                            }
                         }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error Authenticating User Token", false, true);
-                e.printStackTrace();
+                catch(Exception e)
+                {
+                    OperatorConsole.printMessageFiltered("Error Authenticating User Token", false, true);
+                    e.printStackTrace();
+                }
             }
         }
         return null;
@@ -239,22 +248,25 @@ public class CredentialsManager
                     {
                         if (PasswordStorage.verifyPassword(password, user.getPassword().toString()))
                         {
-                            if(!user.isAccountLocked())
+                            if (!user.isAccountLocked())
                             {
                                 LocalDateTime now = LocalDateTime.now();
                                 User updatedUserInfo = user.clone();
                                 updatedUserInfo.setLastLoginDate(now);
-                                if(modifyUser(user, updatedUserInfo))
+                                if (modifyUser(user, updatedUserInfo))
                                 {
                                     return updatedUserInfo;
                                 }
                             }
                         }
                     }
-                    catch (Exception e)
+                    catch (PasswordStorage.CannotPerformOperationException e)
                     {
-                        OperatorConsole.printMessageFiltered("Error Authenticating User", false, true);
-                        e.printStackTrace();
+                        OperatorConsole.printMessageFiltered("CannotPerformOperationException Error Authenticating User", false, true);
+                    }
+                    catch (PasswordStorage.InvalidHashException e)
+                    {
+                        OperatorConsole.printMessageFiltered("InvalidHashException Error Authenticating User", false, true);
                     }
                 }
             }
@@ -319,7 +331,7 @@ public class CredentialsManager
 
     public synchronized boolean createUser(String username, String password, String email)
     {
-        if (username.length() > 17)
+        if (username.length() > 17 || password.length() < 9)
         {
             return false;
         }

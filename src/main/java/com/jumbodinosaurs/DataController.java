@@ -3,6 +3,8 @@ package com.jumbodinosaurs;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import jdk.nashorn.internal.parser.TokenType;
+
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
@@ -12,6 +14,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,12 +22,12 @@ import java.util.regex.Pattern;
 public class DataController
 {
     public static String host = "";
-    private static File codeExecutionDir = new File(System.getProperty("user.dir")).getParentFile();
     public static File getDirectory;
     public static File logsDirectory;
     public static File certificateDirectory;
     public static File userInfoDirectory;
     public static File postDirectory;
+    private static File codeExecutionDir = new File(System.getProperty("user.dir")).getParentFile();
     private static File timeOutHelperDir;
     private static SessionLogger logger;
     private static CredentialsManager credentialsManager;
@@ -54,7 +57,7 @@ public class DataController
                 this.makeSiteIndexand404PageDefault();
             }
             //For logging sessions thread
-            this.logger = new SessionLogger(this);
+            this.logger = new SessionLogger();
             Thread loggerThread = new Thread(this.logger);
             loggerThread.start();
         }
@@ -503,7 +506,6 @@ public class DataController
     }
 
 
-
     //For Reading any file on the system
     public static String getFileContents(File file)
     {
@@ -524,31 +526,6 @@ public class DataController
         }
         return fileRequestedContents;
     }
-
-    /*
-    //Cycles thru the given string and if there are any forward slashes or backward slashes it will invert them
-    public static String invertSlashes(String str)
-    {
-        String invertedStr = str;
-        for (int i = 0; i < str.length() - 1; i++)
-        {
-            if (invertedStr.substring(i, i + 1).contains("/")
-                    || invertedStr.substring(i, i + 1).contains("\\"))
-            {
-                if (invertedStr.substring(i, i + 1).contains("/"))
-                {
-                    invertedStr = invertedStr.substring(0, i) + "\\" + invertedStr.substring(i + 1);
-                }
-                else if (invertedStr.substring(i, i + 1).contains("\\"))
-                {
-                    invertedStr = invertedStr.substring(0, i) + "/" + invertedStr.substring(i + 1);
-                }
-            }
-
-        }
-        return invertedStr;
-    }
-    */
 
     public static byte[] readZip(File file)
     {
@@ -599,8 +576,8 @@ public class DataController
                 MimeMessage msg = new MimeMessage(session);
                 //Storing the comma seperated values to email addresses
                 String to = userEmailAddress;
-            /*Parsing the String with defualt delimiter as a comma by marking the boolean as true and storing the email
-            addresses in an array of InternetAddress objects*/
+                /*Parsing the String with defualt delimiter as a comma by marking the boolean as true and storing the email
+                addresses in an array of InternetAddress objects*/
                 InternetAddress[] address = InternetAddress.parse(to, true);
                 //Setting the recepients from the address variable
                 msg.setRecipients(Message.RecipientType.TO, address);
@@ -610,7 +587,7 @@ public class DataController
                 msg.setText(message);
                 msg.setHeader("XPriority", "1");
                 Transport.send(msg);
-                System.out.println("Mail has been sent successfully");
+                OperatorConsole.printMessageFiltered("Mail has been sent successfully", true, false);
                 return true;
             }
             catch (Exception e)
@@ -621,8 +598,6 @@ public class DataController
         }
         return false;
     }
-
-
 
 
     public static byte[] readPhoto(File file)
@@ -698,7 +673,7 @@ public class DataController
     }
 
 
-    //Takes the given password and returns a gson safe hash
+    //Takes the given password and returns a GSON safe hash
     public static String safeHashPassword(String password)
     {
         try
@@ -724,6 +699,11 @@ public class DataController
         return "";
     }
 
+    public static CredentialsManager getCredentialsManager()
+    {
+        return credentialsManager;
+    }
+
     private void setHost()
     {
         try
@@ -743,6 +723,40 @@ public class DataController
         }
     }
 
+    /*
+    public static void writeSilentConsole(String message)
+    {
+        try
+        {
+            if(logsDirectory != null)
+            {
+                File fileToWriteTo = checkFor(logsDirectory, "silentconsole.json");
+                String contents = getFileContents(fileToWriteTo);
+                LocalDateTime now = LocalDateTime.now();
+                SilentConsoleMessage consoleMessage = new SilentConsoleMessage(message, now.toString());
+                Type type = new TypeToken<ArrayList<SilentConsoleMessage>>(){}.getType();
+                ArrayList<SilentConsoleMessage> messages = new Gson().fromJson(contents, type);
+                if(messages != null)
+                {
+                    messages.add(consoleMessage);
+                }
+                else
+                {
+                    messages = new ArrayList<SilentConsoleMessage>();
+                    messages.add(consoleMessage);
+                }
+                String messagesJson = new Gson().toJson(messages);
+                writeContents(fileToWriteTo, messagesJson, false);
+            }
+
+        }
+        catch (Exception e)
+        {
+            System.out.println("Problems with silent console");
+            e.printStackTrace();
+        }
+    }
+    */
 
     public String getHost()
     {
@@ -764,8 +778,8 @@ public class DataController
                     "}\n" +
                     "</style>\n" +
                     "<title>\n" +
-                    "Index\n"+
-                    "</title>\n"+
+                    "Index\n" +
+                    "</title>\n" +
                     "</head>\n" +
                     "<body>\n" +
                     "<h4>\n" +
@@ -791,8 +805,8 @@ public class DataController
                     "}\n" +
                     "</style>\n" +
                     "<title>\n" +
-                    "404 :(\n"+
-                    "</title>\n"+
+                    "404 :(\n" +
+                    "</title>\n" +
                     "</head>\n" +
                     "<body>\n" +
                     "<h1>\n" +
@@ -810,8 +824,6 @@ public class DataController
         }
     }
 
-
-
     public void makeSiteIndexand404PageDomains()
     {
         try
@@ -827,8 +839,8 @@ public class DataController
                     "}\n" +
                     "</style>\n" +
                     "<title>\n" +
-                    "Index\n"+
-                    "</title>\n"+
+                    "Index\n" +
+                    "</title>\n" +
                     "</head>\n" +
                     "<body>\n" +
                     "<h4>\n" +
@@ -853,14 +865,14 @@ public class DataController
                     "}\n" +
                     "</style>\n" +
                     "<title>\n" +
-                    "404 :(\n"+
-                    "</title>\n"+
+                    "404 :(\n" +
+                    "</title>\n" +
                     "</head>\n" +
                     "<body>\n" +
                     "<h1>\n" +
                     "404 - File has Either Been Moved or Relocated\n" +
                     "</h1>\n" +
-                    "<a href = \"http://"+ this.host +"/index.html\">Index</a>\n" +
+                    "<a href = \"http://" + this.host + "/index.html\">Index</a>\n" +
                     "</body>\n" +
                     "</html>";
             writeContents(page404, HTML404, false);
@@ -871,11 +883,6 @@ public class DataController
             e.printStackTrace();
             OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
         }
-    }
-
-    public static CredentialsManager getCredentialsManager()
-    {
-        return credentialsManager;
     }
 
 

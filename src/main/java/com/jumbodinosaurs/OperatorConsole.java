@@ -2,6 +2,10 @@ package com.jumbodinosaurs;
 
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.File;
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -12,17 +16,19 @@ public class OperatorConsole implements Runnable
             "/placeholder", "/cleardomains", // 2 3
             "/adddomain", "/editdomain", // 4 5
             "/stop", "/stats",//6 7
-            "/toggledebug", "/togglesslredirect"};//8 9
+            "/toggledebug", "/togglesslredirect",
+            "/toggleallowpost"};//8 9
     private ArrayList<String> queue = new ArrayList<String>();
 
 
 
     //private String mostRequestedFile;
-    private static boolean debug ;
+    private static boolean debug;
     private static int hitsToday = 0;
     private static LocalDate today = LocalDate.now();
     private static int totalHits = 0;
     private static int exceptions = 0;
+    private static boolean allowPost = true;
 
 
     public OperatorConsole()
@@ -30,75 +36,36 @@ public class OperatorConsole implements Runnable
         this.exceptions = 0;
         this.debug = true;
 
-        //GSON Objects for writeing and dealing with json
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
-        Gson gson = builder.create();
-        JsonParser parser = new JsonParser();
-
-        try
+        File logFile = DataController.getLogsJson();
+        String fileContents = DataController.getFileContents(logFile);
+        Type type = new TypeToken<ArrayList<Session>>(){}.getType();
+        ArrayList<Session> sessions = new Gson().fromJson(fileContents, type);
+        if(sessions != null)
         {
+            this.totalHits = sessions.size();
+            this.hitsToday = 0;
 
-        String logFileContents = DataController.getFileContents(DataController.getLogsJson());
-
-            JsonElement element = null;
-            try
+            for (Session session:sessions)
             {
-                element = parser.parse(logFileContents);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                System.out.println("Error Parsing Json");
-            }
-
-
-
-            if (element != null &&
-                    element.isJsonObject() &&
-                    element.getAsJsonObject().getAsJsonArray("loglist") != null &&
-                    element.getAsJsonObject().getAsJsonArray("loglist").isJsonArray())
-            {
-                JsonArray logJsonArray = element.getAsJsonObject().getAsJsonObject().getAsJsonArray("loglist");
-                //Get Total Hits
-                this.totalHits = logJsonArray.size();
-                //check for hits from today
-                ArrayList<Session> pastSessions = new ArrayList<Session>();
-                //Load old sessions to arraylist
-                for (JsonElement oldSession: logJsonArray)
+                LocalDate when = LocalDate.parse(session.getDate());
+                if(this.today.equals(when))
                 {
-                    pastSessions.add(gson.fromJson(oldSession.getAsString(), Session.class));
+                    hitsToday++;
                 }
-
-                for(Session session: pastSessions)
-                {
-                    LocalDate when = LocalDate.parse(session.getDate());
-                    if(this.today.equals(when))
-                    {
-                        this.hitsToday++;
-                    }
-                }
-
-
             }
-
-
         }
-        catch(Exception e)
+        else
         {
-            e.printStackTrace();
-            System.out.println("Error Initializing Console");
+            hitsToday = 0;
+            totalHits = 0;
         }
-
-
-
-
         System.out.println("Console Online");
     }
 
 
     public static synchronized void printMessageFiltered(String message, boolean debugMessage, boolean exception)
     {
+        //DataController.writeSilentConsole(message);
         if(exception)
         {
             exceptions++;
@@ -145,7 +112,10 @@ public class OperatorConsole implements Runnable
         }
     }
 
-
+    public static boolean allowPost()
+    {
+        return allowPost;
+    }
 
     public void run()
     {
@@ -170,6 +140,13 @@ public class OperatorConsole implements Runnable
                 }
                 else if (command.contains(commands[6]))///stop
                 {
+                    if(SessionLogger.sessions != null)
+                    {
+                        while(SessionLogger.sessions.size() > 0)
+                        {
+
+                        }
+                    }
                     System.out.println("Shutting Down");
                     System.exit(3);
                 }
@@ -206,6 +183,18 @@ public class OperatorConsole implements Runnable
                         System.out.println("HTTP requests will now try to Redirect To HTTPS");
                     }
 
+                }
+                else if(command.contains(commands[10]))
+                {
+                    if(allowPost)
+                    {
+                        System.out.println("Server Will No Longer Accept Post Requests");
+                    }
+                    else
+                    {
+                        System.out.println("Server Will now Accept Post Requests");
+                    }
+                    allowPost = !allowPost;
                 }
                 else
                 {

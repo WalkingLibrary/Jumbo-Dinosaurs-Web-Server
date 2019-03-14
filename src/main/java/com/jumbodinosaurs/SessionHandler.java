@@ -53,6 +53,14 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
 
 
             session.setMessageSent(request.getMessageToSend());
+
+            if(!request.logMessageFromClient())
+            {
+                session.setMessageSent("POST Redirect");
+                session.setMessage(request.getCensoredMessageFromClient());
+                //Would be kinda point less to hash a password if we saved it over in logs.json :P
+            }
+
             OperatorConsole.printMessageFiltered("Adding Session to Logger", true, false);
             DataController.log(session);
             OperatorConsole.printMessageFiltered("Session Complete", true, false);

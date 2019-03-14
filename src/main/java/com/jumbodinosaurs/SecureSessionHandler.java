@@ -48,7 +48,9 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
 
             if(!request.logMessageFromClient())
             {
-                session.setMessageSent("POST");
+                session.setMessageSent("POST, Had 200 Code:" + request.messageSentContained200Code());
+                session.setMessage(request.getCensoredMessageFromClient());
+                //Would be kinda point less to hash a password if we saved it over in logs.json :P
             }
 
             OperatorConsole.printMessageFiltered("Adding Session to Logger",true,false);

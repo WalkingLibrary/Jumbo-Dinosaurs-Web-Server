@@ -1,6 +1,7 @@
 package com.jumbodinosaurs;
 
 import java.io.File;
+import java.net.URLDecoder;
 
 public class HTTPRequest
 {
@@ -30,6 +31,7 @@ public class HTTPRequest
     private String messageToSend;
     private byte[] byteArrayToSend;
     private Boolean hasByteArray = false;
+    private boolean leaveMessageTheSame = true;
 
 
     public HTTPRequest(String messageFromClient)
@@ -126,9 +128,32 @@ public class HTTPRequest
         }
         else if (this.isPost())
         {
+            this.leaveMessageTheSame = false;
             this.tryToRedirectToHTTPS();
         }
 
+    }
+
+    public Boolean logMessageFromClient()
+    {
+        return leaveMessageTheSame;
+    }
+
+
+
+    public String getCensoredMessageFromClient()
+    {
+        String postDataSent = this.getPostRequestUnchanged();
+        if(postDataSent != null)
+        {
+            int indexOfPostData = this.messageFromClient.indexOf(postDataSent);
+            return this.messageFromClient.substring(0, indexOfPostData) +
+                    this.messageFromClient.substring(postDataSent.length());
+        }
+        else
+        {
+            return this.messageFromClient;
+        }
     }
 
 
@@ -240,18 +265,51 @@ public class HTTPRequest
         return request;
     }
 
+
     public String getGetRequest()
     {
-        if (this.messageFromClient.indexOf("GET ") > -1 &&
-                this.messageFromClient.indexOf(" HTTP/1.1") > -1 &&
-                this.messageFromClient.indexOf("GET") + 4 < this.messageFromClient.indexOf(" HTTP/1.1"))
+        String GET = "GET ";
+        String HTTP = " HTTP/1.1";
+        int indexofGET = this.messageFromClient.indexOf(GET);
+        int indexofHTTP = this.messageFromClient.indexOf(HTTP);
+        if(indexofHTTP >= 0)
         {
-            return this.messageFromClient.substring(this.messageFromClient.indexOf("GET ") + 4, this.messageFromClient.indexOf(" HTTP/1.1"));
+            while (this.messageFromClient.substring(indexofHTTP + HTTP.length()).contains(HTTP))
+            {
+                indexofHTTP = this.messageFromClient.substring(indexofHTTP + 1).indexOf(HTTP);
+            }
+        }
+
+        if (indexofGET <= 0 && indexofGET < indexofHTTP)
+        {
+            return this.messageFromClient.substring( indexofGET + GET.length(), indexofHTTP);
         }
         else
         {
             return null;
         }
+    }
+
+
+    public String getPostRequestUnchanged()
+    {
+        String POST = "POST /";
+        String HTTP = " HTTP/1.1";
+        int indexofPOST = this.messageFromClient.indexOf(POST);
+        int indexofHTTP = this.messageFromClient.indexOf(HTTP);
+        if(indexofHTTP >= 0)
+        {
+            while (this.messageFromClient.substring(indexofPOST + HTTP.length()).contains(HTTP))
+            {
+                indexofHTTP = this.messageFromClient.substring(indexofHTTP + 1).indexOf(HTTP);
+            }
+        }
+        if (indexofPOST >= 0 && indexofPOST < indexofHTTP)
+        {
+            String postJson = this.messageFromClient.substring(indexofPOST + POST.length(), indexofHTTP);
+            return postJson;
+        }
+        return null;
     }
 
     public boolean hasByteArray()

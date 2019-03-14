@@ -25,7 +25,7 @@ import java.util.Scanner;
 public class Main
 {
     private static ServerControl controler;
-
+    
     public static void main(String[] args)
     {
         Scanner userInput = new Scanner(System.in);
@@ -55,7 +55,7 @@ public class Main
         {
             System.out.println("No Arguments Given.\n Continue with default Server Controller? (y/n)");
             String response = userInput.next();
-            if (response.toLowerCase().contains("y") || response.toLowerCase().contains("yes"))
+            if(response.toLowerCase().contains("y") || response.toLowerCase().contains("yes"))
             {
                 controler = new ServerControl();
             }
@@ -64,6 +64,6 @@ public class Main
                 System.exit(0);
             }
         }
-
+        
     }
 }
