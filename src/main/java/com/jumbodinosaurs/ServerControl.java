@@ -29,7 +29,7 @@ public class ServerControl
 
     public ServerControl()
     {
-        System.out.println("Starting Jumbo Dinosaurs .5");//G
+        System.out.println("Starting Jumbo Dinosaurs .6");//G
         this.dataIO = new DataController(false);
         this.commandThread = new Thread(new OperatorConsole());
         this.commandThread.start();
@@ -40,7 +40,7 @@ public class ServerControl
 
     public ServerControl(RuntimeArguments arguments)
     {
-        System.out.println("Starting Jumbo Dinosaurs .5");//G
+        System.out.println("Starting Jumbo Dinosaurs .6");//G
         this.arguments = arguments;
         if(arguments.getDomains() != null)
         {
