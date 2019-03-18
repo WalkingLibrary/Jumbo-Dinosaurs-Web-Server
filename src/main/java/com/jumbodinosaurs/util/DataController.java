@@ -309,13 +309,12 @@ public class DataController
         String pathofRequestedFile = getDirectory.getAbsolutePath() + fileWanted;
         for(File file : filesInAllowedDir)
         {
-            if(pathofRequestedFile.equals(file.getAbsolutePath()))
+            if(file.getAbsolutePath().equals(pathofRequestedFile))
             {
                 fileToGive = file;
                 count++;
             }
         }
-        
         
         //DEBUG
         if(count > 1)

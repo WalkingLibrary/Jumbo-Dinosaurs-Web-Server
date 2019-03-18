@@ -88,10 +88,11 @@ public class HTTPSRequest
             {
                 String fileToGet = this.mendPageRequest(requestCheck);
                 
-                File fileRequested;
+                OperatorConsole.printMessageFiltered("File To Get: " + fileToGet, true, false);
+                File fileRequested = DataController.getFileFromGETDirectory(fileToGet);
                 
                 //If if have file
-                if((fileRequested = DataController.getFileFromGETDirectory(fileToGet)) != null)
+                if(fileRequested != null)
                 {
                     //add Good Code
                     

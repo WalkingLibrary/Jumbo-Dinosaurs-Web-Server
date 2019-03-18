@@ -20,54 +20,78 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
         String message = (String) msg;
         try
         {
+            
             Channel channel = context.channel();
             Session session = new Session(channel, message);
-            //DEBUG TO BE CHANGE BACK TO HTTPRequest request = new HTTPRequest(session.getMessage());
-            HTTPRequest request = new HTTPRequest(session.getMessage());
-            if(request.isHTTP())
+            boolean allowconection = false;
+            if(OperatorConsole.whitelist)
             {
-                
-                if(redirectToSSL && SecureSessionHandlerInitializer.running)
+                if(OperatorConsole.whitelistedIps != null)
                 {
-                    //request.tryToRedirectToHTTPS();
+                    for(String str : OperatorConsole.whitelistedIps)
+                    {
+                        if(session.getWho().contains(str))
+                        {
+                            allowconection = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                allowconection = true;
+            }
+            
+            if(allowconection)
+            {
+                //DEBUG TO BE CHANGE BACK TO HTTPRequest request = new HTTPRequest(session.getMessage());
+                HTTPRequest request = new HTTPRequest(session.getMessage());
+                if(request.isHTTP())
+                {
+                    
+                    if(redirectToSSL && SecureSessionHandlerInitializer.running)
+                    {
+                        request.tryToRedirectToHTTPS();
+                    }
+                    else
+                    {
+                        request.generateMessage();
+                    }
                 }
                 else
                 {
-                    request.generateMessage();
+                    request.setMessage501();
                 }
+                
+                //Send Message
+                
+                
+                if(request.hasByteArray())
+                {
+                    FastResponse response = new FastResponse(request.getMessageToSend(), request.getByteArrayToSend());
+                    context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                }
+                else
+                {
+                    FastResponse response = new FastResponse(request.getMessageToSend(), null);
+                    context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                }
+                
+                
+                session.setMessageSent(request.getMessageToSend());
+                
+                if(!request.logMessageFromClient())
+                {
+                    session.setMessageSent(request.getCensoredMessageSentToClient());
+                    session.setMessage(request.getCensoredMessageFromClient());
+                    //Would be kinda point less to hash a password if we saved it over in logs.json :P
+                }
+                
+                OperatorConsole.printMessageFiltered(session.toString(), true, false);
+                
+                DataController.log(session);
             }
-            else
-            {
-                request.setMessage501();
-            }
-            
-            //Send Message
-            
-            
-            if(request.hasByteArray())
-            {
-                FastResponse response = new FastResponse(request.getMessageToSend(), request.getByteArrayToSend());
-                context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-            }
-            else
-            {
-                FastResponse response = new FastResponse(request.getMessageToSend(), null);
-                context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-            }
-            
-            
-            session.setMessageSent(request.getMessageToSend());
-            
-            if(!request.logMessageFromClient())
-            {
-                session.setMessageSent(request.getCensoredMessageSentToClient());
-                session.setMessage(request.getCensoredMessageFromClient());
-                //Would be kinda point less to hash a password if we saved it over in logs.json :P
-            }
-            
-            OperatorConsole.printMessageFiltered(session.toString(), true, false);
-            
-            DataController.log(session);
         }
         catch(Exception e)
         {
@@ -75,6 +99,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             OperatorConsole.printMessageFiltered("Error Sending Message", false, true);
             
         }
+        
     }
     
     @Override

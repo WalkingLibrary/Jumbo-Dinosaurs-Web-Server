@@ -21,7 +21,8 @@ public class OperatorConsole implements Runnable
             "/adddomain", "/editdomain", // 4 5
             "/stop", "/stats",//6 7
             "/toggledebug", "/togglesslredirect",
-            "/toggleallowpost", "/toggleuserlock "};//8 9
+            "/toggleallowpost", "/toggleuserlock ",
+    "/togglewhitelist", "/whitelistadd"};//8 9
     private ArrayList<String> queue = new ArrayList<String>();
 
 
@@ -33,6 +34,8 @@ public class OperatorConsole implements Runnable
     private static int totalHits = 0;
     private static int exceptions = 0;
     private static boolean allowPost = true;
+    public static boolean whitelist = false;
+    public static ArrayList<String> whitelistedIps = new ArrayList<String>();
 
 
     public OperatorConsole()
@@ -231,6 +234,27 @@ public class OperatorConsole implements Runnable
                         System.out.println("User Doesn't exist");
                     }
                     
+                }
+                else if(command.contains(commands[12]))
+                {
+                    if(whitelist)
+                    {
+                        System.out.println("White list is now off");
+                    }
+                    else
+                    {
+                        System.out.println("White list is now on");
+                    }
+                    whitelist = !whitelist;
+                   
+                    
+                    
+                }
+                else if(command.contains(commands[13]))
+                {
+                    String ip = command.substring(commands[12].length() - 2);
+                    whitelistedIps.add(ip);
+                    System.out.println("I.P. added: " + ip);
                 }
                 else
                 {
