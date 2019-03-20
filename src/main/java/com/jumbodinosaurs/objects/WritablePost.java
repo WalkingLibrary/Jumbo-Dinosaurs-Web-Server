@@ -1,5 +1,9 @@
 package com.jumbodinosaurs.objects;
 
+import com.google.gson.Gson;
+
+import java.time.LocalDateTime;
+
 public class WritablePost
 {
 
@@ -7,20 +11,19 @@ public class WritablePost
     private String localPath;
     private String user;
     private String content;
-    private String date;
+    private String postIdentifier;
+    private LocalDateTime date;
 
-    public WritablePost(String localPath, String user, String content, String date)
+    public WritablePost()
     {
-        this.localPath = localPath;
-        this.user = user;
-        this.content = content;
-        this.date = date;
+    
     }
-
-    public String getDate()
+    
+    public WritablePost clone()
     {
-        return date;
+        return new Gson().fromJson(new Gson().toJson(this), WritablePost.class);
     }
+    
 
     public String getUser()
     {
@@ -35,5 +38,41 @@ public class WritablePost
     public String getLocalPath()
     {
         return localPath;
+    }
+    
+    public void setLocalPath(String localPath)
+    {
+        this.localPath = localPath;
+    }
+    
+    public void setUser(String user)
+    {
+        this.user = user;
+    }
+    
+    public void setContent(String content)
+    {
+        this.content = content;
+    }
+    
+    public String getPostIdentifier()
+    {
+        return postIdentifier;
+    }
+    
+    public void setPostIdentifier(String postIdentifier)
+    {
+        this.postIdentifier = postIdentifier;
+    }
+    
+    
+    public LocalDateTime getDate()
+    {
+        return date;
+    }
+    
+    public void setDate(LocalDateTime date)
+    {
+        this.date = date;
     }
 }

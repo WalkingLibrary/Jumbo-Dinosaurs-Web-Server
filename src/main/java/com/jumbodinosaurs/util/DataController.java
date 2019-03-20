@@ -128,15 +128,6 @@ public class DataController
      */
     public static File checkForLocalPath(File file, String localPath)
     {
-        File[] files = listFilesRecursive(file);
-        String pathOfRequestedFile = file.getAbsolutePath() + localPath;
-        for(File subFile : files)
-        {
-            if(subFile.getAbsolutePath().equals(pathOfRequestedFile))
-            {
-                return subFile;
-            }
-        }
         
         ArrayList<String> levels = new ArrayList<String>();
         String temp = localPath;

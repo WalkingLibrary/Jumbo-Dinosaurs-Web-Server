@@ -10,18 +10,14 @@ import com.jumbodinosaurs.util.DataController;
 import com.jumbodinosaurs.util.OperatorConsole;
 import sun.misc.BASE64Encoder;
 
-import javax.imageio.IIOException;
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ServerControl

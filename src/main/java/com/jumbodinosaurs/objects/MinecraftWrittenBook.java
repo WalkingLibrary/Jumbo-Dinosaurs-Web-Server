@@ -101,17 +101,7 @@ public class MinecraftWrittenBook
         return true;
     }
 
-    public boolean isGoodPost()
-    {
-        if(!this.hasNulls())
-        {
-            if(this.author.length() < 17)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    
 
     public boolean equals(MinecraftWrittenBook book)
     {
