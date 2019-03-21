@@ -138,7 +138,31 @@ public class HTTPSRequest
                 }
                 else//Send 404 not found
                 {
-                    this.setMessage404();
+                    String getGetReplacedWithPost = getGetReplacedWithPost();
+                    System.out.println(getGetReplacedWithPost);
+                    if(!getGetReplacedWithPost.equals(""))
+                    {
+                        try
+                        {
+                            String postInfo = getPostRequestUTF8(getGetReplacedWithPost);
+                            PostRequest postRequest = new Gson().fromJson(postInfo, PostRequest.class);
+                            this.leaveMessageTheSame = false;
+                            this.messageFromClient = getGetReplacedWithPost  + " was GET";
+                            this.setMessage400();
+                        }
+                        catch(JsonParseException e)
+                        {
+                            OperatorConsole.printMessageFiltered("GET was Not Json" ,true, false);
+                        }
+                        finally
+                        {
+                            this.setMessage404();
+                        }
+                    }
+                    else
+                    {
+                        this.setMessage404();
+                    }
                 }
             }
             else
@@ -626,6 +650,14 @@ public class HTTPSRequest
                     {
                         allowedPostedData += " Content: " +this.postRequest.getContent() + " ";
                     }
+                    if(this.postRequest.getListName() != null)
+                    {
+                        allowedPostedData += " List Name: " +this.postRequest.getListName() + " ";
+                    }
+                    if(this.postRequest.getConnectionName() != null)
+                    {
+                        allowedPostedData += " Connection Name: " +this.postRequest.getConnectionName() + " ";
+                    }
                 }
                 return messageFromClientUTF.substring(messageFromClientUTF.indexOf("POST /"), "POST /".length()) +
                                allowedPostedData + messageFromClientUTF.substring(messageFromClientUTF.lastIndexOf(" HTTP/1.1"));
@@ -827,6 +859,21 @@ public class HTTPSRequest
         }
     }
     
+    public String getGetReplacedWithPost()
+    {
+        String temp = this.messageFromClient;
+        String GET = "GET /";
+        String POST = "POST /";
+        String HTTP = " HTTP/1.1";
+        int indexOfGet = temp.indexOf(GET);
+        int indexOfHttp = temp.indexOf(HTTP);
+        if(indexOfGet >= 0 && indexOfHttp > indexOfGet)
+        {
+            return POST + temp.substring(indexOfGet + GET.length());
+        }
+        return  "";
+    }
+    
     public String getPostRequestUTF8()
     {
         String POST = "POST /";
@@ -837,6 +884,29 @@ public class HTTPSRequest
         if(indexofPOST >= 0 && indexofPOST < indexofHTTP)
         {
             String postJson = this.messageFromClient.substring(indexofPOST + POST.length(), indexofHTTP);
+            try
+            {
+                postJson = URLDecoder.decode(postJson, "UTF-8");
+            }
+            catch(Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error Decoding Post Message", false, true);
+            }
+            return postJson;
+        }
+        return null;
+    }
+    
+    public String getPostRequestUTF8(String message)
+    {
+        String POST = "POST /";
+        String HTTP = " HTTP/1.1";
+        int indexofPOST = message.indexOf(POST);
+        int indexofHTTP = message.lastIndexOf(HTTP);
+        
+        if(indexofPOST >= 0 && indexofPOST < indexofHTTP)
+        {
+            String postJson = message.substring(indexofPOST + POST.length(), indexofHTTP);
             try
             {
                 postJson = URLDecoder.decode(postJson, "UTF-8");

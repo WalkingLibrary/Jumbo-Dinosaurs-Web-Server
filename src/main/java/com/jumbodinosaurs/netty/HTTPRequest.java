@@ -1,8 +1,13 @@
 package com.jumbodinosaurs.netty;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.jumbodinosaurs.objects.PostRequest;
 import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.OperatorConsole;
 
 import java.io.File;
+import java.net.URLDecoder;
 
 public class HTTPRequest
 {
@@ -116,9 +121,32 @@ public class HTTPRequest
 
                     }
                 }
-                else//Send 404 not found
+                else
                 {
-                    this.setMessage404();
+                    String getGetReplacedWithPost = getGetReplacedWithPost();
+                    if(!getGetReplacedWithPost.equals(""))
+                    {
+                        try
+                        {
+                            String postInfo = getPostRequestUTF8(getGetReplacedWithPost);
+                            PostRequest postRequest = new Gson().fromJson(postInfo, PostRequest.class);
+                            this.leaveMessageTheSame = false;
+                            this.messageFromClient = getGetReplacedWithPost + " was GET";
+                            this.setMessage400();
+                        }
+                        catch(JsonParseException e)
+                        {
+                            OperatorConsole.printMessageFiltered("GET was Not Json" ,true, false);
+                        }
+                        finally
+                        {
+                            this.setMessage404();
+                        }
+                    }
+                    else
+                    {
+                        this.setMessage404();
+                    }
                 }
             }
             else
@@ -129,9 +157,14 @@ public class HTTPRequest
         else if (this.isPost())
         {
             this.leaveMessageTheSame = false;
-            this.tryToRedirectToHTTPS();
+            this.tryToRedirectToHTTPSPOST();
         }
 
+    }
+    public void setMessage400()
+    {
+        this.messageToSend += this.sC400;
+        this.messageToSend += this.closeHeader;
     }
 
     public Boolean logMessageFromClient()
@@ -184,6 +217,70 @@ public class HTTPRequest
             generateMessage();
         }
 
+    }
+    
+    public void tryToRedirectToHTTPSPOST()
+    {
+        boolean redirect = false;
+        for (String host : DataController.getDomains())
+        {
+            if (this.getHost().equals(host))
+            {
+                this.messageToSend += this.sC301;//Redirect Header
+                
+                //Need To Craft Location Header From Host header.
+                //if no host header then server should redirect to current ip
+                this.messageToSend += this.locationHeader + " https://" + host;
+                
+                this.messageToSend += this.closeHeader;
+                redirect = true;
+                break;
+            }
+        }
+        
+        if (!redirect)
+        {
+            generateMessage();
+        }
+        
+    }
+    
+    public String getGetReplacedWithPost()
+    {
+        String temp = this.messageFromClient;
+        String GET = "GET /";
+        String POST = "POST /";
+        String HTTP = " HTTP/1.1";
+        int indexOfGet = temp.indexOf(GET);
+        int indexOfHttp = temp.indexOf(HTTP);
+        if(indexOfGet >= 0 && indexOfHttp > indexOfGet)
+        {
+            return POST + temp.substring(indexOfGet + GET.length());
+        }
+        return  "";
+    }
+    
+    public String getPostRequestUTF8(String message)
+    {
+        String POST = "POST /";
+        String HTTP = " HTTP/1.1";
+        int indexofPOST = message.indexOf(POST);
+        int indexofHTTP = message.lastIndexOf(HTTP);
+        
+        if(indexofPOST >= 0 && indexofPOST < indexofHTTP)
+        {
+            String postJson = message.substring(indexofPOST + POST.length(), indexofHTTP);
+            try
+            {
+                postJson = URLDecoder.decode(postJson, "UTF-8");
+            }
+            catch(Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error Decoding Post Message", false, true);
+            }
+            return postJson;
+        }
+        return null;
     }
 
 
