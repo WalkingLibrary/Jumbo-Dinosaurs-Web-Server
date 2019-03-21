@@ -136,10 +136,12 @@ public class HTTPSRequest
                         
                     }
                 }
-                else//Send 404 not found
+                else//Send 404 not found server doesn't have the file
                 {
+                    //Make sure the client didn't send any thing that can be a post request
+                    //If the get request can become a Post request  then change the client message sent to post for censorship
+                    // in the session handler
                     String getGetReplacedWithPost = getGetReplacedWithPost();
-                    System.out.println(getGetReplacedWithPost);
                     if(!getGetReplacedWithPost.equals(""))
                     {
                         try
@@ -147,22 +149,22 @@ public class HTTPSRequest
                             String postInfo = getPostRequestUTF8(getGetReplacedWithPost);
                             PostRequest postRequest = new Gson().fromJson(postInfo, PostRequest.class);
                             this.leaveMessageTheSame = false;
-                            this.messageFromClient = getGetReplacedWithPost  + " was GET";
+                            this.messageFromClient = getGetReplacedWithPost  + " was GET ";
                             this.setMessage400();
                         }
                         catch(JsonParseException e)
                         {
                             OperatorConsole.printMessageFiltered("GET was Not Json" ,true, false);
                         }
-                        finally
-                        {
-                            this.setMessage404();
-                        }
+        
+        
                     }
-                    else
+    
+                    if(this.messageToSend.equals(""))
                     {
                         this.setMessage404();
                     }
+    
                 }
             }
             else
