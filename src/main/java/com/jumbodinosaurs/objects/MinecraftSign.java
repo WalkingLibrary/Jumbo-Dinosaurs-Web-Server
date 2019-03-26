@@ -40,6 +40,12 @@ public class MinecraftSign
        return this.getDateLess().equals(sign.getDateLess());
     }
     
+    
+    public MinecraftSign clone()
+    {
+        return new Gson().fromJson(new Gson().toJson(this),this.getClass());
+    }
+    
     public MinecraftSign getDateLess()
     {
         String thisAsJsonString = new Gson().toJson(this);

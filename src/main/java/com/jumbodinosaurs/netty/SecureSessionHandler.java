@@ -20,7 +20,7 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
         {
             Channel channel = context.channel();
             Session session = new Session(channel, message);
-            boolean allowconection = false;
+            boolean allowConnection = false;
             if(OperatorConsole.whitelist)
             {
                 if(OperatorConsole.whitelistedIps != null)
@@ -29,7 +29,7 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
                     {
                         if(session.getWho().contains(str))
                         {
-                            allowconection = true;
+                            allowConnection = true;
                             break;
                         }
                     }
@@ -37,9 +37,9 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
             }
             else
             {
-                allowconection = true;
+                allowConnection = true;
             }
-            if(allowconection)
+            if(allowConnection)
             {
                 HTTPSRequest request = new HTTPSRequest(session.getMessage(), session.getWho());
                 if(request.isHTTP())
@@ -88,11 +88,12 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
     public void exceptionCaught(ChannelHandlerContext context, Throwable cause)
     {
         
-        if(!(cause.getMessage().contains("no cipher suites in common") ||
-                   cause.getMessage().contains("not an SSL/TLS") ||
-                   cause.getMessage().contains("Client requested protocol SSLv3 not enabled or not supported")))
+        if(!(cause.getMessage() != null ||
+                     cause.getMessage().contains("no cipher suites in common") ||
+                     cause.getMessage().contains("not an SSL/TLS") ||
+                     cause.getMessage().contains("Client requested protocol SSLv3 not enabled or not supported") ||
+                     cause.getMessage().contains("Connection reset by peer")))
         {
-            System.out.println("Exception");
             OperatorConsole.printMessageFiltered(cause.getMessage(), false, true);
         }
         context.close();

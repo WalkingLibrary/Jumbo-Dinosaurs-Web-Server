@@ -13,13 +13,14 @@ public class PostRequest
     private String emailCode;
     private String listName;
     private String connectionName;
+    private String query;
     
     public PostRequest()
     {
     
     }
     
-    public PostRequest(String username, String password, String email, String token, String path, String command, String content, String captchaCode, String emailCode, String listName, String connectionName)
+    public PostRequest(String username, String password, String email, String token, String path, String command, String content, String captchaCode, String emailCode, String listName, String connectionName, String query)
     {
         this.username = username;
         this.password = password;
@@ -32,6 +33,7 @@ public class PostRequest
         this.emailCode = emailCode;
         this.listName = listName;
         this.connectionName = connectionName;
+        this.query = query;
     }
     
     
@@ -149,5 +151,15 @@ public class PostRequest
     public void setConnectionName(String connectionName)
     {
         this.connectionName = connectionName;
+    }
+    
+    public String getQuery()
+    {
+        return query;
+    }
+    
+    public void setQuery(String query)
+    {
+        this.query = query;
     }
 }

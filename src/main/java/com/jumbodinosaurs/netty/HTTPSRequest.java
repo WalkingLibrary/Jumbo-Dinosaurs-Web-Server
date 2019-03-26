@@ -149,22 +149,22 @@ public class HTTPSRequest
                             String postInfo = getPostRequestUTF8(getGetReplacedWithPost);
                             PostRequest postRequest = new Gson().fromJson(postInfo, PostRequest.class);
                             this.leaveMessageTheSame = false;
-                            this.messageFromClient = getGetReplacedWithPost  + " was GET ";
+                            this.messageFromClient = getGetReplacedWithPost + " was GET ";
                             this.setMessage400();
                         }
                         catch(JsonParseException e)
                         {
-                            OperatorConsole.printMessageFiltered("GET was Not Json" ,true, false);
+                            OperatorConsole.printMessageFiltered("GET was Not Json", true, false);
                         }
-        
-        
+                        
+                        
                     }
-    
+                    
                     if(this.messageToSend.equals(""))
                     {
                         this.setMessage404();
                     }
-    
+                    
                 }
             }
             else
@@ -196,24 +196,62 @@ public class HTTPSRequest
                                 String command = this.postRequest.getCommand();
                                 WritablePost post = null;
                                 boolean send400Code = true;
-    
+                                
                                 double captchaScore = 0;
                                 if(this.postRequest.getCaptchaCode() != null)
                                 {
                                     captchaScore = this.getCaptchaScore(this.postRequest.getCaptchaCode());
                                 }
-    
+                                else if(ServerControl.getArguments() != null && ServerControl.getArguments().isDebug())
+                                {
+                                    captchaScore = .9;
+                                }
+                                
                                 if(command != null)
                                 {
+                                    if(command.equals("query"))
+                                    {
+                                        if(postRequest.getQuery() != null)
+                                        {
+                                            ArrayList<WritablePost> allPastPosts = new ArrayList<WritablePost>();
+                                            ArrayList<WritablePost> infoToSend = new ArrayList<WritablePost>();
+                                            File[] filesInPost = DataController.listFilesRecursive(DataController.postDirectory);
+                                            for(File file : filesInPost)
+                                            {
+                                                String contents = DataController.getFileContents(file);
+                                                Type typeToken = new TypeToken<ArrayList<WritablePost>>()
+                                                {
+                                                }.getType();
+                                                try
+                                                {
+                                                    ArrayList<WritablePost> pastPosts = new Gson().fromJson(contents, typeToken);
+                                                    allPastPosts.addAll(pastPosts);
+                                                }
+                                                catch(JsonParseException e)
+                                                {
+                                                
+                                                }
+                                            }
+                                            
+                                            for(WritablePost pastPost : allPastPosts)
+                                            {
+                                                infoToSend.add(pastPost);
+                                            }
+                                            send400Code = false;
+                                            this.messageToSend += sC200;
+                                            this.messageToSend += closeHeader;
+                                            this.messageToSend += new Gson().toJson(infoToSend);
+                                        }
+                                    }
                                     if(command.equals("confirmMailServer"))
                                     {
                                         if(postRequest.getEmail() != null)
                                         {
                                             if(lookUpEmail(this.postRequest.getEmail()))
                                             {
+                                                send400Code = false;
                                                 this.messageToSend += sC200;
                                                 this.messageToSend += closeHeader;
-                                                send400Code = false;
                                             }
                                         }
                                     }
@@ -223,9 +261,9 @@ public class HTTPSRequest
                                         {
                                             if(DataController.getCredentialsManager().usernameAvailable(this.postRequest.getUsername()))
                                             {
+                                                send400Code = false;
                                                 this.messageToSend += sC200;
                                                 this.messageToSend += closeHeader;
-                                                send400Code = false;
                                             }
                                         }
                                     }
@@ -235,21 +273,20 @@ public class HTTPSRequest
                                         {
                                             if(!DataController.getCredentialsManager().emailInUse(postRequest.getEmail()))
                                             {
+                                                send400Code = false;
                                                 this.messageToSend += sC200;
                                                 this.messageToSend += closeHeader;
-                                                send400Code = false;
                                             }
-                
+                                            
                                             CredentialsManager.emailStrikeIP(this.ip);
                                         }
                                     }
                                     else if(command.equals("createAccount"))
                                     {
-                                        if(this.postRequest.getUsername() != null && this.postRequest.getPassword() != null && this.postRequest.getEmail() != null && this.postRequest.getCaptchaCode() != null)
+                                        if(this.postRequest.getUsername() != null && this.postRequest.getPassword() != null && this.postRequest.getEmail() != null)
                                         {
                                             if(captchaScore > .5)
                                             {
-                    
                                                 if(DataController.getCredentialsManager().createUser(this.postRequest.getUsername(), this.postRequest.getPassword(), this.postRequest.getEmail()))
                                                 {
                                                     send400Code = false;
@@ -264,16 +301,16 @@ public class HTTPSRequest
                                         if(this.postRequest.getEmail() != null && DataController.getCredentialsManager().emailInUse(this.postRequest.getEmail()))
                                         {
                                             User userToSendCodeTo = DataController.getCredentialsManager().getUserByEmail(this.postRequest.getEmail());
-                
-                
+                                            
+                                            
                                             if((captchaScore >= .8) || ((captchaScore > .5) && userToSendCodeTo.isEmailVerified()))
                                             {
-                    
-                    
+                                                
+                                                
                                                 LocalDateTime now = LocalDateTime.now();
                                                 LocalDateTime tokenMintDate = userToSendCodeTo.getTokenDate();
                                                 boolean sendEmail = false;
-                    
+                                                
                                                 if(tokenMintDate == null || !userToSendCodeTo.isTokenIsOneUse())
                                                 {
                                                     sendEmail = true;
@@ -286,7 +323,7 @@ public class HTTPSRequest
                                                 {
                                                     sendEmail = true;
                                                 }
-                    
+                                                
                                                 if(sendEmail)
                                                 {
                                                     String token = DataController.getCredentialsManager().getTokenOneUse(userToSendCodeTo, this.ip);
@@ -294,8 +331,8 @@ public class HTTPSRequest
                                                     DataController.sendEmail(userToSendCodeTo.getEmail(), "Password Change", messageToSend);
                                                 }
                                             }
-                
-                
+                                            
+                                            
                                         }
                                         send400Code = false;
                                         this.messageToSend += sC200;
@@ -316,7 +353,7 @@ public class HTTPSRequest
                                             {
                                                 user = DataController.getCredentialsManager().loginToken(this.postRequest.getToken(), this.ip);
                                             }
-                
+                                            
                                             if(user == null)
                                             {
                                                 CredentialsManager.loginStrikeIP(this.ip);
@@ -334,8 +371,8 @@ public class HTTPSRequest
                                                 user = DataController.getCredentialsManager().loginToken(this.postRequest.getToken(), this.ip);
                                             }
                                         }
-            
-            
+                                        
+                                        
                                         if(user != null)
                                         {
                                             if(tokenLogin)
@@ -350,11 +387,11 @@ public class HTTPSRequest
                                                 {
                                                     if(postRequest.getPassword() != null && this.postRequest.getPassword().length() >= 9)
                                                     {
-                            
+                                                        
                                                         String password = this.postRequest.getPassword();
                                                         User updatedUserInfo = user.clone();
                                                         updatedUserInfo.setPassword(DataController.safeHashPassword(password));
-                            
+                                                        
                                                         if(CredentialsManager.modifyUser(user, updatedUserInfo))
                                                         {
                                                             String messageToSend = "The password for your account at https://jumbodinosaurs/ has been changed." + "\nIf this was not you contact us at jumbodinosaurs@gmail.com.";
@@ -363,13 +400,13 @@ public class HTTPSRequest
                                                             this.messageToSend += sC200;
                                                             this.messageToSend += closeHeader;
                                                             this.messageToSend += "passwordChanged";
-                                
+                                                            
                                                         }
                                                         else
                                                         {
                                                             OperatorConsole.printMessageFiltered("Error Setting User Info", false, true);
                                                         }
-                            
+                                                        
                                                     }
                                                 }
                                             }
@@ -387,16 +424,37 @@ public class HTTPSRequest
                                                             if(books != null && postRequest.getListName() != null)
                                                             {
                                                                 String localPath = DataController.fixPathSeparator("/booklist/books.json");
-                                                                content = new Gson().toJson(books);
-                                    
+                                                                
+                                                                ArrayList<MinecraftWrittenBook> sanitizedBooks = new ArrayList<MinecraftWrittenBook>();
+                                                                
+                                                                //Sanitize Post Data
+                                                                for(MinecraftWrittenBook book : books)
+                                                                {
+                                                                    MinecraftWrittenBook tempBook = book.clone();
+                                                                    tempBook.setAuthor(rewriteHTMLEscapeCharacters(book.getAuthor()));
+                                                                    tempBook.setCount(rewriteHTMLEscapeCharacters("" + book.getCount()));
+                                                                    tempBook.setTitle(rewriteHTMLEscapeCharacters(book.getTitle()));
+                                                                    tempBook.setGeneration(rewriteHTMLEscapeCharacters(book.getGeneration()));
+                                                                    ArrayList<String> pages = (ArrayList<String>) book.getPages();
+                                                                    ArrayList<String> sanitizedPages = new ArrayList<String>();
+                                                                    for(String page : pages)
+                                                                    {
+                                                                        sanitizedPages.add(rewriteHTMLEscapeCharacters(page));
+                                                                    }
+                                                                    tempBook.setPages(sanitizedPages);
+                                                                    sanitizedBooks.add(tempBook);
+                                                                }
+                                                                //books sent sanitized
+                                                                content = new Gson().toJson(sanitizedBooks);
+                                                                
                                                                 WritablePost temp = new WritablePost();
                                                                 temp.setLocalPath(localPath);
                                                                 temp.setUser(user.getUsername());
                                                                 temp.setContent(content);
                                                                 temp.setDate(now);
-                                                                temp.setPostIdentifier(postRequest.getListName());
+                                                                temp.setPostIdentifier(rewriteHTMLEscapeCharacters(postRequest.getListName()));
                                                                 post = temp.clone();
-                                    
+                                                                
                                                                 send400Code = false;
                                                                 this.messageToSend += sC200;
                                                                 this.messageToSend += closeHeader;
@@ -406,11 +464,11 @@ public class HTTPSRequest
                                                         {
                                                             this.setMessage400();
                                                         }
-                            
-                            
+                                                        
+                                                        
                                                         break;
-                        
-                        
+                                                    
+                                                    
                                                     case "postSign":
                                                         try
                                                         {
@@ -418,16 +476,22 @@ public class HTTPSRequest
                                                             if(sign != null && postRequest.getConnectionName() != null)
                                                             {
                                                                 String localPath = DataController.fixPathSeparator("/signlist/signlist.json");
-                                                                content = new Gson().toJson(sign);
-                                    
+                                                                MinecraftSign tempSign = sign.clone();
+                                                                tempSign.setText1(rewriteHTMLEscapeCharacters(sign.getText1()));
+                                                                tempSign.setText2(rewriteHTMLEscapeCharacters(sign.getText2()));
+                                                                tempSign.setText3(rewriteHTMLEscapeCharacters(sign.getText3()));
+                                                                tempSign.setText4(rewriteHTMLEscapeCharacters(sign.getText4()));
+                                                                
+                                                                content = new Gson().toJson(tempSign);
+                                                                
                                                                 WritablePost temp = new WritablePost();
                                                                 temp.setLocalPath(localPath);
                                                                 temp.setUser(user.getUsername());
                                                                 temp.setContent(content);
                                                                 temp.setDate(now);
-                                                                temp.setPostIdentifier(postRequest.getConnectionName());
+                                                                temp.setPostIdentifier(rewriteHTMLEscapeCharacters(postRequest.getConnectionName()));
                                                                 post = temp.clone();
-                                    
+                                                                
                                                                 send400Code = false;
                                                                 this.messageToSend += sC200;
                                                                 this.messageToSend += closeHeader;
@@ -438,11 +502,11 @@ public class HTTPSRequest
                                                             this.setMessage400();
                                                         }
                                                         break;
-                        
+                                                    
                                                     case "postComment":
                                                         //WIP
                                                         break;
-                        
+                                                    
                                                     case "getToken":
                                                         if(!tokenLogin)
                                                         {
@@ -495,7 +559,7 @@ public class HTTPSRequest
                                                     case "setEmailCode":
                                                         if(!user.isEmailVerified())
                                                         {
-                                
+                                                            
                                                             boolean sendEmail = false;
                                                             if(user.getEmailDateTime() != null)
                                                             {
@@ -508,7 +572,7 @@ public class HTTPSRequest
                                                             {
                                                                 sendEmail = true;
                                                             }
-                                
+                                                            
                                                             if(sendEmail)
                                                             {
                                                                 String randomEmailCode = User.generateRandomEmailCode();
@@ -518,12 +582,12 @@ public class HTTPSRequest
                                                                 User updatedUserInfo = user.clone();
                                                                 updatedUserInfo.setEmailCode(safeHash);
                                                                 updatedUserInfo.setEmailDateTime(now);
-                                    
+                                                                
                                                                 if(CredentialsManager.modifyUser(user, updatedUserInfo))
                                                                 {
                                                                     if(DataController.sendEmail(user.getEmail(), "Email Verification Code", message))
                                                                     {
-                                            
+                                                                        
                                                                         this.messageToSend += sC200;
                                                                         this.messageToSend += closeHeader;
                                                                         this.messageToSend += "codeSent";
@@ -533,7 +597,7 @@ public class HTTPSRequest
                                                                     {
                                                                         OperatorConsole.printMessageFiltered("Error Sending Email Code", false, true);
                                                                     }
-                                        
+                                                                    
                                                                 }
                                                                 else
                                                                 {
@@ -546,7 +610,7 @@ public class HTTPSRequest
                                                                 this.setMessage400();
                                                                 this.messageToSend += "codeCoolDown";
                                                             }
-                                
+                                                            
                                                         }
                                                         else
                                                         {
@@ -572,14 +636,14 @@ public class HTTPSRequest
                                         }
                                     }
                                 }
-    
-    
+                                
+                                
                                 if(post != null && !send400Code)
                                 {
                                     DataController.writePostData(post);
                                     //Message to send is determined case by case
                                 }
-    
+                                
                                 if(send400Code)
                                 {
                                     this.setMessage400();
@@ -650,19 +714,18 @@ public class HTTPSRequest
                     }
                     if(this.postRequest.getContent() != null)
                     {
-                        allowedPostedData += " Content: " +this.postRequest.getContent() + " ";
+                        allowedPostedData += " Content: " + this.postRequest.getContent() + " ";
                     }
                     if(this.postRequest.getListName() != null)
                     {
-                        allowedPostedData += " List Name: " +this.postRequest.getListName() + " ";
+                        allowedPostedData += " List Name: " + this.postRequest.getListName() + " ";
                     }
                     if(this.postRequest.getConnectionName() != null)
                     {
-                        allowedPostedData += " Connection Name: " +this.postRequest.getConnectionName() + " ";
+                        allowedPostedData += " Connection Name: " + this.postRequest.getConnectionName() + " ";
                     }
                 }
-                return messageFromClientUTF.substring(messageFromClientUTF.indexOf("POST /"), "POST /".length()) +
-                               allowedPostedData + messageFromClientUTF.substring(messageFromClientUTF.lastIndexOf(" HTTP/1.1"));
+                return messageFromClientUTF.substring(messageFromClientUTF.indexOf("POST /"), "POST /".length()) + allowedPostedData + messageFromClientUTF.substring(messageFromClientUTF.lastIndexOf(" HTTP/1.1"));
             }
             catch(UnsupportedEncodingException e)
             {
@@ -715,6 +778,7 @@ public class HTTPSRequest
         
         if(ServerControl.getArguments() == null || ServerControl.getArguments().getCaptchaKey() == null)
         {
+            
             return .9;
         }
         
@@ -873,7 +937,7 @@ public class HTTPSRequest
         {
             return POST + temp.substring(indexOfGet + GET.length());
         }
-        return  "";
+        return "";
     }
     
     public String getPostRequestUTF8()

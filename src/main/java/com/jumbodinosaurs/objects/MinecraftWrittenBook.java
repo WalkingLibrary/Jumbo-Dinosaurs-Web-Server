@@ -1,5 +1,7 @@
 package com.jumbodinosaurs.objects;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +40,11 @@ public class MinecraftWrittenBook
         }
 
         return "Author: " + author + " Title: " + title + " Generation: " + generation + textOfPages;
+    }
+    
+    public MinecraftWrittenBook clone()
+    {
+        return new Gson().fromJson(new Gson().toJson(this), this.getClass());
     }
 
     public String getAuthor()
@@ -129,5 +136,20 @@ public class MinecraftWrittenBook
             }
         }
         return false;
+    }
+    
+    public void setAuthor(String author)
+    {
+        this.author = author;
+    }
+    
+    public void setTitle(String title)
+    {
+        this.title = title;
+    }
+    
+    public void setPages(List<String> pages)
+    {
+        this.pages = pages;
     }
 }

@@ -35,6 +35,8 @@ public class CredentialsManager
             updatedUserInfo.setTokenDate(now);
             updatedUserInfo.setToken(hash);
             updatedUserInfo.setTokenIsOneUse(true);
+            //The user should only receive this minted token by email.
+            updatedUserInfo.setTokenRandomToSend("");
             if(modifyUser(userToMint, updatedUserInfo))
             {
                 token = tokenTemp;
@@ -57,41 +59,48 @@ public class CredentialsManager
     
     public synchronized String getToken(User userToMint, String ip)
     {
-        String token = null;
-        LocalDateTime now = LocalDateTime.now();
-        
-        String hundredCharRandom = User.generateRandom();
-        String tokenTemp = hundredCharRandom.substring(0, 50);
-        String tokenRandom = hundredCharRandom.substring(50);
-        
-        String password = ip + tokenTemp + now.toString() + tokenRandom;
-        try
+        if(userToMint.getTokenRandomToSend() != null)
         {
-            String hash = DataController.safeHashPassword(password);
-            
-            User updatedUserInfo = userToMint.clone();
-            updatedUserInfo.setTokenRandom(tokenRandom);
-            updatedUserInfo.setTokenDate(now);
-            updatedUserInfo.setToken(hash);
-            updatedUserInfo.setTokenIsOneUse(false);
-            
-            if(modifyUser(userToMint, updatedUserInfo))
-            {
-                token = tokenTemp;
-            }
-            else
-            {
-                OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
-            }
-            
+            return userToMint.getTokenRandomToSend();
         }
-        catch(Exception e)
+        else
         {
-            OperatorConsole.printMessageFiltered("Error getting Token", false, true);
-            e.printStackTrace();
-        }
+            String token = null;
+            LocalDateTime now = LocalDateTime.now();
+    
+            String hundredCharRandom = User.generateRandom();
+            String tokenTemp = hundredCharRandom.substring(0, 50);
+            String tokenRandom = hundredCharRandom.substring(50);
+    
+            String password = ip + tokenTemp + now.toString() + tokenRandom;
+            try
+            {
+                String hash = DataController.safeHashPassword(password);
         
-        return token;
+                User updatedUserInfo = userToMint.clone();
+                updatedUserInfo.setTokenRandom(tokenRandom);
+                updatedUserInfo.setTokenDate(now);
+                updatedUserInfo.setToken(hash);
+                updatedUserInfo.setTokenIsOneUse(false);
+                updatedUserInfo.setTokenRandomToSend(tokenTemp);
+                if(modifyUser(userToMint, updatedUserInfo))
+                {
+                    token = tokenTemp;
+                }
+                else
+                {
+                    OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
+                }
+        
+            }
+            catch(Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error getting Token", false, true);
+                e.printStackTrace();
+            }
+    
+            return token;
+        }
     }
     
     /*

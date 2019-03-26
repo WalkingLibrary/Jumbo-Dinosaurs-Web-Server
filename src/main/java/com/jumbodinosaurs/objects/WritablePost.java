@@ -2,6 +2,7 @@ package com.jumbodinosaurs.objects;
 
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 
 public class WritablePost
@@ -75,4 +76,6 @@ public class WritablePost
     {
         this.date = date;
     }
+    
+   
 }

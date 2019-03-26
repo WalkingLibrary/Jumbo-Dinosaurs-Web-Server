@@ -11,6 +11,7 @@ public class User
     private String password;
     private String token;
     private String tokenRandom;
+    private String tokenRandomToSend;
     private String emailCode;
     private String email;
     private boolean tokenIsOneUse;
@@ -232,5 +233,25 @@ public class User
     public void setTokenDate(LocalDateTime tokenDate)
     {
         this.tokenDate = tokenDate;
+    }
+    
+    public String getTokenRandomToSend()
+    {
+        return tokenRandomToSend;
+    }
+    
+    public void setTokenRandomToSend(String tokenRandomToSend)
+    {
+        this.tokenRandomToSend = tokenRandomToSend;
+    }
+    
+    public String getVersion()
+    {
+        return version;
+    }
+    
+    public void setVersion(String version)
+    {
+        this.version = version;
     }
 }

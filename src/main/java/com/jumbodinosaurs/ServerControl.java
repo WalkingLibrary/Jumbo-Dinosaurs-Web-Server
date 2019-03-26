@@ -45,7 +45,8 @@ public class ServerControl
     {
         System.out.println("Starting Jumbo Dinosaurs .6");//G
         ServerControl.arguments = arguments;
-        if(arguments.getDomains() != null)
+        System.out.println("Debug Mode: " + this.arguments.isDebug());
+        if(arguments.getDomains() != null && !this.arguments.isDebug())
         {
             this.intDomain();
             this.oneHourTimer.start();
@@ -165,7 +166,7 @@ public class ServerControl
         }
         else if(this.fiveMinuteTimer.getStatus())
         {
-            OperatorConsole.printMessageFiltered("A Domain Failed To Initialize Starting 5 Min Timer", true, false);
+            OperatorConsole.printMessageFiltered("A Domain Failed To Initialize Starting 5 Min Timer", false, true);
             this.fiveMinuteTimer.start();
         }
         else
