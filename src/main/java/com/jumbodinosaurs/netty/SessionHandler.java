@@ -151,7 +151,14 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
     @Override
     public void exceptionCaught(ChannelHandlerContext context, Throwable cause)
     {
-        OperatorConsole.printMessageFiltered(cause.getMessage(), false, true);
+        if(!(cause.getMessage() != null ||
+                     cause.getMessage().contains("no cipher suites in common") ||
+                     cause.getMessage().contains("not an SSL/TLS") ||
+                     cause.getMessage().contains("Client requested protocol SSLv3 not enabled or not supported") ||
+                     cause.getMessage().contains("Connection reset by peer")))
+        {
+            OperatorConsole.printMessageFiltered(cause.getMessage(), false, true);
+        }
         context.close();
     }
     

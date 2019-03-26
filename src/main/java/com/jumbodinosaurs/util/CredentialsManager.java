@@ -19,6 +19,12 @@ public class CredentialsManager
     }
     
     
+    public synchronized int getUserCount()
+    {
+        return getUserList().size();
+    }
+    
+    
     public synchronized String getTokenOneUse(User userToMint, String ip)
     {
         String token = null;
