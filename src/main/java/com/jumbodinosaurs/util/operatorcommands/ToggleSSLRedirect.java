@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
 import com.jumbodinosaurs.netty.SessionHandler;
+import com.jumbodinosaurs.util.OperatorConsole;
 
 public class ToggleSSLRedirect extends OperatorCommand
 {
@@ -13,14 +14,14 @@ public class ToggleSSLRedirect extends OperatorCommand
     
     public void execute()
     {
-        if(SessionHandler.redirectToSSL)
+        if(OperatorConsole.redirectToSSL)
         {
-            SessionHandler.redirectToSSL = false;
+            OperatorConsole.redirectToSSL = false;
             System.out.println("HTTP requests will no longer be Redirected to HTTPS");
         }
         else
         {
-            SessionHandler.redirectToSSL = true;
+            OperatorConsole.redirectToSSL = true;
             System.out.println("HTTP requests will now try to Redirect To HTTPS");
         }
         

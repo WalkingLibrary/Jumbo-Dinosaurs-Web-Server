@@ -202,7 +202,7 @@ public class HTTPSRequest
                                 {
                                     captchaScore = this.getCaptchaScore(this.postRequest.getCaptchaCode());
                                 }
-                                else if(ServerControl.getArguments() != null && ServerControl.getArguments().isDebug())
+                                else if(ServerControl.getArguments() != null && ServerControl.getArguments().isInTestMode())
                                 {
                                     captchaScore = .9;
                                 }
@@ -213,25 +213,8 @@ public class HTTPSRequest
                                     {
                                         if(postRequest.getQuery() != null)
                                         {
-                                            ArrayList<WritablePost> allPastPosts = new ArrayList<WritablePost>();
+                                            ArrayList<WritablePost> allPastPosts = DataController.getAllPostsList();
                                             ArrayList<WritablePost> infoToSend = new ArrayList<WritablePost>();
-                                            File[] filesInPost = DataController.listFilesRecursive(DataController.postDirectory);
-                                            for(File file : filesInPost)
-                                            {
-                                                String contents = DataController.getFileContents(file);
-                                                Type typeToken = new TypeToken<ArrayList<WritablePost>>()
-                                                {
-                                                }.getType();
-                                                try
-                                                {
-                                                    ArrayList<WritablePost> pastPosts = new Gson().fromJson(contents, typeToken);
-                                                    allPastPosts.addAll(pastPosts);
-                                                }
-                                                catch(JsonParseException e)
-                                                {
-                                                
-                                                }
-                                            }
                                             
                                             for(WritablePost pastPost : allPastPosts)
                                             {
@@ -243,7 +226,7 @@ public class HTTPSRequest
                                             this.messageToSend += new Gson().toJson(infoToSend);
                                         }
                                     }
-                                    if(command.equals("confirmMailServer"))
+                                    else if(command.equals("confirmMailServer"))
                                     {
                                         if(postRequest.getEmail() != null)
                                         {

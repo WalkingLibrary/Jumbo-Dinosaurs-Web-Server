@@ -12,7 +12,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class SessionHandler extends SimpleChannelInboundHandler<String>
 {
     
-    public static boolean redirectToSSL = true;
+    
     
     @Override
     public void channelRead(ChannelHandlerContext context, Object msg)
@@ -45,7 +45,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             
             if(allowConnection)
             {
-                if(ServerControl.getArguments().isDebug())
+                if(ServerControl.getArguments() != null && ServerControl.getArguments().isInTestMode())
                 {
                     HTTPSRequest request = new HTTPSRequest(session.getMessage(), session.getWho());
                     if(request.isHTTP())
@@ -93,7 +93,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
                     if(request.isHTTP())
                     {
         
-                        if(redirectToSSL && SecureSessionHandlerInitializer.running)
+                        if(OperatorConsole.redirectToSSL && SecureSessionHandlerInitializer.running)
                         {
                             request.tryToRedirectToHTTPS();
                         }

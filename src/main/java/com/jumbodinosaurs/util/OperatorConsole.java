@@ -26,6 +26,7 @@ public class OperatorConsole implements Runnable
     public static boolean allowPost = true;
     public static boolean whitelist = false;
     public static ArrayList<String> whitelistedIps = new ArrayList<String>();
+    public static boolean redirectToSSL = true;
     
     
     public OperatorConsole()
@@ -127,7 +128,8 @@ public class OperatorConsole implements Runnable
         commands.add(new ToggleWhiteList("/togglewhitelist"));
         commands.add(new WhiteListAdd("/whitelistadd"));
         commands.add(new Statistics("/stats"));
-        
+        commands.add(new ToggleDebugMessages("/toggledebugmessages"));
+        commands.add(new StatisticsExtra("/statsextra"));
         //add Help Commands
         ArrayList<String> commandsToOutput = new ArrayList<String>();
         for(OperatorCommand command: commands)

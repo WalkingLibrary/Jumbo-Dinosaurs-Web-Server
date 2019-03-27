@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.objects.Domain;
@@ -280,6 +281,27 @@ public class DataController
             OperatorConsole.printMessageFiltered("Error Writing Post Data", false, true);
             e.printStackTrace();
         }
+    }
+    
+    public static ArrayList<WritablePost> getAllPostsList()
+    {
+        ArrayList<WritablePost> allPastPosts = new ArrayList<WritablePost>();
+        File[] filesInPostFolder = listFilesRecursive(postDirectory);
+        for(File file : filesInPostFolder)
+        {
+            String contents = DataController.getFileContents(file);
+            Type typeToken = new TypeToken<ArrayList<WritablePost>>(){}.getType();
+            try
+            {
+                ArrayList<WritablePost> pastPosts = new Gson().fromJson(contents, typeToken);
+                allPastPosts.addAll(pastPosts);
+            }
+            catch(JsonParseException e)
+            {
+                OperatorConsole.printMessageFiltered("A File in POST Dir is not a WritablePost[]", false, true);
+            }
+        }
+        return allPastPosts;
     }
     
     //Returns the fileWanted if it is in getDirectory

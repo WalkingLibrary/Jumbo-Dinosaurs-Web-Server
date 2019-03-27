@@ -8,16 +8,20 @@ public class RuntimeArguments
     private String captchaKey;
     private String certificateKey;
     private ArrayList<Email> emails;
-    private boolean debug;
+    private boolean testMode;
     
     
-    public RuntimeArguments(ArrayList<Domain> domains, String captchaKey, String certificateKey, ArrayList<Email> emails, boolean debug)
+    public RuntimeArguments(ArrayList<Domain> domains, String captchaKey, String certificateKey, ArrayList<Email> emails, boolean testMode)
     {
         this.domains = domains;
         this.captchaKey = captchaKey;
         this.certificateKey = certificateKey;
         this.emails = emails;
-        this.debug = debug;
+        this.testMode = testMode;
+    }
+    
+    public RuntimeArguments()
+    {
     }
     
     
@@ -41,13 +45,13 @@ public class RuntimeArguments
         return emails;
     }
     
-    public boolean isDebug()
+    public boolean isInTestMode()
     {
-        return debug;
+        return testMode;
     }
     
-    public void setDebug(boolean debug)
+    public void setTestMode(boolean testMode)
     {
-        this.debug = debug;
+        this.testMode = testMode;
     }
 }

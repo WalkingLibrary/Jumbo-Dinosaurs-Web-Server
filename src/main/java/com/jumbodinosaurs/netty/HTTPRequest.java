@@ -160,7 +160,7 @@ public class HTTPRequest
         else if (this.isPost())
         {
             this.leaveMessageTheSame = false;
-            this.tryToRedirectToHTTPSPOST();
+            setMessage400();
         }
 
     }
@@ -217,36 +217,11 @@ public class HTTPRequest
 
         if (!redirect)
         {
-            generateMessage();
+            setMessage400();
         }
 
     }
     
-    public void tryToRedirectToHTTPSPOST()
-    {
-        boolean redirect = false;
-        for (String host : DataController.getDomains())
-        {
-            if (this.getHost().equals(host))
-            {
-                this.messageToSend += this.sC301;//Redirect Header
-                
-                //Need To Craft Location Header From Host header.
-                //if no host header then server should redirect to current ip
-                this.messageToSend += this.locationHeader + " https://" + host;
-                
-                this.messageToSend += this.closeHeader;
-                redirect = true;
-                break;
-            }
-        }
-        
-        if (!redirect)
-        {
-            generateMessage();
-        }
-        
-    }
     
     public String getGetReplacedWithPost()
     {

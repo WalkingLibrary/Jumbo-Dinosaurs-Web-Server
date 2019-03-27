@@ -33,10 +33,11 @@ public class ServerControl
     public ServerControl()
     {
         System.out.println("Starting Jumbo Dinosaurs .6");//G
+        System.out.println("Test Mode: " + false);
         dataIO = new DataController(false);
         commandThread = new Thread(new OperatorConsole());
         commandThread.start();
-        SessionHandler.redirectToSSL = false;
+        OperatorConsole.redirectToSSL = false;
         port80Thread = new Thread(new SessionHandlerInitializer());
         port80Thread.start();
     }
@@ -45,8 +46,8 @@ public class ServerControl
     {
         System.out.println("Starting Jumbo Dinosaurs .6");//G
         ServerControl.arguments = arguments;
-        System.out.println("Debug Mode: " + this.arguments.isDebug());
-        if(arguments.getDomains() != null && !this.arguments.isDebug())
+        System.out.println("Test Mode: " + this.arguments.isInTestMode());
+        if(arguments.getDomains() != null && !this.arguments.isInTestMode())
         {
             this.intDomain();
             this.oneHourTimer.start();
@@ -71,7 +72,7 @@ public class ServerControl
         }
         else
         {
-            SessionHandler.redirectToSSL = false;
+            OperatorConsole.redirectToSSL = false;
         }
     }
     
