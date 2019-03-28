@@ -13,35 +13,13 @@ public class PostRequest
     private String emailCode;
     private String listName;
     private String connectionName;
-    private String query;
+    private QueryRequest queryRequest;
     
     public PostRequest()
     {
     
     }
     
-    public PostRequest(String username, String password, String email, String token, String path, String command, String content, String captchaCode, String emailCode, String listName, String connectionName, String query)
-    {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.token = token;
-        this.path = path;
-        this.command = command;
-        this.content = content;
-        this.captchaCode = captchaCode;
-        this.emailCode = emailCode;
-        this.listName = listName;
-        this.connectionName = connectionName;
-        this.query = query;
-    }
-    
-    
-    @Override
-    public String toString()
-    {
-        return "PostRequest{" + "username='" + username + '\'' + ", password='" + password + '\'' + ", email='" + email + '\'' + ", token='" + token + '\'' + ", path='" + path + '\'' + ", command='" + command + '\'' + ", content='" + content + '\'' + ", captchaCode='" + captchaCode + '\'' + ", emailCode='" + emailCode + '\'' + '}';
-    }
     
     public String getUsername()
     {
@@ -153,13 +131,20 @@ public class PostRequest
         this.connectionName = connectionName;
     }
     
-    public String getQuery()
+    
+    public QueryRequest getQueryRequest()
     {
-        return query;
+        return queryRequest;
     }
     
-    public void setQuery(String query)
+    public void setQueryRequest(QueryRequest queryRequest)
     {
-        this.query = query;
+        this.queryRequest = queryRequest;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return "PostRequest{" + "username='" + username + '\'' + ", password='" + password + '\'' + ", email='" + email + '\'' + ", token='" + token + '\'' + ", path='" + path + '\'' + ", command='" + command + '\'' + ", content='" + content + '\'' + ", captchaCode='" + captchaCode + '\'' + ", emailCode='" + emailCode + '\'' + ", listName='" + listName + '\'' + ", connectionName='" + connectionName + '\'' + ", queryRequest=" + queryRequest + '}';
     }
 }

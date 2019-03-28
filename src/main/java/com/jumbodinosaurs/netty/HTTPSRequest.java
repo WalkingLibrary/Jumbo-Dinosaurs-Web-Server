@@ -91,7 +91,7 @@ public class HTTPSRequest
                 String fileToGet = this.mendPageRequest(requestCheck);
                 
                 OperatorConsole.printMessageFiltered("File To Get: " + fileToGet, true, false);
-                File fileRequested = DataController.getFileFromGETDirectory(fileToGet);
+                File fileRequested = DataController.safeSearchDir(DataController.getDirectory, fileToGet, true);
                 
                 //If if have file
                 if(fileRequested != null)
@@ -211,19 +211,86 @@ public class HTTPSRequest
                                 {
                                     if(command.equals("query"))
                                     {
-                                        if(postRequest.getQuery() != null)
+                                        if(postRequest.getQueryRequest() != null)
                                         {
-                                            ArrayList<WritablePost> allPastPosts = DataController.getAllPostsList();
-                                            ArrayList<WritablePost> infoToSend = new ArrayList<WritablePost>();
+                                            QueryRequest queryRequest = postRequest.getQueryRequest();
                                             
-                                            for(WritablePost pastPost : allPastPosts)
+                                            ArrayList<WritablePost> infoToSend = new ArrayList<WritablePost>();
+                                            if(queryRequest.getPath() != null)
                                             {
-                                                infoToSend.add(pastPost);
+                                                ArrayList<WritablePost> pastPosts = DataController.getPastPostsFromPath(queryRequest.getPath());
+                                                if(pastPosts != null)
+                                                {
+                                                    if(queryRequest.getUser() != null && !queryRequest.getUser().equals(""))
+                                                    {
+                                                        for(WritablePost pastPost : pastPosts)
+                                                        {
+                                                            if(pastPost.getUser().equals(queryRequest.getUser()))
+                                                            {
+                                                                infoToSend.add(pastPost);
+                                                            }
+                                                        }
+                                                    }
+                                                    else if(queryRequest.getPostIdentifier() != null && !queryRequest.getPostIdentifier().equals(""))
+                                                    {
+                                                        for(WritablePost pastPost : pastPosts)
+                                                        {
+                                                            if(pastPost.getPostIdentifier().equals(queryRequest.getPostIdentifier()))
+                                                            {
+                                                                infoToSend.add(pastPost);
+                                                            }
+                                                        }
+                                                    }
+                                                    else if(queryRequest.getKeyword() != null && !queryRequest.getKeyword().equals(""))
+                                                    {
+                                                        for(WritablePost pastPost : pastPosts)
+                                                        {
+                                                            if(pastPost.getContent().contains(queryRequest.getKeyword()))
+                                                            {
+                                                                infoToSend.add(pastPost);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                
                                             }
+                                            else if(queryRequest.getKeyword() != null && !queryRequest.getKeyword().equals(""))
+                                            {
+                                                ArrayList<WritablePost> allPastPosts = DataController.getAllPostsList();
+                                                for(WritablePost pastPost : allPastPosts)
+                                                {
+                                                    if(pastPost.getContent().contains(queryRequest.getKeyword()))
+                                                    {
+                                                        infoToSend.add(pastPost);
+                                                    }
+                                                }
+                                            }
+    
+                                            
                                             send400Code = false;
                                             this.messageToSend += sC200;
                                             this.messageToSend += closeHeader;
                                             this.messageToSend += new Gson().toJson(infoToSend);
+                                        }
+                                        else
+                                        {
+                                            File[] filesInPost = DataController.listFilesRecursive(DataController.postDirectory);
+                                            ArrayList<String> fileNames = new ArrayList<String>();
+                                            for(File file: filesInPost)
+                                            {
+                                                String pathToParse = file.getAbsolutePath();
+                                                if(pathToParse.substring(pathToParse.length() - 1).equals(File.separator))
+                                                {
+                                                    pathToParse = pathToParse.substring(0, pathToParse.length() - 2);
+                                                }
+                                                
+                                                fileNames.add(pathToParse.substring(pathToParse.lastIndexOf(File.separator) + 1,
+                                                                                    pathToParse.lastIndexOf(".")));
+                                            }
+                                            send400Code = false;
+                                            this.messageToSend += sC200;
+                                            this.messageToSend += closeHeader;
+                                            this.messageToSend += new Gson().toJson(fileNames);
                                         }
                                     }
                                     else if(command.equals("confirmMailServer"))
@@ -821,7 +888,7 @@ public class HTTPSRequest
     {
         this.messageToSend += this.sC404;
         this.messageToSend += this.closeHeader;
-        this.messageToSend += DataController.getFileContents(DataController.getFileFromGETDirectory("/404.html"));
+        this.messageToSend += DataController.getFileContents(DataController.safeSearchDir(DataController.getDirectory,"/404.html", true));
     }
     
     public void setMessage501()

@@ -28,6 +28,7 @@ public class StatisticsExtra extends OperatorCommand
         System.out.println("Debug Messages Will Be Shown: " + OperatorConsole.debug);
         System.out.println("Time for The Server: " + LocalTime.now().getHour()  + ":" + LocalTime.now().getMinute());
         System.out.println("Users: " + DataController.getCredentialsManager().getUserCount());
+        System.out.println("Amount of Posts: " + DataController.getAllPostsList().size());
         if(ServerControl.getArguments() != null)
         {
             RuntimeArguments args = ServerControl.getArguments();

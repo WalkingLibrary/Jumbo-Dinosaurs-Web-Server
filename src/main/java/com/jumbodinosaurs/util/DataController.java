@@ -133,6 +133,7 @@ public class DataController
         ArrayList<String> levels = new ArrayList<String>();
         String temp = localPath;
         String level = "";
+        
         if(temp.indexOf(File.separator) != 0)
         {
             temp = File.separator + temp;
@@ -304,38 +305,67 @@ public class DataController
         return allPastPosts;
     }
     
-    //Returns the fileWanted if it is in getDirectory
+    
+    public static ArrayList<WritablePost> getPastPostsFromPath(String localPath)
+    {
+        File fileToRead = safeSearchDir(postDirectory, localPath, false);
+        if(fileToRead != null)
+        {
+            Type typeToken = new TypeToken<ArrayList<WritablePost>>(){}.getType();
+            return new Gson().fromJson(getFileContents(fileToRead), typeToken);
+        }
+        return null;
+    }
+    
+    
+    
+    //Returns the fileWanted if it is in the directory given.
     //The Code Returns null if the file is not in the directory
     //Works with local paths
-    public static File getFileFromGETDirectory(String fileWanted)
+    public static File safeSearchDir(File dirToSearch, String localPath, boolean matchPath)
     {
         
-        fileWanted = fixPathSeparator(fileWanted);
+        localPath = fixPathSeparator(localPath);
         
         File fileToGive = null;
         //Gets all files in allowedDir
-        File[] filesInAllowedDir = listFilesRecursive(getDirectory);
+        File[] filesInAllowedDir = listFilesRecursive(dirToSearch);
         //If count is greater than 1 might have duplicate files and could be a problem
         int count = 0;
         
-        //Try with given slashes to find file
-        String pathofRequestedFile = getDirectory.getAbsolutePath() + fileWanted;
+        String pathofRequestedFile = dirToSearch.getAbsolutePath() + localPath;
+        
         for(File file : filesInAllowedDir)
         {
-            if(file.getAbsolutePath().equals(pathofRequestedFile))
+            if(matchPath)
             {
-                fileToGive = file;
-                count++;
+                if(file.getAbsolutePath().equals(pathofRequestedFile))
+                {
+                    fileToGive = file;
+                    count++;
+                }
+            }
+            else
+            {
+                
+                String pathToCheck = file.getAbsolutePath().substring(dirToSearch.getAbsolutePath().length());
+                if(pathToCheck.contains(localPath))
+                {
+                    fileToGive = file;
+                    count++;
+                }
             }
         }
         
         //DEBUG
         if(count > 1)
         {
-            System.out.println("getFileFromGETDirectory() Count: " + count);
+            System.out.println(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
         }
         return fileToGive;
     }
+    
+    
     
     public static File getLogsJson()
     {

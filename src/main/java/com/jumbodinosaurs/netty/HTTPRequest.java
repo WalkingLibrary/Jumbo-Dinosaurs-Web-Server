@@ -75,7 +75,7 @@ public class HTTPRequest
                 File fileRequested;
 
                 //If if have file
-                if ((fileRequested = DataController.getFileFromGETDirectory(fileToGet)) != null)
+                if ((fileRequested = DataController.safeSearchDir(DataController.getDirectory, fileToGet, true)) != null)
                 {
                     //add Good Code
 
@@ -267,7 +267,7 @@ public class HTTPRequest
     {
         this.messageToSend += this.sC404;
         this.messageToSend += this.closeHeader;
-        this.messageToSend += DataController.getFileContents(DataController.getFileFromGETDirectory("/404.html"));
+        this.messageToSend += DataController.getFileContents(DataController.safeSearchDir(DataController.getDirectory, "/404.html", true));
     }
 
     public void setMessage501()
