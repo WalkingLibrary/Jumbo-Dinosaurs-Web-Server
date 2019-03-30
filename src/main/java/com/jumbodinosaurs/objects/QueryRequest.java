@@ -7,6 +7,7 @@ public class QueryRequest
     private String path;
     private String user;
     private String postIdentifier;
+    private boolean getPostIdentifiersRequest;
     
     public QueryRequest()
     {
@@ -50,5 +51,15 @@ public class QueryRequest
     public void setPostIdentifier(String postIdentifier)
     {
         this.postIdentifier = postIdentifier;
+    }
+    
+    public boolean isGetPostIdentifiersRequest()
+    {
+        return getPostIdentifiersRequest;
+    }
+    
+    public void setGetPostIdentifiersRequest(boolean getPostIdentifiersRequest)
+    {
+        this.getPostIdentifiersRequest = getPostIdentifiersRequest;
     }
 }

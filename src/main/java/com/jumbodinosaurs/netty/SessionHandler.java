@@ -76,7 +76,7 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
     
                     session.setMessageSent(request.getMessageToSend());
     
-                    if(!request.logMessageFromClient())
+                    if(!request.leaveMessageTheSame())
                     {
                         session.setMessageSent(request.getCensoredMessageSentToClient());
                         session.setMessage(request.getCensoredMessageFromClient());

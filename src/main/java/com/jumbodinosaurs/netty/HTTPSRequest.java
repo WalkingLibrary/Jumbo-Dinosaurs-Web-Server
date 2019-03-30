@@ -221,35 +221,59 @@ public class HTTPSRequest
                                                 ArrayList<WritablePost> pastPosts = DataController.getPastPostsFromPath(queryRequest.getPath());
                                                 if(pastPosts != null)
                                                 {
-                                                    if(queryRequest.getUser() != null && !queryRequest.getUser().equals(""))
+                                                    //Get Identifiers
+                                                    if(queryRequest.isGetPostIdentifiersRequest())
                                                     {
-                                                        for(WritablePost pastPost : pastPosts)
+                                                        ArrayList<String> postIdentifiers = new ArrayList<String>();
+                                                        for(WritablePost pastPost: pastPosts)
                                                         {
-                                                            if(pastPost.getUser().equals(queryRequest.getUser()))
+                                                            if(!postIdentifiers.contains(pastPost.getPostIdentifier()))
                                                             {
-                                                                infoToSend.add(pastPost);
+                                                                postIdentifiers.add(pastPost.getPostIdentifier());
                                                             }
                                                         }
+                                                        send400Code = false;
+                                                        this.messageToSend += sC200;
+                                                        this.messageToSend += closeHeader;
+                                                        this.messageToSend += new Gson().toJson(postIdentifiers);
+                                                        
                                                     }
-                                                    else if(queryRequest.getPostIdentifier() != null && !queryRequest.getPostIdentifier().equals(""))
+                                                    else
                                                     {
-                                                        for(WritablePost pastPost : pastPosts)
+                                                        if(queryRequest.getUser() != null && !queryRequest.getUser().equals(""))
                                                         {
-                                                            if(pastPost.getPostIdentifier().equals(queryRequest.getPostIdentifier()))
+                                                            for(WritablePost pastPost : pastPosts)
                                                             {
-                                                                infoToSend.add(pastPost);
+                                                                if(pastPost.getUser().equals(queryRequest.getUser()))
+                                                                {
+                                                                    infoToSend.add(pastPost);
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    else if(queryRequest.getKeyword() != null && !queryRequest.getKeyword().equals(""))
-                                                    {
-                                                        for(WritablePost pastPost : pastPosts)
+                                                        else if(queryRequest.getPostIdentifier() != null && !queryRequest.getPostIdentifier().equals(""))
                                                         {
-                                                            if(pastPost.getContent().contains(queryRequest.getKeyword()))
+                                                            for(WritablePost pastPost : pastPosts)
                                                             {
-                                                                infoToSend.add(pastPost);
+                                                                if(pastPost.getPostIdentifier().equals(queryRequest.getPostIdentifier()))
+                                                                {
+                                                                    infoToSend.add(pastPost);
+                                                                }
                                                             }
                                                         }
+                                                        else if(queryRequest.getKeyword() != null && !queryRequest.getKeyword().equals(""))
+                                                        {
+                                                            for(WritablePost pastPost : pastPosts)
+                                                            {
+                                                                if(pastPost.getContent().contains(queryRequest.getKeyword()))
+                                                                {
+                                                                    infoToSend.add(pastPost);
+                                                                }
+                                                            }
+                                                        }
+                                                        send400Code = false;
+                                                        this.messageToSend += sC200;
+                                                        this.messageToSend += closeHeader;
+                                                        this.messageToSend += new Gson().toJson(infoToSend);
                                                     }
                                                 }
                                                 
@@ -264,13 +288,14 @@ public class HTTPSRequest
                                                         infoToSend.add(pastPost);
                                                     }
                                                 }
+                                                send400Code = false;
+                                                this.messageToSend += sC200;
+                                                this.messageToSend += closeHeader;
+                                                this.messageToSend += new Gson().toJson(infoToSend);
                                             }
     
                                             
-                                            send400Code = false;
-                                            this.messageToSend += sC200;
-                                            this.messageToSend += closeHeader;
-                                            this.messageToSend += new Gson().toJson(infoToSend);
+                                           
                                         }
                                         else
                                         {
@@ -790,7 +815,7 @@ public class HTTPSRequest
     }
     
     
-    public Boolean logMessageFromClient()
+    public Boolean leaveMessageTheSame()
     {
         return leaveMessageTheSame;
     }

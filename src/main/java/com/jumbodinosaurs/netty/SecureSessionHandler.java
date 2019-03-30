@@ -1,5 +1,6 @@
 package com.jumbodinosaurs.netty;
 
+import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.objects.Session;
 import com.jumbodinosaurs.util.DataController;
 import com.jumbodinosaurs.util.OperatorConsole;
@@ -66,7 +67,7 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
                 
                 session.setMessageSent(request.getMessageToSend());
                 
-                if(!request.logMessageFromClient())
+                if(!request.leaveMessageTheSame() && !(ServerControl.getArguments() != null && ServerControl.getArguments().isInTestMode()))
                 {
                     session.setMessageSent(request.getCensoredMessageSentToClient());
                     session.setMessage(request.getCensoredMessageFromClient());
