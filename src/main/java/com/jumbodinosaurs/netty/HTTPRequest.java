@@ -350,7 +350,7 @@ public class HTTPRequest
         String HTTP = " HTTP/1.1";
         int indexofGET = this.messageFromClient.indexOf(GET);
         int indexofHTTP = this.messageFromClient.lastIndexOf(HTTP);
-        if (indexofGET <= 0 && indexofGET < indexofHTTP)
+        if(indexofGET == 0 && indexofGET < indexofHTTP)
         {
             return this.messageFromClient.substring(indexofGET + GET.length(), indexofHTTP);
         }

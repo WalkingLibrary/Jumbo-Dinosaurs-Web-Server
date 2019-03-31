@@ -644,7 +644,22 @@ public class DataController
         try
         {
             File pageIndex = checkFor(getDirectory, "index.html");
-            String indexHTML = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "Index\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h4>\n" + "Sites<br>";
+            String indexHTML = "<!DOCTYPE html>\n" +
+                                       "<html>\n" +
+                                       "<head>\n" +
+                                       "<style>\n" +
+                                       "body\n" +
+                                       "{\n" +
+                                       "    background-color: lightgreen;\n" +
+                                       "}\n" + "</style>\n" +
+                                       "<title>\n" +
+                                       "Index\n" +
+                                       "</title>\n" +
+                                       "</head>\n" +
+                                       "<body>\n" +
+                                       "<h4>\n" +
+                                       "Sites<br>";
+            
             for(File file : listFilesRecursive(getDirectory))
             {
                 indexHTML += "<a href = http://" + host + "/" + file.getName() + ">" + host + "/" + file.getName() + "</a><br>";
@@ -654,7 +669,26 @@ public class DataController
             writeContents(pageIndex, indexHTML, false);
             
             File page404 = checkFor(getDirectory, "404.html");
-            String HTML404 = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "404 :(\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h1>\n" + "404 - File has Either Been Moved or Relocated\n" + "</h1>\n" + "<a href = \"http://" + host + "/index.html\">Index</a>\n" + "</body>\n" + "</html>";
+            String HTML404 = "<!DOCTYPE html>\n" +
+                                     "<html>\n" +
+                                     "<head>\n" +
+                                     "<style>\n" +
+                                     "body\n" +
+                                     "{\n" +
+                                     "    background-color: lightgreen;\n" +
+                                     "}\n" +
+                                     "</style>\n" +
+                                     "<title>\n" +
+                                     "404 :(\n" +
+                                     "</title>\n" +
+                                     "</head>\n" +
+                                     "<body>\n" +
+                                     "<h1>\n" +
+                                     "404 - File has Either Been Moved or Relocated\n" +
+                                     "</h1>\n" +
+                                     "<a href = \"./index.html\">Index</a>\n" +
+                                     "</body>\n" +
+                                     "</html>";
             writeContents(page404, HTML404, false);
         }
         catch(Exception e)
@@ -669,7 +703,21 @@ public class DataController
         try
         {
             File pageIndex = checkFor(getDirectory, "index.html");
-            String indexHTML = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "Index\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h4>\n" + "Sites<br>";
+            String indexHTML = "<!DOCTYPE html>\n" +
+                                       "<html>\n" +
+                                       "<head>\n" +
+                                       "<style>\n" +
+                                       "body\n" +
+                                       "{\n" +
+                                       "    background-color: lightgreen;\n" +
+                                       "}\n" + "</style>\n" +
+                                       "<title>\n" +
+                                       "Index\n" +
+                                       "</title>\n" +
+                                       "</head>\n" +
+                                       "<body>\n" +
+                                       "<h4>\n" +
+                                       "Sites<br>";
             for(String domain : getDomains())
             {
                 indexHTML += "<a href = http://" + domain + ">" + domain + "</a><br>";
@@ -678,7 +726,22 @@ public class DataController
             writeContents(pageIndex, indexHTML, false);
             
             File page404 = checkFor(getDirectory, "404.html");
-            String HTML404 = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "404 :(\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h1>\n" + "404 - File has Either Been Moved or Relocated\n" + "</h1>\n" + "<a href = \"http://" + host + "/index.html\">Index</a>\n" + "</body>\n" + "</html>";
+            String HTML404 = "<!DOCTYPE html>\n" +
+                                     "<html>\n" +
+                                     "<head>\n" +
+                                     "<style>\n" +
+                                     "body\n" +
+                                     "{\n" +
+                                     "    background-color: lightgreen;\n" +
+                                     "}\n" + "</style>\n" +
+                                     "<title>\n" + "404 :(\n" +
+                                     "</title>\n" + "</head>\n" +
+                                     "<body>\n" +
+                                     "<h1>\n" +
+                                     "404 - File has Either Been Moved or Relocated\n" +
+                                     "</h1>\n" +
+                                     "<a href = \"./index.html\">Index</a>\n" +
+                                     "</body>\n" + "</html>";
             writeContents(page404, HTML404, false);
             
         }

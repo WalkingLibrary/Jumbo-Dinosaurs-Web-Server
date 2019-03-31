@@ -3,11 +3,13 @@ package com.jumbodinosaurs.objects;
 public class QueryRequest
 {
     //LocalDateTime In the Future?
-    private String keyword;
-    private String path;
+    private String file;
+    private String typeOfData;
+    private boolean getPosts;
     private String user;
     private String postIdentifier;
-    private boolean getPostIdentifiersRequest;
+    private String keyword;
+    
     
     public QueryRequest()
     {
@@ -23,14 +25,14 @@ public class QueryRequest
         this.keyword = keyword;
     }
     
-    public String getPath()
+    public String getFile()
     {
-        return path;
+        return file;
     }
     
-    public void setPath(String path)
+    public void setFile(String file)
     {
-        this.path = path;
+        this.file = file;
     }
     
     public String getUser()
@@ -53,13 +55,23 @@ public class QueryRequest
         this.postIdentifier = postIdentifier;
     }
     
-    public boolean isGetPostIdentifiersRequest()
+    public boolean isGetPosts()
     {
-        return getPostIdentifiersRequest;
+        return getPosts;
     }
     
-    public void setGetPostIdentifiersRequest(boolean getPostIdentifiersRequest)
+    public void setGetPosts(boolean getPosts)
     {
-        this.getPostIdentifiersRequest = getPostIdentifiersRequest;
+        this.getPosts = getPosts;
+    }
+    
+    public String getTypeOfData()
+    {
+        return typeOfData;
+    }
+    
+    public void setTypeOfData(String typeOfData)
+    {
+        this.typeOfData = typeOfData;
     }
 }

@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.objects;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public class WritablePost
     private String user;
     private String content;
     private String postIdentifier;
+    private String objectType;
     private LocalDateTime date;
 
     public WritablePost()
@@ -77,5 +79,18 @@ public class WritablePost
         this.date = date;
     }
     
-   
+    
+    public String getObjectType()
+    {
+        return objectType;
+    }
+    
+    public String toJsonString()
+    {
+        return new Gson().toJson(this);
+    }
+    public void setObjectType(String objectType)
+    {
+        this.objectType = objectType;
+    }
 }

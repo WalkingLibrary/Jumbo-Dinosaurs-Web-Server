@@ -47,6 +47,7 @@ public class ServerControl
         System.out.println("Starting Jumbo Dinosaurs .6");//G
         ServerControl.arguments = arguments;
         System.out.println("Test Mode: " + this.arguments.isInTestMode());
+        
         if(arguments.getDomains() != null && !this.arguments.isInTestMode())
         {
             this.intDomain();
