@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.objects;
 
 import com.google.gson.Gson;
+import com.jumbodinosaurs.util.DataController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ public class MinecraftWrittenBook
     private String generation;
     private String count;
     private List<String> pages;
+ 
 
     public MinecraftWrittenBook(String author, String title, String generation, String count, List<String> pages)
     {
@@ -21,7 +23,11 @@ public class MinecraftWrittenBook
         this.count = count;
         this.pages = pages;
     }
-
+    
+    public MinecraftWrittenBook()
+    {
+    }
+    
     public String toString()
     {
         String textOfPages = " \n    Page 1 : ";
@@ -152,4 +158,23 @@ public class MinecraftWrittenBook
     {
         this.pages = pages;
     }
+    
+    
+    public static MinecraftWrittenBook getSanitizedBook(MinecraftWrittenBook book)
+    {
+        MinecraftWrittenBook tempBook = new MinecraftWrittenBook();
+        tempBook.setAuthor(DataController.rewriteHTMLEscapeCharacters(book.getAuthor()));
+        tempBook.setTitle(DataController.rewriteHTMLEscapeCharacters(book.getTitle()));
+        tempBook.setGeneration(DataController.rewriteHTMLEscapeCharacters(book.getGeneration()));
+        tempBook.setCount(DataController.rewriteHTMLEscapeCharacters("" + book.getCount()));
+        ArrayList<String> pagesOfBook = (ArrayList<String>) book.pages;
+        ArrayList<String> sanitizedPagesOfBook = new ArrayList<String>();
+        for(String page: pagesOfBook)
+        {
+            sanitizedPagesOfBook.add(DataController.rewriteHTMLEscapeCharacters(page));
+        }
+        tempBook.setPages(sanitizedPagesOfBook);
+        return tempBook;
+    }
+    
 }

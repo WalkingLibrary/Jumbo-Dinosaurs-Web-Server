@@ -411,34 +411,14 @@ public class HTTPSRequest
                                                             {
                                                                 String localPath = DataController.fixPathSeparator("/booklist/books.json");
                                                                 
-                                                                ArrayList<MinecraftWrittenBook> sanitizedBooks = new ArrayList<MinecraftWrittenBook>();
-                                                                
-                                                                //Sanitize Post Data
-                                                                for(MinecraftWrittenBook book : books)
-                                                                {
-                                                                    MinecraftWrittenBook tempBook = book.clone();
-                                                                    tempBook.setAuthor(rewriteHTMLEscapeCharacters(book.getAuthor()));
-                                                                    tempBook.setCount(rewriteHTMLEscapeCharacters("" + book.getCount()));
-                                                                    tempBook.setTitle(rewriteHTMLEscapeCharacters(book.getTitle()));
-                                                                    tempBook.setGeneration(rewriteHTMLEscapeCharacters(book.getGeneration()));
-                                                                    ArrayList<String> pages = (ArrayList<String>) book.getPages();
-                                                                    ArrayList<String> sanitizedPages = new ArrayList<String>();
-                                                                    for(String page : pages)
-                                                                    {
-                                                                        sanitizedPages.add(rewriteHTMLEscapeCharacters(page));
-                                                                    }
-                                                                    tempBook.setPages(sanitizedPages);
-                                                                    sanitizedBooks.add(tempBook);
-                                                                }
-                                                                //books sent sanitized
-                                                                content = new Gson().toJson(sanitizedBooks);
+                                                                content = new Gson().toJson(books);
                                                                 
                                                                 WritablePost temp = new WritablePost();
                                                                 temp.setLocalPath(localPath);
                                                                 temp.setUser(user.getUsername());
                                                                 temp.setContent(content);
                                                                 temp.setDate(now);
-                                                                temp.setPostIdentifier(rewriteHTMLEscapeCharacters(postRequest.getListName()));
+                                                                temp.setPostIdentifier(postRequest.getListName());
                                                                 temp.setObjectType(MinecraftWrittenBook.class.getTypeName());
                                                                 post = temp.clone();
                                                                 
@@ -463,20 +443,15 @@ public class HTTPSRequest
                                                             if(sign != null && postRequest.getConnectionName() != null)
                                                             {
                                                                 String localPath = DataController.fixPathSeparator("/signlist/signs.json");
-                                                                MinecraftSign tempSign = sign.clone();
-                                                                tempSign.setText1(rewriteHTMLEscapeCharacters(sign.getText1()));
-                                                                tempSign.setText2(rewriteHTMLEscapeCharacters(sign.getText2()));
-                                                                tempSign.setText3(rewriteHTMLEscapeCharacters(sign.getText3()));
-                                                                tempSign.setText4(rewriteHTMLEscapeCharacters(sign.getText4()));
                                                                 
-                                                                content = new Gson().toJson(tempSign);
                                                                 
+                                                                content = new Gson().toJson(sign);
                                                                 WritablePost temp = new WritablePost();
                                                                 temp.setLocalPath(localPath);
                                                                 temp.setUser(user.getUsername());
                                                                 temp.setContent(content);
                                                                 temp.setDate(now);
-                                                                temp.setPostIdentifier(rewriteHTMLEscapeCharacters(postRequest.getConnectionName()));
+                                                                temp.setPostIdentifier(postRequest.getConnectionName());
                                                                 temp.setObjectType(MinecraftSign.class.getTypeName());
                                                                 post = temp.clone();
                                                                 
@@ -628,7 +603,7 @@ public class HTTPSRequest
                                 
                                 if(post != null && !send400Code)
                                 {
-                                    DataController.writePostData(post);
+                                    DataController.handOffPost(post);
                                     //Message to send is determined case by case
                                 }
                                 
@@ -799,6 +774,20 @@ public class HTTPSRequest
                                     }
                                 }
                                 break;
+                            case "files":
+                                File[] filesInPost = DataController.listFilesRecursive(DataController.postDirectory);
+                                for(File file: filesInPost)
+                                {
+                                    String pathToParse = file.getAbsolutePath();
+                                    if(pathToParse.substring(pathToParse.length() - 1).equals(File.separator))
+                                    {
+                                        pathToParse = pathToParse.substring(0, pathToParse.length() - 2);
+                                    }
+                                    // Example File Path /home/system/WebServer/POST/books.json
+                                    // books is what should be put in content
+                                    content.add(pathToParse.substring(pathToParse.lastIndexOf(File.separator) + 1, pathToParse.lastIndexOf(".")));
+                                }
+                             break;
                         }
                     }
                 }
@@ -933,26 +922,7 @@ public class HTTPSRequest
     }
     
     
-    public String rewriteHTMLEscapeCharacters(String postData)
-    {
-        String[][] charsToChange = {{"&", "&amp;"}, {"<", "&lt;"}, {">", "&gt;"}, {"\"", "&quot;"}, {"\'", "&apos;"}};
-        
-        String temp = postData;
-        
-        for(int i = 0; i < temp.length(); i++)
-        {
-            for(String[] escapeChar : charsToChange)
-            {
-                if(temp.substring(i, i + 1).equals(escapeChar[0]))
-                {
-                    temp = temp.substring(0, i) + escapeChar[1] + temp.substring(i + 1);
-                    i += charsToChange[1].length;
-                }
-            }
-            
-        }
-        return temp;
-    }
+    
     
     public void setMessage400()
     {

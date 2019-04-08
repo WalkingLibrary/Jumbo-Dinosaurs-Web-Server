@@ -335,7 +335,7 @@ public class CredentialsManager
             {
                 for(User user : users)
                 {
-                    user.setPassword(DataController.removeUTFCharacters(user.getPassword()).toString());
+                    user.setPassword(DataController.replaceUnicodeCharacters(user.getPassword()).toString());
                 }
             }
         }

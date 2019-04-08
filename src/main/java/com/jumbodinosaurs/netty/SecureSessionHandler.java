@@ -64,7 +64,6 @@ public class SecureSessionHandler extends SimpleChannelInboundHandler<String>
                     FastResponse response = new FastResponse(request.getMessageToSend(), null);
                     context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                 }
-                
                 session.setMessageSent(request.getMessageToSend());
                 
                 if(!request.leaveMessageTheSame() && !(ServerControl.getArguments() != null && ServerControl.getArguments().isInTestMode()))

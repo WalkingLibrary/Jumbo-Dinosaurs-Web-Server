@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.objects;
 
 import com.google.gson.Gson;
+import com.jumbodinosaurs.util.DataController;
 
 import java.time.LocalDateTime;
 
@@ -32,18 +33,20 @@ public class MinecraftSign
         this.dimension = dimension;
     }
     
-    
+    public MinecraftSign()
+    {
+    }
     
     
     public boolean samePlaceandText(MinecraftSign sign)
     {
-       return this.getDateLess().equals(sign.getDateLess());
+        return this.getDateLess().equals(sign.getDateLess());
     }
     
     
     public MinecraftSign clone()
     {
-        return new Gson().fromJson(new Gson().toJson(this),this.getClass());
+        return new Gson().fromJson(new Gson().toJson(this), this.getClass());
     }
     
     public MinecraftSign getDateLess()
@@ -61,9 +64,11 @@ public class MinecraftSign
         return otherJson.equals(thisJson);
     }
     
-   
-   
     
+    public String[] getTexts()
+    {
+        return new String[]{this.text1, this.text2, this.text3, this.text4};
+    }
     
     
     @Override
@@ -169,6 +174,22 @@ public class MinecraftSign
     public void setDimension(int dimension)
     {
         this.dimension = dimension;
+    }
+    
+    
+    public static MinecraftSign getSanitizedSign(MinecraftSign sign)
+    {
+        MinecraftSign tempSign = new MinecraftSign();
+        tempSign.setText1(DataController.rewriteHTMLEscapeCharacters(sign.getText1()));
+        tempSign.setText2(DataController.rewriteHTMLEscapeCharacters(sign.getText2()));
+        tempSign.setText3(DataController.rewriteHTMLEscapeCharacters(sign.getText3()));
+        tempSign.setText4(DataController.rewriteHTMLEscapeCharacters(sign.getText4()));
+        tempSign.setX(sign.getX());
+        tempSign.setY(sign.getY());
+        tempSign.setZ(sign.getZ());
+        tempSign.setDate(sign.getDate());
+        tempSign.setDimension(sign.getDimension());
+        return tempSign;
     }
 }
 
