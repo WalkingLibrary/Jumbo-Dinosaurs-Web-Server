@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
-import com.jumbodinosaurs.netty.HTTPSRequest;
 import com.jumbodinosaurs.objects.*;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+
 
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
@@ -72,10 +70,7 @@ public class DataController
     }
     
     
-    public static File[] getCertificates()
-    {
-        return listFilesRecursive(certificateDirectory);
-    }
+   
     
     
     /* @Function: Checks for the String name in the given Dir of File file
@@ -264,6 +259,11 @@ public class DataController
             temp = temp.substring(temp.indexOf(".") + 1);
         }
         return temp;
+    }
+    
+    public static String getTypelessName(File file)
+    {
+        return file.getName().substring(0, file.getName().lastIndexOf("."));
     }
     
     
@@ -465,6 +465,8 @@ public class DataController
             props.put("mail.smtp.host", "smtp.gmail.com");
             props.put("mail.smtp.port", "587");
             props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             //Establishing a session with required user details
             javax.mail.Session session = javax.mail.Session.getInstance(props, new javax.mail.Authenticator()
             {
@@ -473,13 +475,14 @@ public class DataController
                     return new PasswordAuthentication(emailUsername, emailPassword);
                 }
             });
+            
             try
             {
                 //Creating a Message object to set the email content
                 MimeMessage msg = new MimeMessage(session);
                 //Storing the comma seperated values to email addresses
                 String to = userEmailAddress;
-                /*Parsing the String with defualt delimiter as a comma by marking the boolean as true and storing the email
+                /*Parsing the String with default delimiter as a comma by marking the boolean as true and storing the email
                 addresses in an array of InternetAddress objects*/
                 InternetAddress[] address = InternetAddress.parse(to, true);
                 //Setting the recepients from the address variable
@@ -500,7 +503,6 @@ public class DataController
         }
         return false;
     }
-    
     
     
     //Post should be AS given by the user
@@ -531,10 +533,10 @@ public class DataController
             {
                 return false;
             }
+            
             String thisPostConnection = rewriteHTMLEscapeCharacters(post.getPostIdentifier());
-    
-            if(thisPostConnection.length() > 265 || //https://www.boutell.com/newfaq/creating/domainlength.html
-                       (!validateMCAddress(thisPostConnection) && !validateMCAddress(thisPostConnection)))
+            //https://www.boutell.com/newfaq/creating/domainlength.html
+            if(thisPostConnection.length() > 265 || (!validateMCAddress(thisPostConnection) && !validateMCAddress(thisPostConnection)))
             {
                 return false;
             }
@@ -543,7 +545,7 @@ public class DataController
             for(String text : sign.getTexts())
             {
                 if(!(replaceUnicodeCharacters(text).length() < 17)) //if any of the texts are over 16 in length then
-                    // not valid vanilla sign
+                // not valid vanilla sign
                 {
                     return false;
                 }
@@ -552,10 +554,10 @@ public class DataController
             int thirtyMillion = 30000005;//Add that 5 cause ...
             if(sign.getX() >= (-1 * thirtyMillion) && sign.getX() <= thirtyMillion) //Vanilla Mc World Border
             {
-               
+                
                 if(sign.getZ() >= (-1 * thirtyMillion) && sign.getZ() <= thirtyMillion)
                 {
-                   
+                    
                     if(sign.getY() < 256 && sign.getY() >= 0)//vanilla mc world height
                     {
                         
@@ -582,7 +584,7 @@ public class DataController
                                 }
                                 return !spamSign;
                             }
-                           
+                            
                         }
                         
                     }
@@ -594,7 +596,7 @@ public class DataController
         }
         else if(post.getObjectType().equals(MinecraftWrittenBook.class.getTypeName()))//MC BOOKS
         {
-            Type typeToken = new TypeToken<ArrayList<MinecraftWrittenBook>>(){}.getType();
+            Type typeToken = new TypeToken<ArrayList<MinecraftWrittenBook>>() {}.getType();
             ArrayList<MinecraftWrittenBook> postsBooks = new Gson().fromJson(post.getContent(), typeToken);
             ArrayList<MinecraftWrittenBook> sanitizedPostsBooks = new ArrayList<MinecraftWrittenBook>();
             int maxAmountBooksPerListSent = 23328;
@@ -605,7 +607,7 @@ public class DataController
                 return false;
             }
             
-            for(MinecraftWrittenBook book: postsBooks)
+            for(MinecraftWrittenBook book : postsBooks)
             {
                 int generation = Integer.parseInt(book.getGeneration());
                 if(book.getCount() < 1)
@@ -622,11 +624,11 @@ public class DataController
                 // you may say we should check characters since mc doesn't allow specfic chars in usernames but
                 //https://imgur.com/a/Q6ubP3g
                 else if(replaceUnicodeCharacters(book.getAuthor()).length() > 16)//max player name size is 16
-                    // https://namemc.com/search?q=12345678911234567
+                // https://namemc.com/search?q=12345678911234567
                 {
                     return false;
                 }
-                else if(replaceUnicodeCharacters(book.getTitle()).length() > 16 )//max book title is 16 https://minecraft.gamepedia.com/Book_and_Quill
+                else if(replaceUnicodeCharacters(book.getTitle()).length() > 16)//max book title is 16 https://minecraft.gamepedia.com/Book_and_Quill
                 {
                     return false;
                 }
@@ -639,7 +641,7 @@ public class DataController
                     return false;
                 }
                 
-                for(String page: book.getPages())
+                for(String page : book.getPages())
                 {
                     String unicodeCharRemovedPage = replaceUnicodeCharacters(page).substring(0);
                     if(unicodeCharRemovedPage.length() > 255)
@@ -668,24 +670,25 @@ public class DataController
                 sanitizedPostsBooks.add(MinecraftWrittenBook.getSanitizedBook(book));
             }
             
-            for(WritablePost pastPost: pastPostsByThisUserAndSameObject)
+            for(WritablePost pastPost : pastPostsByThisUserAndSameObject)
             {
-                ArrayList<MinecraftWrittenBook> pastBookListPost = new Gson().fromJson(pastPost.getContent(), typeToken);
+                ArrayList<MinecraftWrittenBook> pastBookListPost = new Gson().fromJson(pastPost.getContent(),
+                                                                                       typeToken);
                 if(sanitizedPostsBooks.size() == pastBookListPost.size())
                 {
                     if(pastPost.getPostIdentifier().equals(rewriteHTMLEscapeCharacters(post.getPostIdentifier())))
                     {
                         boolean hasBookMatch = false;
-                        for(MinecraftWrittenBook book: sanitizedPostsBooks)
+                        for(MinecraftWrittenBook book : sanitizedPostsBooks)
                         {
-                            for(MinecraftWrittenBook pastPostedBook: pastBookListPost)
+                            for(MinecraftWrittenBook pastPostedBook : pastBookListPost)
                             {
                                 if(book.equals(pastPostedBook))
                                 {
                                     hasBookMatch = true;
                                 }
                             }
-    
+                            
                             if(!hasBookMatch)
                             {
                                 return true;
@@ -798,7 +801,7 @@ public class DataController
         {
             if(!thisPing.isGoodPing())
             {
-                if(thisPing.getTimesPinged() < 50 || now.minusDays((long)2).isAfter(thisPing.getDate()))
+                if(thisPing.getTimesPinged() < 50 || now.minusDays((long) 2).isAfter(thisPing.getDate()))
                 {
                     response = pingMCServer(ip, port);
                     if(thisPing.getTimesPinged() > 49)
@@ -812,7 +815,7 @@ public class DataController
                 }
                 
             }
-            else if(now.minusDays((long)20).isAfter(thisPing.getDate()))
+            else if(now.minusDays((long) 20).isAfter(thisPing.getDate()))
             {
                 response = pingMCServer(ip, port);
                 thisPing = new PastPing(ip, now, response);
@@ -834,7 +837,7 @@ public class DataController
     }
     
     
-    public static  String rewriteHTMLEscapeCharacters(String postData)
+    public static String rewriteHTMLEscapeCharacters(String postData)
     {
         String[][] charsToChange = {{"&", "&amp;"}, {"<", "&lt;"}, {">", "&gt;"}, {"\"", "&quot;"}, {"\'", "&apos;"}};
         

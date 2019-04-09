@@ -46,9 +46,9 @@ public class ServerControl
     {
         System.out.println("Starting Jumbo Dinosaurs .6");//G
         ServerControl.arguments = arguments;
-        System.out.println("Test Mode: " + this.arguments.isInTestMode());
+        System.out.println("Test Mode: " + ServerControl.arguments.isInTestMode());
         
-        if(arguments.getDomains() != null && !this.arguments.isInTestMode())
+        if(arguments.getDomains() != null && !ServerControl.arguments.isInTestMode())
         {
             this.intDomain();
             this.oneHourTimer.start();
@@ -66,15 +66,9 @@ public class ServerControl
         port80Thread = new Thread(new SessionHandlerInitializer());
         port80Thread.start();
         
-        if(arguments.getCertificateKey() != null)//if user has a ssl certificate
-        {
-            port443Thread = new Thread(new SecureSessionHandlerInitializer(arguments.getCertificateKey()));
-            port443Thread.start();
-        }
-        else
-        {
-            OperatorConsole.redirectToSSL = false;
-        }
+        
+        port443Thread = new Thread(new SecureSessionHandlerInitializer());
+        port443Thread.start();
     }
     
     public static RuntimeArguments getArguments()
@@ -104,7 +98,8 @@ public class ServerControl
                 //We pass the credentials to the url in the next line
                 //https://username:password@domains.google.com/nic/update?hostname=subdomain.yourdomain.com
                 //Example: ksafj391 1k3o13fk1 www.jumbodinosaurs.com
-                String url = "https://" + domains.get(i).getUsername() + ":" + domains.get(i).getPassword() + "@domains.google.com/nic/update?hostname=" + domains.get(i).getDomain();
+                String url = "https://" + domains.get(i).getUsername() + ":" + domains.get(i).getPassword() + "@domains.google.com/nic/update?hostname=" + domains.get(
+                        i).getDomain();
                 
                 URL address = new URL(url);
                 

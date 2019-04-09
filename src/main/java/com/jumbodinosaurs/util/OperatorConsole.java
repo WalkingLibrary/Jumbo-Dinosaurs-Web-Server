@@ -26,7 +26,8 @@ public class OperatorConsole implements Runnable
     public static boolean allowPost = true;
     public static boolean whitelist = false;
     public static ArrayList<String> whitelistedIps = new ArrayList<String>();
-    public static boolean redirectToSSL = true;
+    public static boolean redirectToSSL;
+    public static boolean sslThreadRunning;
     
     
     public OperatorConsole()

@@ -6,16 +6,14 @@ public class RuntimeArguments
 {
     private ArrayList<Domain> domains;
     private String captchaKey;
-    private String certificateKey;
     private ArrayList<Email> emails;
     private boolean testMode;
     
     
-    public RuntimeArguments(ArrayList<Domain> domains, String captchaKey, String certificateKey, ArrayList<Email> emails, boolean testMode)
+    public RuntimeArguments(ArrayList<Domain> domains, String captchaKey, ArrayList<Email> emails, boolean testMode)
     {
         this.domains = domains;
         this.captchaKey = captchaKey;
-        this.certificateKey = certificateKey;
         this.emails = emails;
         this.testMode = testMode;
     }
@@ -34,11 +32,7 @@ public class RuntimeArguments
     {
         return captchaKey;
     }
-
-    public String getCertificateKey()
-    {
-        return certificateKey;
-    }
+    
 
     public ArrayList<Email> getEmails()
     {

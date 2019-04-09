@@ -28,7 +28,7 @@ public class SessionHandlerInitializer extends ChannelInitializer<SocketChannel>
         {
             ServerBootstrap bootstrap = new ServerBootstrap().group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(this);
             bootstrap.bind(80).sync().channel().closeFuture().sync();
-            //443 ssl port
+            
         }
         catch(Exception e)
         {
@@ -52,7 +52,7 @@ public class SessionHandlerInitializer extends ChannelInitializer<SocketChannel>
         pipeline.addLast("framer", new DelimiterBasedFrameDecoder(10000000, buffer));
         pipeline.addLast("decoder", new StringDecoder());
         pipeline.addLast("encoder", new ResponseEncoder());
-        pipeline.addLast(new ChunkedWriteHandler());
+        pipeline.addLast("streamer", new ChunkedWriteHandler());
         pipeline.addLast("handler", new SessionHandler());
         
     }

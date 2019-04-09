@@ -1,5 +1,6 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
+import com.jumbodinosaurs.util.PostWriter;
 import com.jumbodinosaurs.util.SessionLogger;
 
 public class Stop extends OperatorCommand
@@ -14,7 +15,7 @@ public class Stop extends OperatorCommand
     {
         if(SessionLogger.sessions != null)
         {
-            while(SessionLogger.sessions.size() > 0)
+            while(SessionLogger.sessions.size() > 0 && PostWriter.postsToWrite.size() > 0)
             {
             
             }

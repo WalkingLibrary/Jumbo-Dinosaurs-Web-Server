@@ -198,8 +198,8 @@ public class HTTPSRequest
                                 String command = this.postRequest.getCommand();
                                 WritablePost post = null;
                                 boolean send400Code = true;
-                                
                                 double captchaScore = 0;
+                                
                                 if(this.postRequest.getCaptchaCode() != null)
                                 {
                                     captchaScore = this.getCaptchaScore(this.postRequest.getCaptchaCode());
