@@ -36,7 +36,6 @@ public class HTTPRequest
     private String messageFromClient;
     private String messageToSend;
     private byte[] byteArrayToSend;
-    private Boolean hasByteArray = false;
     private boolean leaveMessageTheSame = true;
 
 
@@ -92,7 +91,6 @@ public class HTTPRequest
                             this.messageToSend += this.contentImageHeader + DataController.getType(fileRequested);
                             //this.messageToSend += this.contentLengthHeader + dataIO.getPictureLength(fileRequested.getName());
                             this.messageToSend += this.closeHeader;
-                            this.hasByteArray = true;
                             this.byteArrayToSend = DataController.readPhoto(fileRequested);
 
                         }
@@ -109,7 +107,6 @@ public class HTTPRequest
                         this.messageToSend += this.sC200;
                         this.messageToSend += this.contentApplicationHeader + fileType;
                         this.messageToSend += this.closeHeader;
-                        this.hasByteArray = true;
                         this.byteArrayToSend = DataController.readZip(fileRequested);
                     }
                     else
@@ -375,11 +372,7 @@ public class HTTPRequest
         }
         return null;
     }
-
-    public boolean hasByteArray()
-    {
-        return this.hasByteArray;
-    }
+    
 
     public byte[] getByteArrayToSend()
     {

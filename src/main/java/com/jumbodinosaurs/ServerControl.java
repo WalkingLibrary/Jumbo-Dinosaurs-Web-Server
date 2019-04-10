@@ -1,11 +1,11 @@
 package com.jumbodinosaurs;
 
 import com.jumbodinosaurs.netty.SecureSessionHandlerInitializer;
-import com.jumbodinosaurs.netty.SessionHandler;
 import com.jumbodinosaurs.netty.SessionHandlerInitializer;
 import com.jumbodinosaurs.objects.Domain;
 import com.jumbodinosaurs.objects.RuntimeArguments;
-import com.jumbodinosaurs.util.ClientTimer;
+import com.jumbodinosaurs.objects.URLResponse;
+import com.jumbodinosaurs.util.Timer;
 import com.jumbodinosaurs.util.DataController;
 import com.jumbodinosaurs.util.OperatorConsole;
 import sun.misc.BASE64Encoder;
@@ -17,6 +17,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 
@@ -25,9 +26,12 @@ public class ServerControl
     
     private static Thread commandThread, port80Thread, port443Thread;
     private static DataController dataIO;
-    private final ClientTimer oneHourTimer = new ClientTimer(3600000, new ComponentsListener());//One Hour Timer
-    private final ClientTimer fiveMinuteTimer = new ClientTimer(300000, new ComponentsListener());//Five Minute Timer
+    private final int FIVE_MINUTES_IN_MILLSECONDS = 300000;
+    private final int ONE_HOUR_IN_MILLSECONDS = 3600000;
+    private final Timer ONE_HOUR_TIMER = new Timer(ONE_HOUR_IN_MILLSECONDS, new ComponentsListener(), false, 0);
+    private final Timer FIVE_MINUTE_TIMER = new Timer(FIVE_MINUTES_IN_MILLSECONDS, new ComponentsListener(), false);
     private static RuntimeArguments arguments;
+    private static ArrayList<Domain> updatableDomains = new ArrayList<Domain>();
     
     
     public ServerControl()
@@ -48,11 +52,22 @@ public class ServerControl
         ServerControl.arguments = arguments;
         System.out.println("Test Mode: " + ServerControl.arguments.isInTestMode());
         
-        if(arguments.getDomains() != null && !ServerControl.arguments.isInTestMode())
+        if(arguments.getDomains() != null && arguments.getDomains().size() > 0)
         {
-            this.intDomain();
-            this.oneHourTimer.start();
+            for(Domain domain : arguments.getDomains())
+            {
+                if(domain.getUsername() != null && domain.getPassword() != null && domain.getDomain() != null)
+                {
+                    updatableDomains.add(domain);
+                }
+            }
+            if(updatableDomains.size() > 0)
+            {
+                this.ONE_HOUR_TIMER.start();
+            }
+            
             dataIO = new DataController(true);
+            
         }
         else
         {
@@ -77,100 +92,82 @@ public class ServerControl
     }
     
     
-    private void intDomain()
+    //using google's Dynamic IP APi https://support.google.com/domains/answer/6147083?hl=en
+    private void updateDNSRecords()
     {
+        LocalDateTime now = LocalDateTime.now();
         
-        boolean[] isDomainInitialized;
-        isDomainInitialized = new boolean[arguments.getDomains().size()];
-        boolean allDomainsInitialized = true;
-        
-        //Process for Initializing Domains
-        //First the code will try to tell google to update our ip with the url
-        //Second The code will then read the response
-        //The code will do this for each domain given through RuntimeArguments
-        //If google's response is that it failed then the code will start a 5 minutes timer to try again in 5 minutes
-        //If a single domain fails then all domains are tried again later -> WIP: should only be the ones that failed
-        ArrayList<Domain> domains = arguments.getDomains();
-        for(int i = 0; i < arguments.getDomains().size(); i++)
+        //Process for Updating DNS Records
+        //for each domain we check it's last good update date and then make a HTTPSURLConnection accordingly
+        //then read the response
+        //if the response is good or nochg we set the last goodupdateDate of the domain to now
+        //we then check to make sure each updatable domain updated successfully and if one failed we start a five min
+        // timer to try again
+        // either way we check the status of the 5 min timer and make sure it's on and off when it needs to be
+        boolean allDomainsUpdatedSuccessfully = true;
+        for(Domain domain : updatableDomains)
         {
-            try
+            if(domain.getLastGoodUpdateDate() == null || now.minusMinutes((long) 55).isAfter(domain.getLastGoodUpdateDate()))//Minus minutes as the timer is
             {
-                //We pass the credentials to the url in the next line
-                //https://username:password@domains.google.com/nic/update?hostname=subdomain.yourdomain.com
-                //Example: ksafj391 1k3o13fk1 www.jumbodinosaurs.com
-                String url = "https://" + domains.get(i).getUsername() + ":" + domains.get(i).getPassword() + "@domains.google.com/nic/update?hostname=" + domains.get(
-                        i).getDomain();
-                
-                URL address = new URL(url);
-                
-                
-                // open HTTPS connection
-                HttpURLConnection connection = null;
-                connection = (HttpsURLConnection) address.openConnection();
-                connection.setRequestMethod("GET");
-                String authentication = domains.get(i).getUsername() + ':' + domains.get(i).getPassword();
-                BASE64Encoder encoder = new BASE64Encoder();
-                String encoded = encoder.encode((authentication).getBytes(StandardCharsets.UTF_8));
-                connection.setRequestProperty("Authorization", "Basic " + encoded);
-                // execute HTTPS request
-                int returnCode = connection.getResponseCode();
-                InputStream connectionIn = null;
-                if(returnCode == 200)
+                try
                 {
-                    connectionIn = connection.getInputStream();
+                    //Url to send info to
+                    String url = "https://domains.google.com/nic/update?hostname=" + domain.getDomain();
+                    URL address = new URL(url);
+                    // open HTTPS connection
+                    HttpURLConnection connection;
+                    connection = (HttpsURLConnection) address.openConnection();
+                    connection.setRequestMethod("GET");
+                    //Credentials for Updating info
+                    String authentication = domain.getUsername() + ':' + domain.getPassword();
+                    BASE64Encoder encoder = new BASE64Encoder();
+                    String encoded = encoder.encode((authentication).getBytes(StandardCharsets.UTF_8));
+                    connection.setRequestProperty("Authorization", "Basic " + encoded);
+                    //Get Response from Google
+                    URLResponse response = DataController.getResponse(connection);
+                    if(response != null)
+                    {
+                        if(response.getResponse().contains("good") || response.getResponse().contains("nochg"))
+                        {
+                            domain.setLastGoodUpdateDate(now);
+                        }
+                        else
+                        {
+                            allDomainsUpdatedSuccessfully = false;
+                            OperatorConsole.printMessageFiltered("Domain Failed To Update\nDomain: " + domain.getDomain(),
+                                                                 false,
+                                                                 true);
+                        }
+                    }
+                    else
+                    {
+                        allDomainsUpdatedSuccessfully = false;
+                        OperatorConsole.printMessageFiltered("Domain Failed To Update\nDomain: " + domain.getDomain(),
+                                                             false,
+                                                             true);
+                    }
                 }
-                else
+                catch(IOException e)
                 {
-                    connectionIn = connection.getErrorStream();
+                    OperatorConsole.printMessageFiltered("Exception: Domain Failed To Update\nDomain: " + domain.getDomain(),
+                                                         false,
+                                                         true);
+                    e.printStackTrace();
                 }
                 
                 
-                BufferedReader sc = new BufferedReader(new InputStreamReader(connectionIn));
-                String response = "";
-                while(sc.ready())
-                {
-                    response += sc.readLine();
-                }
-                OperatorConsole.printMessageFiltered(response, true, false);
-                
-                if(response.contains("good") || response.contains("nochg"))
-                {
-                    isDomainInitialized[i] = true;
-                }
-            }
-            catch(IOException e)
-            {
-                OperatorConsole.printMessageFiltered("Error Setting Up Initializing Domain(s)", false, true);
-                e.printStackTrace();
-            }
-            
-        }
-        
-        
-        for(boolean isInitialized : isDomainInitialized)
-        {
-            if(!isInitialized)
-            {
-                allDomainsInitialized = false;
-                break;
             }
         }
         
-        if(allDomainsInitialized)
+        if(allDomainsUpdatedSuccessfully && this.FIVE_MINUTE_TIMER.isRunning())
         {
-            OperatorConsole.printMessageFiltered("Domain Initialized", true, false);
-            this.fiveMinuteTimer.stop();
+            OperatorConsole.printMessageFiltered("All Domains Successfully Updated", true, false);
+            this.FIVE_MINUTE_TIMER.stop();
         }
-        else if(this.fiveMinuteTimer.getStatus())
+        else if(!this.FIVE_MINUTE_TIMER.isRunning())
         {
-            OperatorConsole.printMessageFiltered("A Domain Failed To Initialize Starting 5 Min Timer", false, true);
-            this.fiveMinuteTimer.start();
+            this.FIVE_MINUTE_TIMER.start();
         }
-        else
-        {
-            OperatorConsole.printMessageFiltered("A Domain Failed To Initialize", true, false);
-        }
-        
     }
     
     
@@ -178,7 +175,7 @@ public class ServerControl
     {
         public void actionPerformed(ActionEvent e)
         {
-            intDomain();
+            updateDNSRecords();
         }
     }
 }

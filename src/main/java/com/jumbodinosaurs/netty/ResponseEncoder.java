@@ -6,23 +6,18 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 
 import java.util.List;
 
-public class ResponseEncoder extends MessageToMessageEncoder<FastResponse>
+public class ResponseEncoder extends MessageToMessageEncoder<PipelineResponse>
 {
     @Override
-    protected void encode(ChannelHandlerContext context, FastResponse response, List<Object> out) throws Exception
+    protected void encode(ChannelHandlerContext context,
+                          PipelineResponse response,
+                          List<Object> out) throws Exception
     {
         ByteBuf buffer = context.alloc().buffer();
-        for (char charToSend: response.getMessage().toCharArray())
+        buffer.writeBytes(response.getMessage().getBytes());
+        if(response.getBytesOut() != null)
         {
-            buffer.writeByte((byte)charToSend);
-        }
-
-        if(response.getPhotobytes() != null)
-        {
-            for (byte byteToSend : response.getPhotobytes())
-            {
-                buffer.writeByte(byteToSend);
-            }
+            buffer.writeBytes(response.getBytesOut());
         }
         out.add(buffer);
     }

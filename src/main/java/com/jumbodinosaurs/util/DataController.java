@@ -12,6 +12,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.*;
@@ -858,6 +859,73 @@ public class DataController
         return temp;
     }
     
+    public static URLResponse getResponse(HttpURLConnection connection)
+    {
+        URLResponse urlResponse = null;
+        try
+        {
+            int returnCode = connection.getResponseCode();
+            InputStream connectionIn = null;
+            if(returnCode == 200)
+            {
+                connectionIn = connection.getInputStream();
+            }
+            else
+            {
+                connectionIn = connection.getErrorStream();
+            }
+        
+        
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connectionIn));
+            String response = "";
+            while(bufferedReader.ready())
+            {
+                response += bufferedReader.readLine();
+            }
+        
+            urlResponse = new URLResponse(returnCode, response);
+        }
+        catch(IOException e)
+        {
+            OperatorConsole.printMessageFiltered("URL Connection Exception",true,false);
+        }
+        return urlResponse;
+    }
+    
+    
+    public static URLResponse getResponse(HttpsURLConnection connection)
+    {
+        URLResponse urlResponse = null;
+        try
+        {
+            int returnCode = connection.getResponseCode();
+            InputStream connectionIn = null;
+            if(returnCode == 200)
+            {
+                connectionIn = connection.getInputStream();
+            }
+            else
+            {
+                connectionIn = connection.getErrorStream();
+            }
+        
+        
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connectionIn));
+            String response = "";
+            while(bufferedReader.ready())
+            {
+                response += bufferedReader.readLine();
+            }
+    
+            urlResponse = new URLResponse(returnCode, response);
+        }
+        catch(IOException e)
+        {
+            OperatorConsole.printMessageFiltered("URL Connection Exception",true,false);
+        }
+        return urlResponse;
+    }
+    
     
     public static byte[] readPhoto(File file)
     {
@@ -968,10 +1036,9 @@ public class DataController
         try
         {
             URL address = new URL("http://bot.whatismyipaddress.com");
-            
-            BufferedReader sc = new BufferedReader(new InputStreamReader(address.openStream()));
-            
-            host = sc.readLine().trim();
+            HttpURLConnection connection = (HttpURLConnection) address.openConnection();
+            URLResponse ipResponse = getResponse(connection);
+            host = ipResponse.getResponse();
             OperatorConsole.printMessageFiltered("Public IP: " + host, false, false);
             
         }

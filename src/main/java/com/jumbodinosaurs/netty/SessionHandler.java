@@ -1,6 +1,5 @@
 package com.jumbodinosaurs.netty;
 
-import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.objects.Session;
 import com.jumbodinosaurs.util.DataController;
 import com.jumbodinosaurs.util.OperatorConsole;
@@ -64,19 +63,10 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
                     request.setMessage501();
                 }
                 //Send Message
-                
-                
-                if(request.hasByteArray())
-                {
-                    FastResponse response = new FastResponse(request.getMessageToSend(), request.getByteArrayToSend());
-                    context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                }
-                else
-                {
-                    FastResponse response = new FastResponse(request.getMessageToSend(), null);
-                    context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                }
-                
+                PipelineResponse response = new PipelineResponse(request.getMessageToSend(),
+                                                                 request.getByteArrayToSend());
+                context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                //end message send
                 
                 session.setMessageSent(request.getMessageToSend());
                 

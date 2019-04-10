@@ -1,6 +1,9 @@
 package com.jumbodinosaurs.objects;
 
+import com.google.gson.Gson;
+
 import java.io.File;
+import java.time.LocalDateTime;
 
 public class Domain
 {
@@ -8,21 +11,19 @@ public class Domain
     private String username;
     private String password;
     private String certificatePassword;
+    private LocalDateTime lastGoodUpdateDate;
     private transient File certificateFile;
     
-    
-    public Domain(String domain,
-                  String username,
-                  String password,
-                  String certificatePassword,
-                  File certificateFile)
+    public Domain()
     {
-        this.domain = domain;
-        this.username = username;
-        this.password = password;
-        this.certificatePassword = certificatePassword;
-        this.certificateFile = certificateFile;
     }
+    
+    
+    public Domain clone()
+    {
+        return new Gson().fromJson(new Gson().toJson(this), this.getClass());
+    }
+    
     
     
     public String getDomain()
@@ -73,5 +74,16 @@ public class Domain
     public void setCertificateFile(File certificateFile)
     {
         this.certificateFile = certificateFile;
+    }
+    
+    
+    public LocalDateTime getLastGoodUpdateDate()
+    {
+        return lastGoodUpdateDate;
+    }
+    
+    public void setLastGoodUpdateDate(LocalDateTime lastGoodUpdateDate)
+    {
+        this.lastGoodUpdateDate = lastGoodUpdateDate;
     }
 }

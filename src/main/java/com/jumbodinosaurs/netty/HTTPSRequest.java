@@ -22,8 +22,6 @@ import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Objects;
 
 public class HTTPSRequest
 {
@@ -53,7 +51,6 @@ public class HTTPSRequest
     private String messageToSend;
     private String ip;
     private byte[] byteArrayToSend;
-    private Boolean hasByteArray = false;
     private Boolean leaveMessageTheSame = true;
     private PostRequest postRequest;
     
@@ -110,7 +107,6 @@ public class HTTPSRequest
                             this.messageToSend += this.contentImageHeader + DataController.getType(fileRequested);
                             //this.messageToSend += this.contentLengthHeader + dataIO.getPictureLength(fileRequested.getName());
                             this.messageToSend += this.closeHeader;
-                            this.hasByteArray = true;
                             this.byteArrayToSend = DataController.readPhoto(fileRequested);
                             
                         }
@@ -126,7 +122,6 @@ public class HTTPSRequest
                         this.messageToSend += this.sC200;
                         this.messageToSend += this.contentApplicationHeader + fileType;
                         this.messageToSend += this.closeHeader;
-                        this.hasByteArray = true;
                         this.byteArrayToSend = DataController.readZip(fileRequested);
                     }
                     else
@@ -1097,11 +1092,7 @@ public class HTTPSRequest
         }
         return null;
     }
-    
-    public boolean hasByteArray()
-    {
-        return this.hasByteArray;
-    }
+
     
     public byte[] getByteArrayToSend()
     {
