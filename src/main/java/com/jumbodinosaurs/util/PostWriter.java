@@ -39,4 +39,7 @@ public class PostWriter implements Runnable
             OperatorConsole.printMessageFiltered("Error Logging Session",false, true);
         }
     }
+    
+    
+    
 }

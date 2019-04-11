@@ -1,5 +1,7 @@
 package com.jumbodinosaurs.netty;
 
+import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
+import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
 import com.jumbodinosaurs.objects.Session;
 import com.jumbodinosaurs.util.DataController;
 import com.jumbodinosaurs.util.OperatorConsole;
@@ -27,9 +29,9 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             {
                 if(OperatorConsole.whitelistedIps != null)
                 {
-                    for(String str : OperatorConsole.whitelistedIps)
+                    for(String ip : OperatorConsole.whitelistedIps)
                     {
-                        if(session.getWho().contains(str))
+                        if(session.getWho().contains(ip))
                         {
                             allowConnection = true;
                             break;
@@ -44,44 +46,32 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
             
             if(allowConnection)
             {
-                
-                HTTPRequest request = new HTTPRequest(session.getMessage());
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage501();
+                boolean isEncrypted = context.pipeline().names().contains("io.netty.handler.ssl.SslHandler");
+                HTTPRequest request = new HTTPRequest(session.getMessage(), isEncrypted, session.getWho());
                 if(request.isHTTP())
                 {
-                    
-                    if(OperatorConsole.redirectToSSL && OperatorConsole.sslThreadRunning)
+                    if(!isEncrypted && OperatorConsole.redirectToSSL && OperatorConsole.sslThreadRunning)
                     {
-                        request.tryToRedirectToHTTPS();
+                        response.setMessageToRedirectToHTTPS(request);
                     }
                     else
                     {
-                        request.generateMessage();
+                        response = new HTTPHandler(request).generateResponse();
                     }
                 }
-                else
-                {
-                    request.setMessage501();
-                }
                 //Send Message
-                PipelineResponse response = new PipelineResponse(request.getMessageToSend(),
-                                                                 request.getByteArrayToSend());
                 context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                //end message send
                 
-                session.setMessageSent(request.getMessageToSend());
                 
-                if(!request.logMessageFromClient())
-                {
-                    session.setMessageSent(request.getCensoredMessageSentToClient());
-                    session.setMessage(request.getCensoredMessageFromClient());
-                    //Would be kinda point less to hash a password if we saved it over in logs.json :P
-                }
+                //Would be kinda point less to hash a password if we saved it over in logs.json :P
+                session.setMessage(request.getCensoredMessage());
+                session.setMessageSent(response.getMessageToLog());
                 
                 OperatorConsole.printMessageFiltered(session.toString(), true, false);
                 
                 DataController.log(session);
-                
-                
             }
         }
         catch(Exception e)

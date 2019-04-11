@@ -21,6 +21,15 @@ public class PostRequest
     }
     
     
+    
+    public PostRequest getCensored()
+    {
+        PostRequest censored = this;
+        censored.setPassword("");
+        censored.setToken("");
+        return censored;
+    }
+    
     public String getUsername()
     {
         return username;

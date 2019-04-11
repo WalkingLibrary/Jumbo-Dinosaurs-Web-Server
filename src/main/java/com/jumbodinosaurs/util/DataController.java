@@ -31,6 +31,7 @@ public class DataController
     public static File userInfoDirectory = checkFor(codeExecutionDir, "UserInfo");
     public static File postDirectory = checkFor(codeExecutionDir, "Post");
     public static File timeOutHelperDir = checkFor(codeExecutionDir, "TimeoutHelper");
+    public static ArrayList<File> domainSpecificFiles = new ArrayList<File>();
     private static SessionLogger logger;
     private static PostWriter postWriter;
     private static CredentialsManager credentialsManager;
@@ -46,7 +47,26 @@ public class DataController
             this.setHost();
             if(makePageWithDomains)
             {
-                this.makeSiteIndexand404PageDomains();
+                this.makeSiteIndexand404PageWthDomains();
+                ArrayList<Domain> domains = ServerControl.getArguments().getDomains();
+                for(Domain domain: domains)
+                {
+                    //www.jumbodinosaurs.com - > jumbodinosaurs
+                    String secondLevelDomainName = domain.getSecondLevelDomainName();
+                    File secondLevelDomainNameFile = checkFor(getDirectory, secondLevelDomainName);
+                    boolean needToAdd = true;
+                    for(File fileToCheck: domainSpecificFiles)
+                    {
+                        if(fileToCheck.getAbsolutePath().equals(secondLevelDomainNameFile.getAbsolutePath()))
+                        {
+                            needToAdd = false;
+                        }
+                    }
+                    if(needToAdd)
+                    {
+                        domainSpecificFiles.add(secondLevelDomainNameFile);
+                    }
+                }
             }
             else
             {
@@ -137,16 +157,17 @@ public class DataController
         ArrayList<String> levels = new ArrayList<String>();
         String temp = localPath;
         String level = "";
-        
+    
         if(temp.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
         {
             temp = File.separator + temp;
         }
-        
+    
         if(temp.lastIndexOf(File.separator) != temp.length())// make /helloworld/hello.json into /helloworld/hello.json/
         {
             temp += File.separator;
         }
+        
         
         char[] tempchars = temp.toCharArray();
         int indexOfLastSlash = 0;
@@ -179,10 +200,12 @@ public class DataController
         return lastParent;
     }
     
+    
+    
+    
     public static String fixPathSeparator(String path)
     {
-        
-        
+    
         char[] charToChange = path.toCharArray();
         if(File.separator.equals("\\"))
         {
@@ -210,6 +233,7 @@ public class DataController
         {
             pathToReturn += character;
         }
+        
         return pathToReturn;
         
     }
@@ -282,7 +306,7 @@ public class DataController
                 WritablePost sanitizedPost = WritablePost.getSanitized(post);
                 
                 
-                File fileToWriteTo = checkForLocalPath(postDirectory, fixPathSeparator(sanitizedPost.getLocalPath()));
+                File fileToWriteTo = checkForLocalPath(postDirectory, sanitizedPost.getLocalPath());
                 String fileContents = getFileContents(fileToWriteTo);
                 Type typeToken = new TypeToken<ArrayList<WritablePost>>()
                 {}.getType();
@@ -350,9 +374,16 @@ public class DataController
                                      String localPath,
                                      boolean matchPath)
     {
-        
         localPath = fixPathSeparator(localPath);
         
+        
+        
+        if(localPath.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
+        {
+            localPath = File.separator + localPath;
+        }
+    
+       
         File fileToGive = null;
         //Gets all files in allowedDir
         File[] filesInAllowedDir = listFilesRecursive(dirToSearch);
@@ -360,7 +391,6 @@ public class DataController
         int count = 0;
         
         String pathofRequestedFile = dirToSearch.getAbsolutePath() + localPath;
-        
         for(File file : filesInAllowedDir)
         {
             if(matchPath)
@@ -715,12 +745,12 @@ public class DataController
         {
             //First Handshake Packet Creation
             int packetID = 0;
-            int version = 340;
+            int protocolVersion = 340;
             int nextState = 1;
             ByteArrayOutputStream handshakePacketBytesStream = new ByteArrayOutputStream();
             DataOutputStream handshakePacketBytes = new DataOutputStream(handshakePacketBytesStream);
             handshakePacketBytes.writeByte(packetID);
-            MinecraftPacketUtil.writeVarInt(handshakePacketBytes, version);
+            MinecraftPacketUtil.writeVarInt(handshakePacketBytes, protocolVersion);
             MinecraftPacketUtil.writeString(handshakePacketBytes, ip);
             handshakePacketBytes.writeShort(port);
             MinecraftPacketUtil.writeVarInt(handshakePacketBytes, nextState);
@@ -1115,7 +1145,7 @@ public class DataController
         }
     }
     
-    public void makeSiteIndexand404PageDomains()
+    public void makeSiteIndexand404PageWthDomains()
     {
         try
         {

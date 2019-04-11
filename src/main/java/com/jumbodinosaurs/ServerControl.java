@@ -58,11 +58,16 @@ public class ServerControl
             {
                 if(domain.getUsername() != null && domain.getPassword() != null && domain.getDomain() != null)
                 {
-                    updatableDomains.add(domain);
+                    this.updatableDomains.add(domain);
                 }
             }
-            if(updatableDomains.size() > 0)
+            if(this.updatableDomains.size() > 0)
             {
+                System.out.println("Updatable Domains:");
+                for(Domain domain: this.updatableDomains)
+                {
+                    System.out.println(domain.getDomain());
+                }
                 this.ONE_HOUR_TIMER.start();
             }
             
@@ -107,7 +112,7 @@ public class ServerControl
         boolean allDomainsUpdatedSuccessfully = true;
         for(Domain domain : updatableDomains)
         {
-            if(domain.getLastGoodUpdateDate() == null || now.minusMinutes((long) 55).isAfter(domain.getLastGoodUpdateDate()))//Minus minutes as the timer is
+            if(domain.getLastGoodUpdateDate() == null || now.minusMinutes((long) 55).isAfter(domain.getLastGoodUpdateDate()))
             {
                 try
                 {

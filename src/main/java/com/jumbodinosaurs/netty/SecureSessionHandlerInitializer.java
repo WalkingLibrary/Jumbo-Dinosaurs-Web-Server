@@ -167,7 +167,7 @@ public class SecureSessionHandlerInitializer extends ChannelInitializer<SocketCh
         pipeline.addLast("decoder", new StringDecoder());
         pipeline.addLast("encoder", new ResponseEncoder());
         pipeline.addLast("streamer", new ChunkedWriteHandler());
-        pipeline.addLast("handler", new SecureSessionHandler());
+        pipeline.addLast("handler", new SessionHandler());
         
         
     }

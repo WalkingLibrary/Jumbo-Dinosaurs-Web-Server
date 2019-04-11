@@ -20,15 +20,7 @@ public class MinecraftSign
     private int dimension;
     
     
-    public MinecraftSign(String text1,
-                         String text2,
-                         String text3,
-                         String text4,
-                         LocalDateTime date,
-                         int x,
-                         int y,
-                         int z,
-                         int dimension)
+    public MinecraftSign(String text1, String text2, String text3, String text4, LocalDateTime date, int x, int y, int z, int dimension)
     {
         this.text1 = text1;
         this.text2 = text2;
@@ -82,8 +74,16 @@ public class MinecraftSign
     @Override
     public String toString()
     {
-        return "Sign\n\r\n\r" + "Text: \n\r\n\r" + this.text1 + "\n\r\n\r" + this.text2 + "\n\r\n\r" + this.text3 + "\n\r\n\r" + this.text4 + "\n\r\n\r" + "This sign was recorded on " + this.date.toString() + " At X: " + this.x + " Z: " + this.z + " Y: " + this.y + "\n\r\n\r" + "In Dimension " + this.dimension;
-        
+        return "Sign\n\r\n\r" +
+                       "Text: \n\r\n\r" +
+                       this.text1 + "\n\r\n\r" +
+                       this.text2 + "\n\r\n\r" +
+                       this.text3 + "\n\r\n\r" +
+                       this.text4 + "\n\r\n\r" +
+                       "This sign was recorded on " + this.date.toString() +
+                       " At X: " + this.x + " Z: " + this.z + " Y: " + this.y + "\n\r\n\r" +
+                       "In Dimension " + this.dimension;
+                  
     }
     
     public String getText1()
