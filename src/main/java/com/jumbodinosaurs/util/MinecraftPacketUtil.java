@@ -1,10 +1,7 @@
 package com.jumbodinosaurs.util;
 
-import io.netty.buffer.ByteBuf;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class MinecraftPacketUtil

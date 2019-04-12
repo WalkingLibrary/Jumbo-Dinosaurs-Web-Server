@@ -42,7 +42,7 @@ public class HTTPHandler
     
     public HTTPHandler(HTTPRequest request)
     {
-        this.setRequest(request);
+        this.request = request;
     }
     
     public HTTPResponse generateResponse()
@@ -50,10 +50,10 @@ public class HTTPHandler
         HTTPResponse response = new HTTPResponse();
         String headers = "";
         //If Get Request
-        if(this.getRequest().isGet())
+        if(this.request.isGet())
         {
             //Clean Name from get Request for dataIO
-            String getRequest = this.getRequest().getGetRequest();
+            String getRequest = this.request.getGetRequest();
             if(getRequest != null)
             {
                 if(getRequest.equals("/"))
@@ -63,18 +63,16 @@ public class HTTPHandler
                 
                 File fileRequested = null;
                 
-                if(this.getRequest().hasHostHeader())
+                if(this.request.hasHostHeader())
                 {
-                    System.out.println("Has Host Header");
-                    Domain requestsDomain = this.getRequest().getDomainFromHostHeader();
+                    Domain requestsDomain = this.request.getDomainFromHostHeader();
                     if(requestsDomain != null)
                     {
-                        System.out.println("Domain is hosted by us");
-                        System.out.println("SECND LEVEL PLUS GET: " + requestsDomain.getSecondLevelDomainName() + getRequest);
+                        
                         File temp = DataController.safeSearchDir(DataController.getDirectory,
                                                                  requestsDomain.getSecondLevelDomainName() + getRequest,
                                                                  true);
-                        System.out.println(temp == null);
+                        
                         if(temp == null)
                         {
                             fileRequested = DataController.safeSearchDir(DataController.getDirectory, getRequest, true);
@@ -100,15 +98,17 @@ public class HTTPHandler
                 {
                     //add Good Code
                     String fileType = DataController.getType(fileRequested);
-                    if(fileType.contains("png") || fileType.contains("jpeg") || fileType.contains("jpg") || fileType.contains(
+                    if(fileType.contains("png") || fileType.contains("jpeg") || fileType.contains("JPG") || fileType.contains(
                             "ico"))
                     {
                         if(!DataController.readPhoto(fileRequested).equals(""))
                         {
                             
-                            headers += this.getContentImageHeader() + DataController.getType(fileRequested);
+                            headers += this.contentImageHeader + DataController.getType(fileRequested);
+                            byte[] photoBytes = DataController.readPhoto(fileRequested);
+                            headers += this.contentLengthHeader + photoBytes.length;
                             //this.messageToSend += this.contentLengthHeader + dataIO.getPictureLength(fileRequested.getName());
-                            response.setMessage200(headers, DataController.readPhoto(fileRequested));
+                            response.setMessage200(headers, photoBytes);
                         }
                         else
                         {
@@ -119,12 +119,14 @@ public class HTTPHandler
                     }
                     else if(fileType.contains("zip"))
                     {
-                        headers += this.getContentApplicationHeader() + fileType;
-                        response.setMessage200(headers, DataController.readZip(fileRequested));
+                        headers += this.contentApplicationHeader + fileType;
+                        byte[] zipBytes = DataController.readZip(fileRequested);
+                        headers += this.contentLengthHeader + zipBytes.length;
+                        response.setMessage200(headers, zipBytes);
                     }
                     else
                     {
-                        headers += this.getContentTextHeader() + DataController.getType(fileRequested);
+                        headers += this.contentTextHeader + DataController.getType(fileRequested);
                         response.setMessage200(headers, DataController.getFileContents(fileRequested));
                     }
                 }
@@ -134,11 +136,11 @@ public class HTTPHandler
                     //If the get request can become a Post request then add it to the request for censoring
                     try
                     {
-                        if(this.getRequest().getGetRequestUTF8() != null && this.getRequest().getGetRequestUTF8().length() > 1)
+                        if(this.request.getGetRequestUTF8() != null && this.request.getGetRequestUTF8().length() > 1)
                         {
-                            String postInfo = this.getRequest().getGetRequest().substring(1);
+                            String postInfo = this.request.getGetRequest().substring(1);
                             PostRequest postRequest = new Gson().fromJson(postInfo, PostRequest.class);
-                            this.getRequest().setPostRequest(postRequest);
+                            this.request.setPostRequest(postRequest);
                             response.setMessage400();
                         }
                         else
@@ -158,9 +160,9 @@ public class HTTPHandler
                 response.setMessage501();
             }
         }
-        else if(this.getRequest().isPost())
+        else if(this.request.isPost())
         {
-            if(this.getRequest().isEncryptedConnection())
+            if(this.request.isEncryptedConnection())
             {
                 //To avoid saving password in the logs.json
                 /*
@@ -168,7 +170,7 @@ public class HTTPHandler
                 */
                 if(OperatorConsole.allowPost())
                 {
-                    String postJson = this.getRequest().getPostRequestUTF8();
+                    String postJson = this.request.getPostRequestUTF8();
                     //System.out.println("Post Json: " + postJson);
                     if(postJson != null)
                     {
@@ -177,8 +179,8 @@ public class HTTPHandler
                             PostRequest postRequest = new Gson().fromJson(postJson, PostRequest.class);
                             if(postRequest != null)
                             {
-                                this.getRequest().setPostRequest(postRequest);
-                                response = generateResponse(getRequest().getPostRequest());
+                                this.request.setPostRequest(postRequest);
+                                response = generateResponse(this.request.getPostRequest());
                             }
                             else
                             {
@@ -202,7 +204,7 @@ public class HTTPHandler
             }
             else
             {
-                response.setMessageToRedirectToHTTPS(this.getRequest());
+                response.setMessageToRedirectToHTTPS(this.request);
             }
         }
         else
@@ -276,8 +278,8 @@ public class HTTPHandler
                 }
                 else if(command.equals("emailCheck"))
                 {
-                    if(postRequest.getEmail() != null && ((!CredentialsManager.isIPEmailCheckLocked(this.getRequest().getIp()) || CredentialsManager.isAbuserUnlocked(
-                            this.getRequest().getIp()))))
+                    if(postRequest.getEmail() != null && ((!CredentialsManager.isIPEmailCheckLocked(this.request.getIp()) || CredentialsManager.isAbuserUnlocked(
+                            this.request.getIp()))))
                     {
                         if(!DataController.getCredentialsManager().emailInUse(postRequest.getEmail()))
                         {
@@ -285,7 +287,7 @@ public class HTTPHandler
                             response.setMessage200();
                         }
                         
-                        CredentialsManager.emailStrikeIP(this.getRequest().getIp());
+                        CredentialsManager.emailStrikeIP(this.request.getIp());
                     }
                 }
                 else if(command.equals("createAccount"))
@@ -335,7 +337,7 @@ public class HTTPHandler
                             if(sendEmail)
                             {
                                 String token = DataController.getCredentialsManager().getTokenOneUse(userToSendCodeTo,
-                                                                                                     this.getRequest().getIp());
+                                                                                                     this.request.getIp());
                                 String messageToSend = "There has been a password change request to the account linked to this email" + " at https://jumbodinosaurs.com/. If this was not you contact us at jumbodinosaurs@gmail.com.\n\n" + "If this was you visit https://www.jumbodinosaurs.com/changepassword.html and enter this code\n To change your password." + "\n\n" + token;
                                 DataController.sendEmail(userToSendCodeTo.getEmail(), "Password Change", messageToSend);
                             }
@@ -350,8 +352,8 @@ public class HTTPHandler
                 {
                     User user = null;
                     boolean tokenLogin = true;
-                    if(!CredentialsManager.isIPCaptchaLocked(this.getRequest().getIp()) || CredentialsManager.isAbuserUnlocked(
-                            this.getRequest().getIp()))
+                    if(!CredentialsManager.isIPCaptchaLocked(this.request.getIp()) || CredentialsManager.isAbuserUnlocked(
+                            this.request.getIp()))
                     {
                         if(postRequest.getUsername() != null && postRequest.getPassword() != null)
                         {
@@ -362,12 +364,12 @@ public class HTTPHandler
                         else if(postRequest.getToken() != null)
                         {
                             user = DataController.getCredentialsManager().loginToken(postRequest.getToken(),
-                                                                                     this.getRequest().getIp());
+                                                                                     this.request.getIp());
                         }
                         
                         if(user == null)
                         {
-                            CredentialsManager.loginStrikeIP(this.getRequest().getIp());
+                            CredentialsManager.loginStrikeIP(this.request.getIp());
                         }
                     }
                     else if(captchaScore > .5)
@@ -381,7 +383,7 @@ public class HTTPHandler
                         else if(postRequest.getToken() != null)
                         {
                             user = DataController.getCredentialsManager().loginToken(postRequest.getToken(),
-                                                                                     this.getRequest().getIp());
+                                                                                     this.request.getIp());
                         }
                     }
                     
@@ -499,7 +501,7 @@ public class HTTPHandler
                                     {
                                         
                                         response.setMessage200(DataController.getCredentialsManager().getToken(user,
-                                                                                                               this.getRequest().getIp()));
+                                                                                                               this.request.getIp()));
                                         send400Code = false;
                                     }
                                     break;
@@ -509,7 +511,7 @@ public class HTTPHandler
                                     {
                                         try
                                         {
-                                            String emailCode = this.getRequest().getIp() + emailCodeSendDate.toString() + postRequest.getEmailCode();
+                                            String emailCode = this.request.getIp() + emailCodeSendDate.toString() + postRequest.getEmailCode();
                                             if(PasswordStorage.verifyPassword(emailCode, user.getEmailCode()))
                                             {
                                                 User userConfirmedEmail = user.clone();
@@ -568,7 +570,7 @@ public class HTTPHandler
                                         if(sendEmail)
                                         {
                                             String randomEmailCode = User.generateRandomEmailCode();
-                                            String emailCode = this.getRequest().getIp() + now.toString() + randomEmailCode;
+                                            String emailCode = this.request.getIp() + now.toString() + randomEmailCode;
                                             String safeHash = DataController.safeHashPassword(emailCode);
                                             String message = "You have been sent a code to verify your email at Jumbo Dinosaurs. \n" + "To verify your email you need to visit https://www.jumbodinosaurs.com/verifyemail.html and enter your code." + "\n\nCode for Verification: " + randomEmailCode + " \n\n\n   Regards, Jumbo";
                                             User updatedUserInfo = user.clone();
@@ -862,48 +864,11 @@ public class HTTPHandler
         return content;
     }
     
-    public String getKeepAlive()
-    {
-        return keepAlive;
-    }
     
-    public String getAcceptedLanguageHeader()
-    {
-        return acceptedLanguageHeader;
-    }
     
-    public String getOriginHeader()
-    {
-        return originHeader;
-    }
     
-    public String getContentTextHeader()
-    {
-        return contentTextHeader;
-    }
     
-    public String getContentImageHeader()
-    {
-        return contentImageHeader;
-    }
     
-    public String getContentApplicationHeader()
-    {
-        return contentApplicationHeader;
-    }
     
-    public String getContentLengthHeader()
-    {
-        return contentLengthHeader;
-    }
     
-    public HTTPRequest getRequest()
-    {
-        return request;
-    }
-    
-    public void setRequest(HTTPRequest request)
-    {
-        this.request = request;
-    }
 }

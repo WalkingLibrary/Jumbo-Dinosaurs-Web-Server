@@ -25,7 +25,6 @@ public class Domain
     }
     
     
-    
     public String getDomain()
     {
         return domain;
@@ -33,16 +32,14 @@ public class Domain
     
     public String getSecondLevelDomainName()
     {
-        System.out.println(this.domain);
         String domainName = this.domain;
         if(domainName.contains("."))
         {
             domainName = domainName.substring(0, domainName.lastIndexOf("."));
-            System.out.println(domainName);
+            
             if(domainName.contains("."))
             {
-                domainName = domainName.substring(domainName.lastIndexOf(".")  + 1);
-                System.out.println(domainName);
+                domainName = domainName.substring(domainName.lastIndexOf(".") + 1);
             }
         }
         return domainName;
