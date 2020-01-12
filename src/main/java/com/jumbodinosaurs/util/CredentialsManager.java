@@ -25,7 +25,198 @@ public class CredentialsManager
     }
     
     
-    public synchronized String getTokenOneUse(User userToMint, String ip)
+    /*
+     Checks current user list for old user data. if the user is in the list it replace that user with the newUserInfo
+     if there is no list it makes one by adding new user
+
+     returns true if new user is written to the user file
+     */
+    public static boolean modifyUser(User oldUserInfo,
+                                     User newUserInfo)
+    {
+        ArrayList<User> users = getUserList();
+        if(users.size() == 0)
+        {
+            users = new ArrayList<User>();
+            users.add(newUserInfo);
+            setUserList(users);
+            return true;
+        }
+        else
+        {
+            for(int i = 0; i < users.size(); i++)
+            {
+                if(users.get(i).equals(oldUserInfo))
+                {
+                    users.remove(i);
+                    users.add(newUserInfo);
+                    setUserList(users);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public static User getUser(String username)
+    {
+        ArrayList<User> users = getUserList();
+        
+        for(User user : users)
+        {
+            if(user.getUsername().equals(username))
+            {
+                return user;
+            }
+        }
+        
+        return null;
+    }
+    
+    public static ArrayList<User> getUserList()
+    {
+        ArrayList<User> users = new ArrayList<User>();
+        try
+        {
+            File usersInfo = DataController.checkFor(DataController.userInfoDirectory, "userinfo.json");
+            String fileContents = DataController.getFileContents(usersInfo);
+            Type typeToken = new TypeToken<ArrayList<User>>()
+            {}.getType();
+            users = new Gson().fromJson(fileContents, typeToken);
+            if(users == null)
+            {
+                users = new ArrayList<User>();
+            }
+            
+            for(User user : users)
+            {
+                user.setPassword(DataController.replaceUnicodeCharacters(user.getPassword()).toString());
+            }
+            
+        }
+        catch(Exception e)
+        {
+            OperatorConsole.printMessageFiltered("Error Reading User Info", false, true);
+            e.printStackTrace();
+        }
+        return users;
+    }
+    
+    public static void emailStrikeIP(String ip)
+    {
+        LocalDateTime now = LocalDateTime.now();
+        boolean newAbuser = true;
+        ArrayList<FloatUser> abusers = getWatchList();
+        if(abusers != null)
+        {
+            for(int i = 0; i < abusers.size(); i++)
+            {
+                if(abusers.get(i).getIp().equals(ip))
+                {
+                    FloatUser repeatAbuser = abusers.get(i);
+                    int emailStrikes = repeatAbuser.getEmailStrikes() + 1;
+                    FloatUser updatedRepeatAbuser = new FloatUser(ip,
+                                                                  now.toString(),
+                                                                  now.plusDays((long) 7).toString(),
+                                                                  repeatAbuser.getLoginStrikes(),
+                                                                  emailStrikes,
+                                                                  repeatAbuser.isCaptchaLocked(),
+                                                                  emailStrikes > 15);
+                    abusers.remove(i);
+                    abusers.add(updatedRepeatAbuser);
+                    newAbuser = false;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            abusers = new ArrayList<FloatUser>();
+        }
+        
+        if(newAbuser)
+        {
+            FloatUser newUser = new FloatUser(ip,
+                                              LocalDate.now().toString(),
+                                              now.plusDays((long) 7).toString(),
+                                              0,
+                                              1,
+                                              false,
+                                              false);
+            abusers.add(newUser);
+        }
+        
+        setWatchList(abusers);
+    }
+    
+    public static void loginStrikeIP(String ip)
+    {
+        LocalDateTime now = LocalDateTime.now();
+        boolean newAbuser = true;
+        ArrayList<FloatUser> abusers = getWatchList();
+        if(abusers != null)
+        {
+            for(int i = 0; i < abusers.size(); i++)
+            {
+                if(abusers.get(i).getIp().equals(ip))
+                {
+                    FloatUser repeatAbuser = abusers.get(i);
+                    int loginStrikes = repeatAbuser.getLoginStrikes() + 1;
+                    FloatUser updatedRepeatAbuser = new FloatUser(ip,
+                                                                  now.toString(),
+                                                                  now.plusDays((long) 7).toString(),
+                                                                  loginStrikes,
+                                                                  repeatAbuser.getEmailStrikes(),
+                                                                  loginStrikes > 15,
+                                                                  repeatAbuser.isEmailQueryLocked());
+                    abusers.remove(i);
+                    abusers.add(updatedRepeatAbuser);
+                    newAbuser = false;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            abusers = new ArrayList<FloatUser>();
+        }
+        
+        if(newAbuser)
+        {
+            FloatUser newUser = new FloatUser(ip,
+                                              LocalDate.now().toString(),
+                                              now.plusDays((long) 7).toString(),
+                                              1,
+                                              0,
+                                              false,
+                                              false);
+            abusers.add(newUser);
+        }
+        
+        setWatchList(abusers);
+    }
+    
+    public static ArrayList<FloatUser> getWatchList()
+    {
+        ArrayList<FloatUser> watchList = new ArrayList<FloatUser>();
+        try
+        {
+            Type typeToken = new TypeToken<ArrayList<FloatUser>>()
+            {}.getType();
+            File watchListFile = DataController.checkFor(DataController.timeOutHelperDir, "watchlist.json");
+            String fileContents = DataController.getFileContents(watchListFile);
+            watchList = new Gson().fromJson(fileContents, typeToken);
+        }
+        catch(Exception e)
+        {
+            OperatorConsole.printMessageFiltered("Error Reading watchlist.json", false, true);
+            e.printStackTrace();
+        }
+        return watchList;
+    }
+    
+    public synchronized String getTokenOneUse(User userToMint,
+                                              String ip)
     {
         String token = null;
         LocalDateTime now = LocalDateTime.now();
@@ -62,8 +253,8 @@ public class CredentialsManager
         return token;
     }
     
-    
-    public synchronized String getToken(User userToMint, String ip)
+    public synchronized String getToken(User userToMint,
+                                        String ip)
     {
         if(userToMint.getTokenRandomToSend() != null)
         {
@@ -73,16 +264,16 @@ public class CredentialsManager
         {
             String token = null;
             LocalDateTime now = LocalDateTime.now();
-    
+            
             String hundredCharRandom = User.generateRandom();
             String tokenTemp = hundredCharRandom.substring(0, 50);
             String tokenRandom = hundredCharRandom.substring(50);
-    
+            
             String password = ip + tokenTemp + now.toString() + tokenRandom;
             try
             {
                 String hash = DataController.safeHashPassword(password);
-        
+                
                 User updatedUserInfo = userToMint.clone();
                 updatedUserInfo.setTokenRandom(tokenRandom);
                 updatedUserInfo.setTokenDate(now);
@@ -97,63 +288,37 @@ public class CredentialsManager
                 {
                     OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
                 }
-        
+                
             }
             catch(Exception e)
             {
                 OperatorConsole.printMessageFiltered("Error getting Token", false, true);
                 e.printStackTrace();
             }
-    
+            
             return token;
         }
     }
     
-    /*
-     Checks current user list for old user data. if the user is in the list it replace that user with the newUserInfo
-     if there is no list it makes one by adding new user
-
-     returns true if new user is written to the user file
-     */
-    public static boolean modifyUser(User oldUserInfo, User newUserInfo)
+    public synchronized void addUser(User userToAdd)
     {
         ArrayList<User> users = getUserList();
-        if(users == null)
-        {
-            users = new ArrayList<User>();
-            users.add(newUserInfo);
-            setUserList(users);
-            return true;
-        }
-        else
-        {
-            for(int i = 0; i < users.size(); i++)
-            {
-                if(users.get(i).equals(oldUserInfo))
-                {
-                    users.remove(i);
-                    users.add(newUserInfo);
-                    setUserList(users);
-                    return true;
-                }
-            }
-        }
-        return false;
+        users.add(userToAdd);
+        setUserList(users);
     }
     
     public synchronized boolean usernameAvailable(String username)
     {
         ArrayList<User> users = getUserList();
-        if(users != null)
+        
+        for(User user : users)
         {
-            for(User user : users)
+            if(user.getUsername().equals(username))
             {
-                if(user.getUsername().equals(username))
-                {
-                    return false;
-                }
+                return false;
             }
         }
+        
         return true;
         
     }
@@ -162,189 +327,16 @@ public class CredentialsManager
     {
         
         ArrayList<User> users = getUserList();
-        if(users != null)
+        
+        for(User user : users)
         {
-            for(User user : users)
+            if(user.getEmail().equals(email))
             {
-                if(user.getEmail().equals(email))
-                {
-                    return true;
-                }
+                return true;
             }
         }
+        
         return false;
-    }
-    
-    public synchronized User getUserByEmail(String email)
-    {
-        
-        ArrayList<User> users = getUserList();
-        if(users != null)
-        {
-            for(User user : users)
-            {
-                if(user.getEmail().equals(email))
-                {
-                    return user;
-                }
-            }
-        }
-        return null;
-    }
-    
-    
-    public synchronized User loginToken(String token, String ip)
-    {
-        ArrayList<User> users = this.getUserList();
-        if(users != null)
-        {
-            for(User user : users)
-            {
-                String password = ip + token + user.getTokenDate() + user.getTokenRandom();
-                try
-                {
-                    if(user.getToken() != null)
-                    {
-                        if(PasswordStorage.verifyPassword(password, user.getToken()))
-                        {
-                            LocalDateTime tokenMintDate = user.getTokenDate();
-                            LocalDateTime now = LocalDateTime.now();
-                            if(now.minusDays(30).isAfter(tokenMintDate))
-                            {
-                                return null;
-                            }
-                            
-                            if(user.isTokenIsOneUse())
-                            {
-                                LocalDateTime lastLogin = user.getLastLoginDate();
-                                if(lastLogin != null && lastLogin.isAfter(tokenMintDate))
-                                {
-                                    
-                                    return null;
-                                    
-                                }
-                                else if(now.minusHours((long) 1).isAfter(tokenMintDate))
-                                {
-                                    return null;
-                                }
-                                
-                            }
-                            
-                            if(!user.isAccountLocked())
-                            {
-                                User updatedUserInfo = user.clone();
-                                updatedUserInfo.setLastLoginDate(now);
-                                
-                                if(modifyUser(user, updatedUserInfo))
-                                {
-                                    return updatedUserInfo;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch(Exception e)
-                {
-                    OperatorConsole.printMessageFiltered("Error Authenticating User Token", false, true);
-                    e.printStackTrace();
-                }
-            }
-        }
-        return null;
-    }
-    
-    public synchronized User loginUsernamePassword(String username, String password)
-    {
-        ArrayList<User> users = getUserList();
-        if(users != null)
-        {
-            for(User user : users)
-            {
-                if(user.getUsername().equals(username))
-                {
-                    try
-                    {
-                        if(PasswordStorage.verifyPassword(password, user.getPassword()))
-                        {
-                            if(!user.isAccountLocked())
-                            {
-                                LocalDateTime now = LocalDateTime.now();
-                                User updatedUserInfo = user.clone();
-                                updatedUserInfo.setLastLoginDate(now);
-                                if(modifyUser(user, updatedUserInfo))
-                                {
-                                    return updatedUserInfo;
-                                }
-                            }
-                        }
-                    }
-                    catch(PasswordStorage.CannotPerformOperationException e)
-                    {
-                        OperatorConsole.printMessageFiltered("CannotPerformOperationException Error Authenticating User", false, true);
-                    }
-                    catch(PasswordStorage.InvalidHashException e)
-                    {
-                        OperatorConsole.printMessageFiltered("InvalidHashException Error Authenticating User", false, true);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-    
-    public synchronized void addUser(User userToAdd)
-    {
-        ArrayList<User> users = getUserList();
-        if(users == null)
-        {
-            users = new ArrayList<User>();
-        }
-        users.add(userToAdd);
-        
-        setUserList(users);
-    }
-    
-    public static User getUser(String username)
-    {
-        ArrayList<User> users = getUserList();
-        if(users != null)
-        {
-            for(User user: users)
-            {
-                if(user.getUsername().equals(username))
-                {
-                    return user;
-                }
-            }
-        }
-        return null;
-    }
-    
-    public static ArrayList<User> getUserList()
-    {
-        ArrayList<User> users = new ArrayList<User>();
-        try
-        {
-            File usersInfo = DataController.checkFor(DataController.userInfoDirectory, "userinfo.json");
-            String fileContents = DataController.getFileContents(usersInfo);
-            Type typeToken = new TypeToken<ArrayList<User>>()
-            {
-            }.getType();
-            users = new Gson().fromJson(fileContents, typeToken);
-            if(users != null)
-            {
-                for(User user : users)
-                {
-                    user.setPassword(DataController.replaceUnicodeCharacters(user.getPassword()).toString());
-                }
-            }
-        }
-        catch(Exception e)
-        {
-            OperatorConsole.printMessageFiltered("Error Reading User Info", false, true);
-            e.printStackTrace();
-        }
-        return users;
     }
     
     public static void setUserList(ArrayList<User> users)
@@ -413,96 +405,121 @@ public class CredentialsManager
         return true;
     }
     
-    
-    public static void emailStrikeIP(String ip)
+    public synchronized User getUserByEmail(String email)
     {
-        LocalDateTime now = LocalDateTime.now();
-        boolean newAbuser = true;
-        ArrayList<FloatUser> abusers = getWatchList();
-        if(abusers != null)
+        
+        ArrayList<User> users = getUserList();
+        
+        for(User user : users)
         {
-            for(int i = 0; i < abusers.size(); i++)
+            if(user.getEmail().equals(email))
             {
-                if(abusers.get(i).getIp().equals(ip))
+                return user;
+            }
+        }
+        
+        return null;
+    }
+    
+    public synchronized User loginToken(String token,
+                                        String ip)
+    {
+        ArrayList<User> users = getUserList();
+        
+        for(User user : users)
+        {
+            String password = ip + token + user.getTokenDate() + user.getTokenRandom();
+            try
+            {
+                if(user.getToken() != null)
                 {
-                    FloatUser repeatAbuser = abusers.get(i);
-                    int emailStrikes = repeatAbuser.getEmailStrikes() + 1;
-                    FloatUser updatedRepeatAbuser = new FloatUser(ip, now.toString(), now.plusDays((long) 7).toString(), repeatAbuser.getLoginStrikes(), emailStrikes, repeatAbuser.isCaptchaLocked(), emailStrikes > 15);
-                    abusers.remove(i);
-                    abusers.add(updatedRepeatAbuser);
-                    newAbuser = false;
-                    break;
+                    if(PasswordStorage.verifyPassword(password, user.getToken()))
+                    {
+                        LocalDateTime tokenMintDate = user.getTokenDate();
+                        LocalDateTime now = LocalDateTime.now();
+                        if(now.minusDays(30).isAfter(tokenMintDate))
+                        {
+                            return null;
+                        }
+                        
+                        if(user.isTokenIsOneUse())
+                        {
+                            LocalDateTime lastLogin = user.getLastLoginDate();
+                            if(lastLogin != null && lastLogin.isAfter(tokenMintDate))
+                            {
+                                
+                                return null;
+                                
+                            }
+                            else if(now.minusHours((long) 1).isAfter(tokenMintDate))
+                            {
+                                return null;
+                            }
+                            
+                        }
+                        
+                        if(!user.isAccountLocked())
+                        {
+                            User updatedUserInfo = user.clone();
+                            updatedUserInfo.setLastLoginDate(now);
+                            
+                            if(modifyUser(user, updatedUserInfo))
+                            {
+                                return updatedUserInfo;
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error Authenticating User Token", false, true);
+                e.printStackTrace();
+            }
+        }
+        
+        return null;
+    }
+    
+    public synchronized User loginUsernamePassword(String username,
+                                                   String password)
+    {
+        ArrayList<User> users = getUserList();
+        
+        for(User user : users)
+        {
+            if(user.getUsername().equals(username))
+            {
+                try
+                {
+                    if(PasswordStorage.verifyPassword(password, user.getPassword()))
+                    {
+                        if(!user.isAccountLocked())
+                        {
+                            LocalDateTime now = LocalDateTime.now();
+                            User updatedUserInfo = user.clone();
+                            updatedUserInfo.setLastLoginDate(now);
+                            if(modifyUser(user, updatedUserInfo))
+                            {
+                                return updatedUserInfo;
+                            }
+                        }
+                    }
+                }
+                catch(PasswordStorage.CannotPerformOperationException e)
+                {
+                    OperatorConsole.printMessageFiltered("CannotPerformOperationException Error Authenticating User",
+                                                         false,
+                                                         true);
+                }
+                catch(PasswordStorage.InvalidHashException e)
+                {
+                    OperatorConsole.printMessageFiltered("InvalidHashException Error Authenticating User", false, true);
                 }
             }
         }
-        else
-        {
-            abusers = new ArrayList<FloatUser>();
-        }
         
-        if(newAbuser)
-        {
-            FloatUser newUser = new FloatUser(ip, LocalDate.now().toString(), now.plusDays((long) 7).toString(), 0, 1, false, false);
-            abusers.add(newUser);
-        }
-        
-        setWatchList(abusers);
-    }
-    
-    
-    public static void loginStrikeIP(String ip)
-    {
-        LocalDateTime now = LocalDateTime.now();
-        boolean newAbuser = true;
-        ArrayList<FloatUser> abusers = getWatchList();
-        if(abusers != null)
-        {
-            for(int i = 0; i < abusers.size(); i++)
-            {
-                if(abusers.get(i).getIp().equals(ip))
-                {
-                    FloatUser repeatAbuser = abusers.get(i);
-                    int loginStrikes = repeatAbuser.getLoginStrikes() + 1;
-                    FloatUser updatedRepeatAbuser = new FloatUser(ip, now.toString(), now.plusDays((long) 7).toString(), loginStrikes, repeatAbuser.getEmailStrikes(), loginStrikes > 15, repeatAbuser.isEmailQueryLocked());
-                    abusers.remove(i);
-                    abusers.add(updatedRepeatAbuser);
-                    newAbuser = false;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            abusers = new ArrayList<FloatUser>();
-        }
-        
-        if(newAbuser)
-        {
-            FloatUser newUser = new FloatUser(ip, LocalDate.now().toString(), now.plusDays((long) 7).toString(), 1, 0, false, false);
-            abusers.add(newUser);
-        }
-        
-        setWatchList(abusers);
-    }
-    
-    public static ArrayList<FloatUser> getWatchList()
-    {
-        ArrayList<FloatUser> watchList = new ArrayList<FloatUser>();
-        try
-        {
-            Type typeToken = new TypeToken<ArrayList<FloatUser>>()
-            {
-            }.getType();
-            File watchListFile = DataController.checkFor(DataController.timeOutHelperDir, "watchlist.json");
-            String fileContents = DataController.getFileContents(watchListFile);
-            watchList = new Gson().fromJson(fileContents, typeToken);
-        }
-        catch(Exception e)
-        {
-            OperatorConsole.printMessageFiltered("Error Reading watchlist.json", false, true);
-            e.printStackTrace();
-        }
-        return watchList;
+        return null;
     }
     
     public static void setWatchList(ArrayList<FloatUser> users)
@@ -520,8 +537,9 @@ public class CredentialsManager
         }
     }
     
-    
-    public synchronized boolean createUser(String username, String password, String email)
+    public synchronized boolean createUser(String username,
+                                           String password,
+                                           String email)
     {
         if(username.length() > 17 || password.length() < 9)
         {
@@ -531,21 +549,20 @@ public class CredentialsManager
         
         ArrayList<User> users = getUserList();
         
-        if(users != null)
+        
+        for(User user : users)
         {
-            for(User user : users)
+            if(username.equals(user.getUsername()))
             {
-                if(username.equals(user.getUsername()))
-                {
-                    return false;
-                }
-                
-                if(email.equals(user.getEmail()))
-                {
-                    return false;
-                }
+                return false;
+            }
+            
+            if(email.equals(user.getEmail()))
+            {
+                return false;
             }
         }
+        
         
         for(char character : username.toCharArray())
         {

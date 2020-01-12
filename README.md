@@ -1,17 +1,22 @@
 # JumboDinosaursNetty
+![Rating](https://img.shields.io/badge/Rating-1%2F5-Red)
+![Sauce](https://img.shields.io/badge/100%25-Spaghetti%20Code-orange)
+![Build Status](https://img.shields.io/badge/Build-Failed-red)
 
-## Description
-Jumbo Dinosaurs Web Server Back End Now Using Netty.
+Java Based Web Server
 
-## Motivation
-I wanted to be able to host and provide cool and unique services via the web.
+- uses netty for non io blocking connections
+- console commands
+- https connections
+- linux support
 
-## Version
-6th Iteration of JumboDinosaurs
+### Todos
+- switch project over to devlib
+- stream line connection protocols
+- fix post only reading from url
+- automate certificate update process
+- prep for Trom-Bone Integration
 
-## Installation
-Build.gradle Included 
-
-
-## License
-Licensed under [MIT License](LICENSE).
+License
+----
+![AUR license](https://img.shields.io/badge/License-MIT-blue)

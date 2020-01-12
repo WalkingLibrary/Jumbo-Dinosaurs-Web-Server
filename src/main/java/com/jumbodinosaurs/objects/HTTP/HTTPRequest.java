@@ -166,6 +166,8 @@ public class HTTPRequest
         return ip;
     }
     
+    
+    //should only be called if HTTPHandler has dealt with (this) request
     public String getCensoredMessage()
     {
         if(this.isPost())

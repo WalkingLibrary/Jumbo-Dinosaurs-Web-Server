@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.util;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
 import com.jumbodinosaurs.objects.Session;
 
 import java.io.File;
@@ -44,8 +44,7 @@ public class SessionLogger implements Runnable
     public synchronized void log(Session session)
     {
         OperatorConsole.addHit(session);
-       
-        File logFile = DataController.getLogsJson();
+        File logFile = DataController.getLogFileFromDate(session.getDateTime());
         String fileContents = DataController.getFileContents(logFile);
         if(fileContents != null && fileContents != "")
         {

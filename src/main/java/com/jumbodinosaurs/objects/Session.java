@@ -1,8 +1,8 @@
 package com.jumbodinosaurs.objects;
 
 
-
 import io.netty.channel.Channel;
+
 import java.time.LocalDateTime;
 
 public class Session

@@ -5,15 +5,15 @@ import com.jumbodinosaurs.netty.SessionHandlerInitializer;
 import com.jumbodinosaurs.objects.Domain;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.objects.URLResponse;
-import com.jumbodinosaurs.util.Timer;
 import com.jumbodinosaurs.util.DataController;
 import com.jumbodinosaurs.util.OperatorConsole;
+import com.jumbodinosaurs.util.Timer;
 import sun.misc.BASE64Encoder;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -164,7 +164,7 @@ public class ServerControl
             }
         }
         
-        if(allDomainsUpdatedSuccessfully && this.FIVE_MINUTE_TIMER.isRunning())
+        if(allDomainsUpdatedSuccessfully || this.FIVE_MINUTE_TIMER.isRunning())
         {
             OperatorConsole.printMessageFiltered("All Domains Successfully Updated", true, false);
             this.FIVE_MINUTE_TIMER.stop();

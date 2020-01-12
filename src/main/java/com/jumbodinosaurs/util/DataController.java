@@ -6,7 +6,6 @@ import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.objects.*;
 
-
 import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Transport;
@@ -15,7 +14,9 @@ import javax.mail.internet.MimeMessage;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.Socket;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -49,13 +50,13 @@ public class DataController
             {
                 this.makeSiteIndexand404PageWthDomains();
                 ArrayList<Domain> domains = ServerControl.getArguments().getDomains();
-                for(Domain domain: domains)
+                for(Domain domain : domains)
                 {
                     //www.jumbodinosaurs.com - > jumbodinosaurs
                     String secondLevelDomainName = domain.getSecondLevelDomainName();
                     File secondLevelDomainNameFile = checkFor(getDirectory, secondLevelDomainName);
                     boolean needToAdd = true;
-                    for(File fileToCheck: domainSpecificFiles)
+                    for(File fileToCheck : domainSpecificFiles)
                     {
                         if(fileToCheck.getAbsolutePath().equals(secondLevelDomainNameFile.getAbsolutePath()))
                         {
@@ -89,9 +90,6 @@ public class DataController
             OperatorConsole.printMessageFiltered("Error Creating DataController", false, true);
         }
     }
-    
-    
-   
     
     
     /* @Function: Checks for the String name in the given Dir of File file
@@ -157,12 +155,12 @@ public class DataController
         ArrayList<String> levels = new ArrayList<String>();
         String temp = localPath;
         String level = "";
-    
+        
         if(temp.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
         {
             temp = File.separator + temp;
         }
-    
+        
         if(temp.lastIndexOf(File.separator) != temp.length())// make /helloworld/hello.json into /helloworld/hello.json/
         {
             temp += File.separator;
@@ -201,11 +199,9 @@ public class DataController
     }
     
     
-    
-    
     public static String fixPathSeparator(String path)
     {
-    
+        
         char[] charToChange = path.toCharArray();
         if(File.separator.equals("\\"))
         {
@@ -377,13 +373,12 @@ public class DataController
         localPath = fixPathSeparator(localPath);
         
         
-        
         if(localPath.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
         {
             localPath = File.separator + localPath;
         }
-    
-       
+        
+        
         File fileToGive = null;
         //Gets all files in allowedDir
         File[] filesInAllowedDir = listFilesRecursive(dirToSearch);
@@ -422,11 +417,12 @@ public class DataController
     }
     
     
-    public static File getLogsJson()
+    public static File getLogFileFromDate(LocalDateTime sessionDate)
     {
         try
         {
-            File logFile = checkFor(logsDirectory, "logs.json");
+            String localPath = "/Session Logs/" + sessionDate.getYear() + "/" + sessionDate.getMonth() + "/" + sessionDate.getDayOfMonth() + "/" + sessionDate.getHour() + "/" + "logs.json";
+            File logFile = checkForLocalPath(logsDirectory, localPath);
             return logFile;
         }
         catch(Exception e)
@@ -567,7 +563,8 @@ public class DataController
             
             String thisPostConnection = rewriteHTMLEscapeCharacters(post.getPostIdentifier());
             //https://www.boutell.com/newfaq/creating/domainlength.html
-            if(thisPostConnection.length() > 265 || (!validateMCAddress(thisPostConnection) && !validateMCAddress(thisPostConnection)))
+            if(thisPostConnection.length() > 265 || (!validateMCAddress(thisPostConnection) && !validateMCAddress(
+                    thisPostConnection)))
             {
                 return false;
             }
@@ -904,20 +901,20 @@ public class DataController
             {
                 connectionIn = connection.getErrorStream();
             }
-        
-        
+            
+            
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connectionIn));
             String response = "";
             while(bufferedReader.ready())
             {
                 response += bufferedReader.readLine();
             }
-        
+            
             urlResponse = new URLResponse(returnCode, response);
         }
         catch(IOException e)
         {
-            OperatorConsole.printMessageFiltered("URL Connection Exception",true,false);
+            OperatorConsole.printMessageFiltered("URL Connection Exception", true, false);
         }
         return urlResponse;
     }
@@ -938,20 +935,20 @@ public class DataController
             {
                 connectionIn = connection.getErrorStream();
             }
-        
-        
+            
+            
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connectionIn));
             String response = "";
             while(bufferedReader.ready())
             {
                 response += bufferedReader.readLine();
             }
-    
+            
             urlResponse = new URLResponse(returnCode, response);
         }
         catch(IOException e)
         {
-            OperatorConsole.printMessageFiltered("URL Connection Exception",true,false);
+            OperatorConsole.printMessageFiltered("URL Connection Exception", true, false);
         }
         return urlResponse;
     }

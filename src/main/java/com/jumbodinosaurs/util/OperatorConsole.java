@@ -1,10 +1,9 @@
 package com.jumbodinosaurs.util;
 
 
-import com.google.gson.*;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.objects.Session;
-
 import com.jumbodinosaurs.util.operatorcommands.*;
 
 import java.io.File;
@@ -32,39 +31,42 @@ public class OperatorConsole implements Runnable
     
     public OperatorConsole()
     {
-        this.exceptions = 0;
-        this.debug = true;
+        exceptions = 0;
+        debug = true;
         
-        File logFile = DataController.getLogsJson();
-        String fileContents = DataController.getFileContents(logFile);
-        Type type = new TypeToken<ArrayList<Session>>()
+        File[] oldSessionsLogs = DataController.listFilesRecursive(DataController.checkFor(DataController.logsDirectory,
+                                                                                           "Session " + "Logs"));
+        ArrayList<Session> pastSession = new ArrayList<Session>();
+        for(File logFile: oldSessionsLogs)
         {
-        }.getType();
-        ArrayList<Session> sessions = new Gson().fromJson(fileContents, type);
-        if(sessions != null)
+            String fileContents = DataController.getFileContents(logFile);
+            Type type = new TypeToken<ArrayList<Session>>()
+            {}.getType();
+            ArrayList<Session> sessions = new Gson().fromJson(fileContents, type);
+            pastSession.addAll(sessions);
+        }
+        
+        if(pastSession != null)
         {
-            this.totalHits = sessions.size();
-            this.hitsToday = 0;
+            totalHits = pastSession.size();
+            hitsToday = 0;
             
-            for(Session session : sessions)
+            for(Session session : pastSession)
             {
                 LocalDateTime when = session.getDateTime();
-                if(when != null && this.today.isEqual(when.toLocalDate()))
+                if(when != null && today.isEqual(when.toLocalDate()))
                 {
-                    this.hitsToday++;
+                    hitsToday++;
                 }
             }
-        }
-        else
-        {
-            this.hitsToday = 0;
-            this.totalHits = 0;
         }
         System.out.println("Console Online");
     }
     
     
-    public static synchronized void printMessageFiltered(String message, boolean debugMessage, boolean exception)
+    public static synchronized void printMessageFiltered(String message,
+                                                         boolean debugMessage,
+                                                         boolean exception)
     {
         //DataController.writeSilentConsole(message);
         if(exception)
@@ -133,7 +135,7 @@ public class OperatorConsole implements Runnable
         commands.add(new StatisticsExtra("/statsextra"));
         //add Help Commands
         ArrayList<String> commandsToOutput = new ArrayList<String>();
-        for(OperatorCommand command: commands)
+        for(OperatorCommand command : commands)
         {
             commandsToOutput.add(command.getCommand());
         }
@@ -141,35 +143,40 @@ public class OperatorConsole implements Runnable
         commands.add(new Help("/?", commandsToOutput));
         
         
-        
-        
-        
-        
         while(true)
         {
             String userInput = "";
             userInput += input.nextLine();
             
-            if(userInput.length() >= 1 && userInput.substring(0, 1).equals("/"))
+            if(userInput != null && userInput.length() >= 1 && userInput.substring(0, 1).equals("/"))
             {
                 boolean commandExecuted = false;
+                int index = userInput.length();
+                if(userInput.contains(" "))
+                {
+                    index = userInput.indexOf(" ");
+                }
+                String userInputCommand = userInput.substring(0,index);
                 for(OperatorCommand command : commands)
                 {
-                    if(userInput.contains(command.getCommand()))
+                    if(userInput.length() >= command.getCommand().length())
                     {
-                        if(command instanceof OperatorCommandWithParameter)
+                        if(userInputCommand.equals(command.getCommand()))
                         {
-                            String parameter = userInput.substring(command.getCommand().length());
-                            ((OperatorCommandWithParameter) command).setParameter(parameter);
-                            command.execute();
-                            commandExecuted = true;
-                            break;
-                        }
-                        else
-                        {
-                            command.execute();
-                            commandExecuted = true;
-                            break;
+                            if(command instanceof OperatorCommandWithParameter)
+                            {
+                                String parameter = userInput.substring(command.getCommand().length() + 1);
+                                ((OperatorCommandWithParameter) command).setParameter(parameter);
+                                command.execute();
+                                commandExecuted = true;
+                                break;
+                            }
+                            else
+                            {
+                                command.execute();
+                                commandExecuted = true;
+                                break;
+                            }
                         }
                     }
                 }

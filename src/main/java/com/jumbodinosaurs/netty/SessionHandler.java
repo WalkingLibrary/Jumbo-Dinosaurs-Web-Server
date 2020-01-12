@@ -60,14 +60,16 @@ public class SessionHandler extends SimpleChannelInboundHandler<String>
                     {
                         response = new HTTPHandler(request).generateResponse();
                     }
+    
+                    //Would be kinda point less to hash a password if we saved it over in logs.json :P
+                    session.setMessage(request.getCensoredMessage());
+                    session.setMessageSent(response.getMessageToLog());
                 }
                 //Send Message
                 context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                 
-                
-                //Would be kinda point less to hash a password if we saved it over in logs.json :P
-                session.setMessage(request.getCensoredMessage());
-                session.setMessageSent(response.getMessageToLog());
+               
+             
                 
                 OperatorConsole.printMessageFiltered(session.toString(), true, false);
                 

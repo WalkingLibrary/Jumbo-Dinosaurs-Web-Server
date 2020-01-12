@@ -1,6 +1,5 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
-import com.jumbodinosaurs.netty.SessionHandler;
 import com.jumbodinosaurs.util.OperatorConsole;
 
 public class ToggleSSLRedirect extends OperatorCommand
