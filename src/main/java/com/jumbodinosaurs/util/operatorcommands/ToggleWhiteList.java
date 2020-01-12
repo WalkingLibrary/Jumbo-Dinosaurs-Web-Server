@@ -1,24 +1,31 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
+import com.jumbodinosaurs.devlib.commands.Command;
+import com.jumbodinosaurs.devlib.commands.MessageResponse;
+import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.util.OperatorConsole;
 
-public class ToggleWhiteList extends OperatorCommand
+public class ToggleWhiteList extends Command
 {
-    public ToggleWhiteList(String command)
+    @Override
+    public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
-        super(command);
-    }
-    
-    public void execute()
-    {
+        String outputMessage = "";
         if(OperatorConsole.whitelist)
         {
-            System.out.println("White list is now off");
+            outputMessage += "White list is now off"+ "\n";
         }
         else
         {
-            System.out.println("White list is now on");
+            outputMessage += "White list is now on" + "\n";
         }
         OperatorConsole.whitelist = !OperatorConsole.whitelist;
+        return new MessageResponse(outputMessage);
+    }
+    
+    @Override
+    public String getHelpMessage()
+    {
+        return "Toggles the servers whitelist";
     }
 }

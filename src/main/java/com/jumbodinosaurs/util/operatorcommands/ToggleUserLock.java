@@ -1,42 +1,59 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
+import com.jumbodinosaurs.devlib.commands.CommandWithParameters;
+import com.jumbodinosaurs.devlib.commands.MessageResponse;
+import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.objects.User;
 import com.jumbodinosaurs.util.CredentialsManager;
 
-public class ToggleUserLock extends OperatorCommandWithParameter
+public class ToggleUserLock extends CommandWithParameters
 {
     
-    
-    public ToggleUserLock(String command)
+    @Override
+    public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
-        super(command);
-    }
-    
-    public void execute()
-    {
-        String username = this.getParameter();
-    
-        User userToLock = CredentialsManager.getUser(username);
-        if(userToLock != null)
+        
+        try
         {
-            User updatedUserInfo = userToLock.clone();
-            updatedUserInfo.setAccountLocked(!userToLock.isAccountLocked());
-            if(userToLock.isAccountLocked())
+            String username = this.getParameters().get(0).getParameter();
+            String outputMessage = "";
+            User userToLock = CredentialsManager.getUser(username);
+            if(userToLock != null)
             {
-                System.out.println("Unlocking: " + username);
+                User updatedUserInfo = userToLock.clone();
+                updatedUserInfo.setAccountLocked(!userToLock.isAccountLocked());
+                if(userToLock.isAccountLocked())
+                {
+                    outputMessage += "Unlocking: " + username+"\n";
+                }
+                else
+                {
+                    outputMessage +="Locking: " + username+"\n";
+                }
+                if(CredentialsManager.modifyUser(userToLock, updatedUserInfo))
+                {
+                    outputMessage +="User Toggled successfully"+"\n";
+                }
+                else
+                {
+                    outputMessage +="User not toggled"+"\n";
+                }
             }
-            else
-            {
-                System.out.println("Locking: " + username);
-            }
-            if(CredentialsManager.modifyUser(userToLock, updatedUserInfo))
-            {
-                System.out.println("User Toggled successfully");
-            }
-            else
-            {
-                System.out.println("User not toggled");
-            }
+            
+            return new MessageResponse(outputMessage);
         }
+        catch(Exception e)
+        {
+            throw new WaveringParametersException(e);
+        }
+    
+       
     }
+    
+    @Override
+    public String getHelpMessage()
+    {
+        return "Toggles the lock on a specified user";
+    }
+    
 }

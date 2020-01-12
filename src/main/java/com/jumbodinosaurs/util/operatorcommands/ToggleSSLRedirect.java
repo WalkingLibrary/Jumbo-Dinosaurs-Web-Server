@@ -1,30 +1,32 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
+import com.jumbodinosaurs.devlib.commands.Command;
+import com.jumbodinosaurs.devlib.commands.MessageResponse;
+import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.util.OperatorConsole;
 
-public class ToggleSSLRedirect extends OperatorCommand
+public class ToggleSSLRedirect extends Command
 {
     
-    
-    public ToggleSSLRedirect(String command)
+    @Override
+    public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
-        super(command);
-    }
-    
-    public void execute()
-    {
+        String outputMessage = "";
         if(OperatorConsole.redirectToSSL)
         {
-            OperatorConsole.redirectToSSL = false;
-            System.out.println("HTTP requests will no longer be Redirected to HTTPS");
+            outputMessage += "HTTP requests will no longer be Redirected to HTTPS" + "\n";
         }
         else
         {
-            OperatorConsole.redirectToSSL = true;
-            System.out.println("HTTP requests will now try to Redirect To HTTPS");
+            outputMessage += "HTTP requests will now try to Redirect To HTTPS"+ "\n";
         }
-        
+        OperatorConsole.redirectToSSL = !OperatorConsole.redirectToSSL;
+        return new MessageResponse(outputMessage);
     }
     
-    public void execute(String parameter) {}
+    @Override
+    public String getHelpMessage()
+    {
+        return "Toggles the servers ability to redirect users to a secure connection";
+    }
 }

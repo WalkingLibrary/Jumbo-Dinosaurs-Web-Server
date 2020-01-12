@@ -1,17 +1,15 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
+import com.jumbodinosaurs.devlib.commands.Command;
+import com.jumbodinosaurs.devlib.commands.MessageResponse;
+import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.util.PostWriter;
 import com.jumbodinosaurs.util.SessionLogger;
 
-public class Stop extends OperatorCommand
+public class Stop extends Command
 {
-    
-    public Stop(String command)
-    {
-        super(command);
-    }
-    
-    public void execute()
+    @Override
+    public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         if(SessionLogger.sessions != null)
         {
@@ -22,5 +20,12 @@ public class Stop extends OperatorCommand
         }
         System.out.println("Shutting Down");
         System.exit(3);
+        return new MessageResponse("If you see this something is wrong");
+    }
+    
+    @Override
+    public String getHelpMessage()
+    {
+        return "Shuts down the web server in a graceful manner";
     }
 }

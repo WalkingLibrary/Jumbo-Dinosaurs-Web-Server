@@ -1,6 +1,9 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
 import com.jumbodinosaurs.ServerControl;
+import com.jumbodinosaurs.devlib.commands.Command;
+import com.jumbodinosaurs.devlib.commands.MessageResponse;
+import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.objects.Domain;
 import com.jumbodinosaurs.objects.Email;
 import com.jumbodinosaurs.objects.RuntimeArguments;
@@ -10,63 +13,68 @@ import com.jumbodinosaurs.util.OperatorConsole;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class StatisticsExtra extends OperatorCommand
+public class StatisticsExtra extends Command
 {
-    public StatisticsExtra(String command)
-    {
-        super(command);
-    }
-    
-    public void execute()
+    @Override
+    public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         OperatorConsole.updateTodaysDate();
-        System.out.println("As of " + LocalDateTime.now().toString());
-        System.out.println("Public I.P.: " + DataController.host);
-        System.out.println("Total Hits: " + OperatorConsole.totalHits);
-        System.out.println("Hits Today: " + OperatorConsole.hitsToday);
-        System.out.println("Exceptions: " + OperatorConsole.exceptions);
-        System.out.println("Debug Messages Will Be Shown: " + OperatorConsole.debug);
-        System.out.println("Time for The Server: " + LocalTime.now().getHour()  + ":" + LocalTime.now().getMinute());
-        System.out.println("Users: " + DataController.getCredentialsManager().getUserCount());
-        System.out.println("Amount of Posts: " + DataController.getAllPostsList().size());
+        String outputMessage = "";
+        outputMessage += "As of " + LocalDateTime.now().toString() + "\n";
+        outputMessage += "Public I.P.: " + DataController.host + "\n";
+        outputMessage += "Total Hits: " + OperatorConsole.totalHits + "\n";
+        outputMessage += "Hits Today: " + OperatorConsole.hitsToday + "\n";
+        outputMessage += "Exceptions: " + OperatorConsole.exceptions + "\n";
+        outputMessage += "Debug Messages Will Be Shown: " + OperatorConsole.debug + "\n";
+        outputMessage += "Time for The Server: " + LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + "\n";
+        outputMessage += "Users: " + DataController.getCredentialsManager().getUserCount() + "\n";
+        outputMessage += "Amount of Posts: " + DataController.getAllPostsList().size() + "\n";
         if(ServerControl.getArguments() != null)
         {
             RuntimeArguments args = ServerControl.getArguments();
             
-            System.out.println("Server in Test Mode: " + args.isInTestMode());
+            outputMessage += "Server in Test Mode: " + args.isInTestMode() + "\n";
             if(args.getDomains() != null && args.getDomains().size() > 0)
             {
-                System.out.println("Domains Hosted: ");
-                for(Domain domain: args.getDomains())
+                outputMessage += "Domains Hosted: " + "\n";
+                for(Domain domain : args.getDomains())
                 {
-                    System.out.println(domain.getDomain());
+                    outputMessage += domain.getDomain() + "\n";
                 }
             }
             
             if(args.getEmails() != null && args.getEmails().size() > 0)
             {
-                System.out.println("Emails In Service: ");
-                for(Email email: args.getEmails())
+                outputMessage += "Emails In Service: " + "\n";
+                for(Email email : args.getEmails())
                 {
-                    System.out.println(email.getUsername());
+                    outputMessage += email.getUsername() + "\n";
                 }
             }
             
         }
-        System.out.println("White List Enabled: " + OperatorConsole.whitelist);
+        outputMessage += "White List Enabled: " + OperatorConsole.whitelist + "\n";
         
         if(OperatorConsole.whitelistedIps.size() > 0)
         {
-            System.out.println("White Listed I.P.s: ");
+            outputMessage += "White Listed I.P.s: " + "\n";
             for(String ip : OperatorConsole.whitelistedIps)
             {
-                System.out.println("I.P.: " + ip);
+                outputMessage += "I.P.: " + ip + "\n";
             }
         }
         else
         {
-            System.out.println("No White Listed I.P.s");
+            outputMessage += "No White Listed I.P.s" + "\n";
         }
         
+        return new MessageResponse(outputMessage);
     }
+    
+    @Override
+    public String getHelpMessage()
+    {
+        return "Shows a basic detailing of the web server and some extra stats";
+    }
+    
 }

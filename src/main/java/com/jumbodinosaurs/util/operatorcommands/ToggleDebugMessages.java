@@ -1,24 +1,31 @@
 package com.jumbodinosaurs.util.operatorcommands;
 
+import com.jumbodinosaurs.devlib.commands.Command;
+import com.jumbodinosaurs.devlib.commands.MessageResponse;
+import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.util.OperatorConsole;
 
-public class ToggleDebugMessages extends OperatorCommand
+public class ToggleDebugMessages extends Command
 {
-    public ToggleDebugMessages(String command)
+    @Override
+    public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
-        super(command);
-    }
-    
-    public void execute()
-    {
+        String outputMessage = "";
         if(OperatorConsole.debug)
         {
-            System.out.println("Debug Messages will not be displayed");
+            outputMessage += "Debug Messages will not be displayed"+ "\n";
         }
         else
         {
-            System.out.println("Debug Messages will be displayed");
+            outputMessage += "Debug Messages will be displayed"+ "\n";
         }
         OperatorConsole.debug = !OperatorConsole.debug;
+        return new MessageResponse(outputMessage);
+    }
+    
+    @Override
+    public String getHelpMessage()
+    {
+        return "Toggles the servers ability to send debug messages";
     }
 }

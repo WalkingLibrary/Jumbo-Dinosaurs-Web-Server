@@ -3,8 +3,10 @@ package com.jumbodinosaurs.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jumbodinosaurs.devlib.commands.CommandManager;
+import com.jumbodinosaurs.devlib.commands.MessageResponse;
+import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.objects.Session;
-import com.jumbodinosaurs.util.operatorcommands.*;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -123,72 +125,26 @@ public class OperatorConsole implements Runnable
     public void run()
     {
         Scanner input = new Scanner(System.in);
-        ArrayList<OperatorCommand> commands = new ArrayList<OperatorCommand>();
-        
-        commands.add(new Stop("/stop"));
-        commands.add(new ToggleSSLRedirect("/togglesslredirect"));
-        commands.add(new ToggleUserLock("/toggleuserlock"));
-        commands.add(new ToggleWhiteList("/togglewhitelist"));
-        commands.add(new WhiteListAdd("/whitelistadd"));
-        commands.add(new Statistics("/stats"));
-        commands.add(new ToggleDebugMessages("/toggledebugmessages"));
-        commands.add(new StatisticsExtra("/statsextra"));
-        //add Help Commands
-        ArrayList<String> commandsToOutput = new ArrayList<String>();
-        for(OperatorCommand command : commands)
-        {
-            commandsToOutput.add(command.getCommand());
-        }
-        commands.add(new Help("/help", commandsToOutput));
-        commands.add(new Help("/?", commandsToOutput));
-        
-        
+        CommandManager.refreshCommands();
         while(true)
         {
             String userInput = "";
             userInput += input.nextLine();
-            
-            if(userInput != null && userInput.length() >= 1 && userInput.substring(0, 1).equals("/"))
+            try
             {
-                boolean commandExecuted = false;
-                int index = userInput.length();
-                if(userInput.contains(" "))
-                {
-                    index = userInput.indexOf(" ");
-                }
-                String userInputCommand = userInput.substring(0,index);
-                for(OperatorCommand command : commands)
-                {
-                    if(userInput.length() >= command.getCommand().length())
-                    {
-                        if(userInputCommand.equals(command.getCommand()))
-                        {
-                            if(command instanceof OperatorCommandWithParameter)
-                            {
-                                String parameter = userInput.substring(command.getCommand().length() + 1);
-                                ((OperatorCommandWithParameter) command).setParameter(parameter);
-                                command.execute();
-                                commandExecuted = true;
-                                break;
-                            }
-                            else
-                            {
-                                command.execute();
-                                commandExecuted = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if(!commandExecuted)
+                MessageResponse response = CommandManager.filter(userInput, true);
+                if(response == null)
                 {
                     System.out.println("Unrecognized command /help or /? for more Help." + "");
                 }
+                else
+                {
+                    System.out.println(response.getMessage());
+                }
             }
-            else
+            catch(WaveringParametersException e)
             {
-                System.out.println("Unrecognized command /help or /? for more Help." + "");
+                e.printStackTrace();
             }
         }
     }
