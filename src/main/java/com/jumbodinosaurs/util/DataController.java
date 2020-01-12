@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class DataController
 {
     public static String host = "";
-    public static File codeExecutionDir = new File(System.getProperty("user.dir")).getParentFile();
+    public static File codeExecutionDir = new File(System.getProperty("user.dir"));
     public static File getDirectory = checkFor(codeExecutionDir, "Shared");
     public static File logsDirectory = checkFor(codeExecutionDir, "LOG");
     public static File certificateDirectory = checkFor(codeExecutionDir, "Certificates");
