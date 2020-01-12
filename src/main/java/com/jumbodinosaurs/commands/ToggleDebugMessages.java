@@ -1,33 +1,30 @@
-package com.jumbodinosaurs.util.operatorcommands;
-
+package com.jumbodinosaurs.commands;
 
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.util.OperatorConsole;
 
-public class ToggleAllowPost extends Command
+public class ToggleDebugMessages extends Command
 {
-    
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         String outputMessage = "";
-        if(OperatorConsole.allowPost)
+        if(OperatorConsole.debug)
         {
-            outputMessage += "The server will no longer accept post requests" + "\n";
+            outputMessage += "Debug Messages will not be displayed"+ "\n";
         }
         else
         {
-            outputMessage += "The server will now accept post requests" + "\n";
+            outputMessage += "Debug Messages will be displayed"+ "\n";
         }
-        OperatorConsole.allowPost = !OperatorConsole.allowPost;
+        OperatorConsole.debug = !OperatorConsole.debug;
         return new MessageResponse(outputMessage);
     }
     
     @Override
     public String getHelpMessage()
     {
-        return "Toggles the Servers ability to accept post requests";
+        return "Toggles the servers ability to send debug messages";
     }
 }

@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
+import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.objects.*;
 import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
 import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
 import com.jumbodinosaurs.util.CredentialsManager;
 import com.jumbodinosaurs.util.DataController;
-import com.jumbodinosaurs.util.OperatorConsole;
 import com.jumbodinosaurs.util.PasswordStorage;
 
 import javax.naming.NamingException;

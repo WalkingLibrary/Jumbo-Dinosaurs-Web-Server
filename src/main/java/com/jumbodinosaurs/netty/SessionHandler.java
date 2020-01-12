@@ -1,10 +1,10 @@
 package com.jumbodinosaurs.netty;
 
+import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
 import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
 import com.jumbodinosaurs.objects.Session;
 import com.jumbodinosaurs.util.DataController;
-import com.jumbodinosaurs.util.OperatorConsole;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;

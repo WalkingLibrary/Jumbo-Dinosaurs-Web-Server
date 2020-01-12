@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.util;
+package com.jumbodinosaurs.commands;
 
 
 import com.google.gson.Gson;
@@ -7,6 +7,7 @@ import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.objects.Session;
+import com.jumbodinosaurs.util.DataController;
 
 import java.io.File;
 import java.lang.reflect.Type;

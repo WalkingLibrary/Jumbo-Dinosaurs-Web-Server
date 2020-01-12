@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.netty;
 
 
-import com.jumbodinosaurs.util.OperatorConsole;
+import com.jumbodinosaurs.commands.OperatorConsole;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

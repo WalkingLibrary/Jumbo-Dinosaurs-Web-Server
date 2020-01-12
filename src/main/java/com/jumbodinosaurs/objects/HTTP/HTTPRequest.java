@@ -2,9 +2,9 @@ package com.jumbodinosaurs.objects.HTTP;
 
 import com.google.gson.Gson;
 import com.jumbodinosaurs.ServerControl;
+import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.objects.Domain;
 import com.jumbodinosaurs.objects.PostRequest;
-import com.jumbodinosaurs.util.OperatorConsole;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

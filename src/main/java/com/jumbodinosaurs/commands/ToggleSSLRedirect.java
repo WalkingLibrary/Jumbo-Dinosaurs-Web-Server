@@ -1,9 +1,8 @@
-package com.jumbodinosaurs.util.operatorcommands;
+package com.jumbodinosaurs.commands;
 
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.util.OperatorConsole;
 
 public class ToggleSSLRedirect extends Command
 {

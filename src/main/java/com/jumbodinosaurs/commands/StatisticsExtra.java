@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.util.operatorcommands;
+package com.jumbodinosaurs.commands;
 
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.devlib.commands.Command;
@@ -8,7 +8,6 @@ import com.jumbodinosaurs.objects.Domain;
 import com.jumbodinosaurs.objects.Email;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.util.DataController;
-import com.jumbodinosaurs.util.OperatorConsole;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;

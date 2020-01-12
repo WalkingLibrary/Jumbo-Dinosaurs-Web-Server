@@ -1,12 +1,12 @@
 package com.jumbodinosaurs;
 
+import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.netty.SecureSessionHandlerInitializer;
 import com.jumbodinosaurs.netty.SessionHandlerInitializer;
 import com.jumbodinosaurs.objects.Domain;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.objects.URLResponse;
 import com.jumbodinosaurs.util.DataController;
-import com.jumbodinosaurs.util.OperatorConsole;
 import com.jumbodinosaurs.util.Timer;
 import sun.misc.BASE64Encoder;
 

@@ -1,9 +1,9 @@
 package com.jumbodinosaurs.netty;
 
 import com.jumbodinosaurs.ServerControl;
+import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.objects.Domain;
 import com.jumbodinosaurs.util.DataController;
-import com.jumbodinosaurs.util.OperatorConsole;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

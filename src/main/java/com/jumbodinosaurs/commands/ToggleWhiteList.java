@@ -1,31 +1,30 @@
-package com.jumbodinosaurs.util.operatorcommands;
+package com.jumbodinosaurs.commands;
 
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.util.OperatorConsole;
 
-public class ToggleDebugMessages extends Command
+public class ToggleWhiteList extends Command
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         String outputMessage = "";
-        if(OperatorConsole.debug)
+        if(OperatorConsole.whitelist)
         {
-            outputMessage += "Debug Messages will not be displayed"+ "\n";
+            outputMessage += "White list is now off"+ "\n";
         }
         else
         {
-            outputMessage += "Debug Messages will be displayed"+ "\n";
+            outputMessage += "White list is now on" + "\n";
         }
-        OperatorConsole.debug = !OperatorConsole.debug;
+        OperatorConsole.whitelist = !OperatorConsole.whitelist;
         return new MessageResponse(outputMessage);
     }
     
     @Override
     public String getHelpMessage()
     {
-        return "Toggles the servers ability to send debug messages";
+        return "Toggles the servers whitelist";
     }
 }

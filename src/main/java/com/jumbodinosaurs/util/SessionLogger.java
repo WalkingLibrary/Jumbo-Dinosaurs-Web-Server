@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.util;
 
 import com.google.gson.Gson;
+import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.objects.Session;
 
 import java.io.File;
@@ -36,7 +37,7 @@ public class SessionLogger implements Runnable
         catch (Exception e)
         {
             e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Logging Session",false, true);
+            OperatorConsole.printMessageFiltered("Error Logging Session", false, true);
         }
     }
 

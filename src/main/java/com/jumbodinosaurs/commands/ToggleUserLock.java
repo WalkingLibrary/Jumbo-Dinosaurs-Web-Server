@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.util.operatorcommands;
+package com.jumbodinosaurs.commands;
 
 import com.jumbodinosaurs.devlib.commands.CommandWithParameters;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
