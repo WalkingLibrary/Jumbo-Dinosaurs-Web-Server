@@ -1,5 +1,5 @@
 # JumboDinosaursNetty
-![Rating](https://img.shields.io/badge/Rating-1%2F5-Red)
+![Rating](https://img.shields.io/badge/Rating-8%2F10-Green)
 ![Sauce](https://img.shields.io/badge/100%25-Spaghetti%20Code-orange)
 ![Build Status](https://img.shields.io/badge/Build-Failed-red)
 
@@ -13,6 +13,7 @@ Java Based Web Server
 ### Todos
 - switch project over to devlib
 - stream line connection protocols
+- stream line domains and sni handler
 - fix post only reading from url
 - automate certificate update process
 - prep for Trom-Bone Integration

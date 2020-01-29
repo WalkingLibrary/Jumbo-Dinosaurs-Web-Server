@@ -5,6 +5,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.*;
 
 import javax.mail.Message;
@@ -33,6 +34,7 @@ public class DataController
     public static File userInfoDirectory = checkFor(codeExecutionDir, "UserInfo");
     public static File postDirectory = checkFor(codeExecutionDir, "Post");
     public static File timeOutHelperDir = checkFor(codeExecutionDir, "TimeoutHelper");
+    public static File serverDataDir = checkFor(codeExecutionDir, "Server Data");
     public static ArrayList<File> domainSpecificFiles = new ArrayList<File>();
     private static SessionLogger logger;
     private static PostWriter postWriter;

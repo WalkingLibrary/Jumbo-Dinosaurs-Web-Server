@@ -4,7 +4,7 @@ import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.objects.Domain;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.Email;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.util.DataController;

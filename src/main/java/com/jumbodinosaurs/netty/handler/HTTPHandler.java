@@ -1,10 +1,11 @@
-package com.jumbodinosaurs.netty;
+package com.jumbodinosaurs.netty.handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.*;
 import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
 import com.jumbodinosaurs.objects.HTTP.HTTPResponse;

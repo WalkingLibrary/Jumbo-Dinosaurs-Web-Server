@@ -49,7 +49,7 @@ import java.util.Scanner;
  *  Google API with arguments
  *  Arguments Should be given in this order
  *     Username Password Domain
- *  If multiple domains continue this pattern
+ *  If multiple domain continue this pattern
  *
  *  https://username:password@domains.google.com/nic/update?hostname=subdomain.yourdomain.com
  *

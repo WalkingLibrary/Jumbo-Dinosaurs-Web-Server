@@ -1,5 +1,5 @@
 package com.jumbodinosaurs.objects.HTTP;
-import com.jumbodinosaurs.objects.Domain;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.util.DataController;
 
 public class HTTPResponse

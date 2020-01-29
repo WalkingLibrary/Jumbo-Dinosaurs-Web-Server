@@ -1,5 +1,7 @@
 package com.jumbodinosaurs.objects;
 
+import com.jumbodinosaurs.domain.util.Domain;
+
 import java.util.ArrayList;
 
 public class RuntimeArguments

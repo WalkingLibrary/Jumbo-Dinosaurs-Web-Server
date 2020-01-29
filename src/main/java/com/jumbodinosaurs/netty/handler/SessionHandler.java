@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.netty;
+package com.jumbodinosaurs.netty.handler;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.objects.HTTP.HTTPRequest;

@@ -3,7 +3,7 @@ package com.jumbodinosaurs.objects.HTTP;
 import com.google.gson.Gson;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
-import com.jumbodinosaurs.objects.Domain;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.PostRequest;
 
 import java.io.UnsupportedEncodingException;
