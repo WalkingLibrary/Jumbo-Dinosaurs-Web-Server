@@ -10,9 +10,9 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
-public class DefaultSessionHandlerInitializer extends SessionHandlerInitializer
+public class DefaultConnectListenerInitializer extends ConnectListenerInitializer
 {
-    public DefaultSessionHandlerInitializer(int port, SimpleChannelInboundHandler<String> handler)
+    public DefaultConnectListenerInitializer(int port, SimpleChannelInboundHandler<String> handler)
     {
         super(port, handler);
     }

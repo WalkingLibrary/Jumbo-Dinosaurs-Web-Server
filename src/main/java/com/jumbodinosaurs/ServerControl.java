@@ -2,8 +2,8 @@ package com.jumbodinosaurs;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.domain.util.Domain;
-import com.jumbodinosaurs.netty.initializer.SecureSessionHandlerInitializer;
-import com.jumbodinosaurs.netty.initializer.SessionHandlerInitializer;
+import com.jumbodinosaurs.netty.initializer.ConnectListenerInitializer;
+import com.jumbodinosaurs.netty.initializer.SecureConnectListenerInitializer;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.tasks.UpdateDNS;
 import com.jumbodinosaurs.util.DataController;
@@ -35,7 +35,7 @@ public class ServerControl
         commandThread = new Thread(new OperatorConsole());
         commandThread.start();
         OperatorConsole.redirectToSSL = false;
-        port80Thread = new Thread(new SessionHandlerInitializer());
+        port80Thread = new Thread(new ConnectListenerInitializer());
         port80Thread.start();
     }
     
@@ -62,11 +62,11 @@ public class ServerControl
         commandThread.start();
         
         
-        port80Thread = new Thread(new SessionHandlerInitializer());
+        port80Thread = new Thread(new ConnectListenerInitializer());
         port80Thread.start();
         
         
-        port443Thread = new Thread(new SecureSessionHandlerInitializer());
+        port443Thread = new Thread(new SecureConnectListenerInitializer());
         port443Thread.start();
     }
     
