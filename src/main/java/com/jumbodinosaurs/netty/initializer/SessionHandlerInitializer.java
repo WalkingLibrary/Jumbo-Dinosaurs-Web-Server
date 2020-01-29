@@ -5,6 +5,7 @@ import com.jumbodinosaurs.commands.OperatorConsole;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -15,10 +16,12 @@ public abstract class SessionHandlerInitializer extends ChannelInitializer<Socke
     private int port;
     private boolean isRunning;
     private EventLoopGroup bossGroup, workerGroup;
+    protected SimpleChannelInboundHandler<String> handler;
     
-    public SessionHandlerInitializer(int port)
+    public SessionHandlerInitializer(int port, SimpleChannelInboundHandler<String> handler)
     {
         this.port = port;
+        this.handler = handler;
     }
     
     public void run()
