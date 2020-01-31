@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.objects;
 
 import com.google.gson.Gson;
-import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,15 +163,15 @@ public class MinecraftWrittenBook
     public static MinecraftWrittenBook getSanitizedBook(MinecraftWrittenBook book)
     {
         MinecraftWrittenBook tempBook = new MinecraftWrittenBook();
-        tempBook.setAuthor(DataController.rewriteHTMLEscapeCharacters(book.getAuthor()));
-        tempBook.setTitle(DataController.rewriteHTMLEscapeCharacters(book.getTitle()));
-        tempBook.setGeneration(DataController.rewriteHTMLEscapeCharacters(book.getGeneration()));
-        tempBook.setCount(DataController.rewriteHTMLEscapeCharacters("" + book.getCount()));
+        tempBook.setAuthor(ServerUtil.rewriteHTMLEscapeCharacters(book.getAuthor()));
+        tempBook.setTitle(ServerUtil.rewriteHTMLEscapeCharacters(book.getTitle()));
+        tempBook.setGeneration(ServerUtil.rewriteHTMLEscapeCharacters(book.getGeneration()));
+        tempBook.setCount(ServerUtil.rewriteHTMLEscapeCharacters("" + book.getCount()));
         ArrayList<String> pagesOfBook = (ArrayList<String>) book.pages;
         ArrayList<String> sanitizedPagesOfBook = new ArrayList<String>();
         for(String page: pagesOfBook)
         {
-            sanitizedPagesOfBook.add(DataController.rewriteHTMLEscapeCharacters(page));
+            sanitizedPagesOfBook.add(ServerUtil.rewriteHTMLEscapeCharacters(page));
         }
         tempBook.setPages(sanitizedPagesOfBook);
         return tempBook;

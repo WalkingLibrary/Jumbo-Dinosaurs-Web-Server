@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.objects.HTTP;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.Domain;
-import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.ServerUtil;
 
 public class HTTPResponse
 {
@@ -107,9 +108,9 @@ public class HTTPResponse
     {
         this.messageOut = this.sC404;
         this.messageOut += this.closeHeader;
-        this.messageOut += DataController.getFileContents(DataController.safeSearchDir(DataController.getDirectory,
-                                                                                          "/404.html",
-                                                                                          true));
+        this.messageOut += GeneralUtil.scanFileContents(ServerUtil.safeSearchDir(ServerUtil.getDirectory,
+                                                                "/404.html",
+                                                                true));
     }
     
     public void setMessage501()

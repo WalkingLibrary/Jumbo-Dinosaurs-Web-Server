@@ -29,7 +29,7 @@ public class PostWriter implements Runnable
             {
                 if (this.postsToWrite.size() > 0)
                 {
-                    DataController.writePostData(this.postsToWrite.remove(0));
+                    ServerUtil.writePostData(this.postsToWrite.remove(0));
                 }
                 Thread.sleep(10);
             }

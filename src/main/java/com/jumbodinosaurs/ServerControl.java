@@ -6,7 +6,7 @@ import com.jumbodinosaurs.netty.initializer.ConnectListenerInitializer;
 import com.jumbodinosaurs.netty.initializer.SecureConnectListenerInitializer;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.tasks.UpdateDNS;
-import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -18,7 +18,7 @@ public class ServerControl
 {
     
     private static Thread commandThread, port80Thread, port443Thread;
-    private static DataController dataIO;
+    private static ServerUtil dataIO;
     private static RuntimeArguments arguments;
     private static ArrayList<Domain> updatableDomains = new ArrayList<Domain>();
     
@@ -31,7 +31,7 @@ public class ServerControl
     {
         System.out.println("Starting Jumbo Dinosaurs " + version);
         threadScheduler = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(4);
-        dataIO = new DataController(false);
+        dataIO = new ServerUtil(false);
         commandThread = new Thread(new OperatorConsole());
         commandThread.start();
         OperatorConsole.redirectToSSL = false;
@@ -50,12 +50,12 @@ public class ServerControl
         
         if(arguments.getDomains() != null && arguments.getDomains().size() > 0)
         {
-            dataIO = new DataController(true);
+            dataIO = new ServerUtil(true);
             threadScheduler.scheduleAtFixedRate(new UpdateDNS(), 1, 1, TimeUnit.HOURS);
         }
         else
         {
-            dataIO = new DataController(false);
+            dataIO = new ServerUtil(false);
         }
         
         commandThread = new Thread(new OperatorConsole());

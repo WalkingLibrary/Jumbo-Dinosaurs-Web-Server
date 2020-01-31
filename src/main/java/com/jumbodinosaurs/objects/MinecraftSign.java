@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.objects;
 
 import com.google.gson.Gson;
-import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.time.LocalDateTime;
 
@@ -180,10 +180,10 @@ public class MinecraftSign
     public static MinecraftSign getSanitizedSign(MinecraftSign sign)
     {
         MinecraftSign tempSign = new MinecraftSign();
-        tempSign.setText1(DataController.rewriteHTMLEscapeCharacters(sign.getText1()));
-        tempSign.setText2(DataController.rewriteHTMLEscapeCharacters(sign.getText2()));
-        tempSign.setText3(DataController.rewriteHTMLEscapeCharacters(sign.getText3()));
-        tempSign.setText4(DataController.rewriteHTMLEscapeCharacters(sign.getText4()));
+        tempSign.setText1(ServerUtil.rewriteHTMLEscapeCharacters(sign.getText1()));
+        tempSign.setText2(ServerUtil.rewriteHTMLEscapeCharacters(sign.getText2()));
+        tempSign.setText3(ServerUtil.rewriteHTMLEscapeCharacters(sign.getText3()));
+        tempSign.setText4(ServerUtil.rewriteHTMLEscapeCharacters(sign.getText4()));
         tempSign.setX(sign.getX());
         tempSign.setY(sign.getY());
         tempSign.setZ(sign.getZ());

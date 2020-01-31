@@ -2,6 +2,7 @@ package com.jumbodinosaurs.util;
 
 import com.google.gson.Gson;
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.objects.Session;
 
 import java.io.File;
@@ -45,8 +46,8 @@ public class SessionLogger implements Runnable
     public synchronized void log(Session session)
     {
         OperatorConsole.addHit(session);
-        File logFile = DataController.getLogFileFromDate(session.getDateTime());
-        String fileContents = DataController.getFileContents(logFile);
+        File logFile = ServerUtil.getLogFileFromDate(session.getDateTime());
+        String fileContents = GeneralUtil.scanFileContents(logFile);
         if(fileContents != null && fileContents != "")
         {
             fileContents = fileContents.substring(0, fileContents.length() - 1);
@@ -56,8 +57,8 @@ public class SessionLogger implements Runnable
         {
             fileContents = "[" + new Gson().toJson(session) + "]";
         }
-
-        DataController.writeContents(logFile, fileContents, false);
+    
+        GeneralUtil.writeContents(logFile, fileContents, false);
     }
 
 

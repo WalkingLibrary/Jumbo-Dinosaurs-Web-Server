@@ -2,7 +2,7 @@ package com.jumbodinosaurs.objects;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
@@ -105,7 +105,7 @@ public class WritablePost
         tempPost.setObjectType(post.getObjectType());
         tempPost.setDate(post.getDate());
     
-        tempPost.setPostIdentifier(DataController.rewriteHTMLEscapeCharacters(post.getPostIdentifier()));
+        tempPost.setPostIdentifier(ServerUtil.rewriteHTMLEscapeCharacters(post.getPostIdentifier()));
         String objectType = post.getObjectType();
        
         if(objectType.equals(MinecraftWrittenBook.class.getTypeName()))
@@ -126,7 +126,7 @@ public class WritablePost
         }
         else
         {
-            tempPost.setContent(DataController.rewriteHTMLEscapeCharacters(post.getContent()));
+            tempPost.setContent(ServerUtil.rewriteHTMLEscapeCharacters(post.getContent()));
         }
         return tempPost;
     }

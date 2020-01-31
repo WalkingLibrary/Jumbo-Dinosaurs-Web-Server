@@ -1,9 +1,9 @@
 package com.jumbodinosaurs.tasks;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.WebUtil;
+import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
 import com.jumbodinosaurs.domain.util.UpdatableDomain;
-import com.jumbodinosaurs.objects.URLResponse;
-import com.jumbodinosaurs.util.DataController;
 import sun.misc.BASE64Encoder;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -51,12 +51,17 @@ public class UpdateDNS implements Runnable
             String encoded = encoder.encode((authentication).getBytes(StandardCharsets.UTF_8));
             connection.setRequestProperty("Authorization", "Basic " + encoded);
             //Get Response from Google
-            URLResponse response = DataController.getResponse(connection);
-            
-            boolean wasGoodUpdate = response != null;
-            wasGoodUpdate = wasGoodUpdate || response.getResponse().contains("good");
-            wasGoodUpdate = wasGoodUpdate || response.getResponse().contains("nochg");
-            
+            boolean wasGoodUpdate = false;
+            try
+            {
+                HttpResponse response = WebUtil.getResponse(connection);
+                wasGoodUpdate = response.getResponse().contains("good");
+                wasGoodUpdate = wasGoodUpdate || response.getResponse().contains("nochg");
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
             if(!wasGoodUpdate)
             {
                 OperatorConsole.printMessageFiltered("Domain Failed To Update\nDomain: " + domain.getDomain(),

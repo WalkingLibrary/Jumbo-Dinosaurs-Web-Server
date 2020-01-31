@@ -1,8 +1,8 @@
 package com.jumbodinosaurs;
 
 import com.google.gson.Gson;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.objects.RuntimeArguments;
-import com.jumbodinosaurs.util.DataController;
 
 import java.io.File;
 import java.util.Scanner;
@@ -73,7 +73,7 @@ public class Main
                     {
                         String path = args[i + 1];
                         File fileToRead = new File(path);
-                        String contents = DataController.getFileContents(fileToRead);
+                        String contents = GeneralUtil.scanFileContents(fileToRead);
                         RuntimeArguments arguments = new Gson().fromJson(contents, RuntimeArguments.class);
                         controler = new ServerControl(arguments);
                     }

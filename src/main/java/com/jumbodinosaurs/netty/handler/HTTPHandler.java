@@ -5,13 +5,15 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.*;
 import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
 import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
 import com.jumbodinosaurs.util.CredentialsManager;
-import com.jumbodinosaurs.util.DataController;
 import com.jumbodinosaurs.util.PasswordStorage;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -70,13 +72,13 @@ public class HTTPHandler
                     if(requestsDomain != null)
                     {
                         
-                        File temp = DataController.safeSearchDir(DataController.getDirectory,
-                                                                 requestsDomain.getSecondLevelDomainName() + getRequest,
-                                                                 true);
+                        File temp = ServerUtil.safeSearchDir(ServerUtil.getDirectory,
+                                                             requestsDomain.getSecondLevelDomainName() + getRequest,
+                                                             true);
                         
                         if(temp == null)
                         {
-                            fileRequested = DataController.safeSearchDir(DataController.getDirectory, getRequest, true);
+                            fileRequested = ServerUtil.safeSearchDir(ServerUtil.getDirectory, getRequest, true);
                         }
                         else
                         {
@@ -85,12 +87,12 @@ public class HTTPHandler
                     }
                     else
                     {
-                        fileRequested = DataController.safeSearchDir(DataController.getDirectory, getRequest, true);
+                        fileRequested = ServerUtil.safeSearchDir(ServerUtil.getDirectory, getRequest, true);
                     }
                 }
                 else
                 {
-                    fileRequested = DataController.safeSearchDir(DataController.getDirectory, getRequest, true);
+                    fileRequested = ServerUtil.safeSearchDir(ServerUtil.getDirectory, getRequest, true);
                 }
                 
                 
@@ -98,15 +100,15 @@ public class HTTPHandler
                 if(fileRequested != null)
                 {
                     //add Good Code
-                    String fileType = DataController.getType(fileRequested);
+                    String fileType = GeneralUtil.getType(fileRequested);
                     if(fileType.contains("png") || fileType.contains("jpeg") || fileType.contains("JPG") || fileType.contains(
                             "ico"))
                     {
-                        if(!DataController.readPhoto(fileRequested).equals(""))
+                        if(!ServerUtil.readPhoto(fileRequested).equals(""))
                         {
                             
-                            headers += this.contentImageHeader + DataController.getType(fileRequested);
-                            byte[] photoBytes = DataController.readPhoto(fileRequested);
+                            headers += this.contentImageHeader + ServerUtil.getType(fileRequested);
+                            byte[] photoBytes = ServerUtil.readPhoto(fileRequested);
                             headers += this.contentLengthHeader + photoBytes.length;
                             //this.messageToSend += this.contentLengthHeader + dataIO.getPictureLength(fileRequested.getName());
                             response.setMessage200(headers, photoBytes);
@@ -121,14 +123,14 @@ public class HTTPHandler
                     else if(fileType.contains("zip"))
                     {
                         headers += this.contentApplicationHeader + fileType;
-                        byte[] zipBytes = DataController.readZip(fileRequested);
+                        byte[] zipBytes = ServerUtil.readZip(fileRequested);
                         headers += this.contentLengthHeader + zipBytes.length;
                         response.setMessage200(headers, zipBytes);
                     }
                     else
                     {
-                        headers += this.contentTextHeader + DataController.getType(fileRequested);
-                        response.setMessage200(headers, DataController.getFileContents(fileRequested));
+                        headers += this.contentTextHeader + GeneralUtil.getType(fileRequested);
+                        response.setMessage200(headers, GeneralUtil.scanFileContents(fileRequested));
                     }
                 }
                 else//Send 404 not found server doesn't have the file
@@ -270,7 +272,7 @@ public class HTTPHandler
                 {
                     if(postRequest.getUsername() != null)
                     {
-                        if(DataController.getCredentialsManager().usernameAvailable(postRequest.getUsername()))
+                        if(ServerUtil.getCredentialsManager().usernameAvailable(postRequest.getUsername()))
                         {
                             send400Code = false;
                             response.setMessage200();
@@ -282,7 +284,7 @@ public class HTTPHandler
                     if(postRequest.getEmail() != null && ((!CredentialsManager.isIPEmailCheckLocked(this.request.getIp()) || CredentialsManager.isAbuserUnlocked(
                             this.request.getIp()))))
                     {
-                        if(!DataController.getCredentialsManager().emailInUse(postRequest.getEmail()))
+                        if(!ServerUtil.getCredentialsManager().emailInUse(postRequest.getEmail()))
                         {
                             send400Code = false;
                             response.setMessage200();
@@ -297,9 +299,9 @@ public class HTTPHandler
                     {
                         if(captchaScore > .5)
                         {
-                            if(DataController.getCredentialsManager().createUser(postRequest.getUsername(),
-                                                                                 postRequest.getPassword(),
-                                                                                 postRequest.getEmail()))
+                            if(ServerUtil.getCredentialsManager().createUser(postRequest.getUsername(),
+                                                                             postRequest.getPassword(),
+                                                                             postRequest.getEmail()))
                             {
                                 send400Code = false;
                                 response.setMessage200();
@@ -309,9 +311,9 @@ public class HTTPHandler
                 }
                 else if(command.equals("resetPassword"))
                 {
-                    if(postRequest.getEmail() != null && DataController.getCredentialsManager().emailInUse(postRequest.getEmail()))
+                    if(postRequest.getEmail() != null && ServerUtil.getCredentialsManager().emailInUse(postRequest.getEmail()))
                     {
-                        User userToSendCodeTo = DataController.getCredentialsManager().getUserByEmail(postRequest.getEmail());
+                        User userToSendCodeTo = ServerUtil.getCredentialsManager().getUserByEmail(postRequest.getEmail());
                         
                         
                         if((captchaScore >= .8) || ((captchaScore > .5) && userToSendCodeTo.isEmailVerified()))
@@ -337,10 +339,10 @@ public class HTTPHandler
                             
                             if(sendEmail)
                             {
-                                String token = DataController.getCredentialsManager().getTokenOneUse(userToSendCodeTo,
-                                                                                                     this.request.getIp());
+                                String token = ServerUtil.getCredentialsManager().getTokenOneUse(userToSendCodeTo,
+                                                                                                 this.request.getIp());
                                 String messageToSend = "There has been a password change request to the account linked to this email" + " at https://jumbodinosaurs.com/. If this was not you contact us at jumbodinosaurs@gmail.com.\n\n" + "If this was you visit https://www.jumbodinosaurs.com/changepassword.html and enter this code\n To change your password." + "\n\n" + token;
-                                DataController.sendEmail(userToSendCodeTo.getEmail(), "Password Change", messageToSend);
+                                WebUtil.sendEmail(userToSendCodeTo.getEmail(), "Password Change", messageToSend);
                             }
                         }
                         
@@ -358,14 +360,14 @@ public class HTTPHandler
                     {
                         if(postRequest.getUsername() != null && postRequest.getPassword() != null)
                         {
-                            user = DataController.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(),
-                                                                                                postRequest.getPassword());
+                            user = ServerUtil.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(),
+                                                                                            postRequest.getPassword());
                             tokenLogin = false;
                         }
                         else if(postRequest.getToken() != null)
                         {
-                            user = DataController.getCredentialsManager().loginToken(postRequest.getToken(),
-                                                                                     this.request.getIp());
+                            user = ServerUtil.getCredentialsManager().loginToken(postRequest.getToken(),
+                                                                                 this.request.getIp());
                         }
                         
                         if(user == null)
@@ -377,14 +379,14 @@ public class HTTPHandler
                     {
                         if(postRequest.getUsername() != null && postRequest.getPassword() != null)
                         {
-                            user = DataController.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(),
-                                                                                                postRequest.getPassword());
+                            user = ServerUtil.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(),
+                                                                                            postRequest.getPassword());
                             tokenLogin = false;
                         }
                         else if(postRequest.getToken() != null)
                         {
-                            user = DataController.getCredentialsManager().loginToken(postRequest.getToken(),
-                                                                                     this.request.getIp());
+                            user = ServerUtil.getCredentialsManager().loginToken(postRequest.getToken(),
+                                                                                 this.request.getIp());
                         }
                     }
                     
@@ -406,14 +408,14 @@ public class HTTPHandler
                                     
                                     String password = postRequest.getPassword();
                                     User updatedUserInfo = user.clone();
-                                    updatedUserInfo.setPassword(DataController.safeHashPassword(password));
+                                    updatedUserInfo.setPassword(ServerUtil.safeHashPassword(password));
                                     
                                     if(CredentialsManager.modifyUser(user, updatedUserInfo))
                                     {
                                         String messageToSend = "The password for your account at https://jumbodinosaurs/ has been changed." + "\nIf this was not you contact us at jumbodinosaurs@gmail.com.";
-                                        DataController.sendEmail(updatedUserInfo.getEmail(),
-                                                                 "Password Changed",
-                                                                 messageToSend);
+                                        WebUtil.sendEmail(updatedUserInfo.getEmail(),
+                                                             "Password Changed",
+                                                             messageToSend);
                                         send400Code = false;
                                         response.setMessage200("passwordChanged");
                                         
@@ -438,7 +440,7 @@ public class HTTPHandler
                                         ArrayList<MinecraftWrittenBook> books = new Gson().fromJson(content, tokenType);
                                         if(books != null && postRequest.getListName() != null)
                                         {
-                                            String localPath = DataController.fixPathSeparator("/booklist/books.json");
+                                            String localPath = GeneralUtil.fixPathSeparator("/booklist/books.json");
                                             
                                             content = new Gson().toJson(books);
                                             
@@ -470,7 +472,7 @@ public class HTTPHandler
                                         MinecraftSign sign = new Gson().fromJson(content, MinecraftSign.class);
                                         if(sign != null && postRequest.getConnectionName() != null)
                                         {
-                                            String localPath = DataController.fixPathSeparator("/signlist/signs.json");
+                                            String localPath = GeneralUtil.fixPathSeparator("/signlist/signs.json");
                                             
                                             
                                             content = new Gson().toJson(sign);
@@ -501,8 +503,8 @@ public class HTTPHandler
                                     if(!tokenLogin)
                                     {
                                         
-                                        response.setMessage200(DataController.getCredentialsManager().getToken(user,
-                                                                                                               this.request.getIp()));
+                                        response.setMessage200(ServerUtil.getCredentialsManager().getToken(user,
+                                                                                                           this.request.getIp()));
                                         send400Code = false;
                                     }
                                     break;
@@ -572,7 +574,7 @@ public class HTTPHandler
                                         {
                                             String randomEmailCode = User.generateRandomEmailCode();
                                             String emailCode = this.request.getIp() + now.toString() + randomEmailCode;
-                                            String safeHash = DataController.safeHashPassword(emailCode);
+                                            String safeHash = ServerUtil.safeHashPassword(emailCode);
                                             String message = "You have been sent a code to verify your email at Jumbo Dinosaurs. \n" + "To verify your email you need to visit https://www.jumbodinosaurs.com/verifyemail.html and enter your code." + "\n\nCode for Verification: " + randomEmailCode + " \n\n\n   Regards, Jumbo";
                                             User updatedUserInfo = user.clone();
                                             updatedUserInfo.setEmailCode(safeHash);
@@ -580,9 +582,9 @@ public class HTTPHandler
                                             
                                             if(CredentialsManager.modifyUser(user, updatedUserInfo))
                                             {
-                                                if(DataController.sendEmail(user.getEmail(),
-                                                                            "Email Verification Code",
-                                                                            message))
+                                                if(WebUtil.sendEmail(user.getEmail(),
+                                                                     "Email Verification Code",
+                                                                     message))
                                                 {
                                                     send400Code = false;
                                                     response.setMessage200("codeSent");
@@ -633,7 +635,7 @@ public class HTTPHandler
             
             if(post != null && !send400Code)
             {
-                DataController.handOffPost(post);
+                ServerUtil.handOffPost(post);
                 //Message to send is determined case by case
             }
             
@@ -719,7 +721,7 @@ public class HTTPHandler
         {
             if(query.getFile() != null)
             {
-                ArrayList<WritablePost> pastPosts = DataController.getPastPostsFromPath(query.getFile());
+                ArrayList<WritablePost> pastPosts = ServerUtil.getPastPostsFromPath(query.getFile());
                 if(query.isGetPosts())
                 {
                     for(WritablePost pastPost : pastPosts)
@@ -783,7 +785,7 @@ public class HTTPHandler
             }
             else
             {
-                ArrayList<WritablePost> allPastPosts = DataController.getAllPostsList();
+                ArrayList<WritablePost> allPastPosts = ServerUtil.getAllPostsList();
                 if(query.isGetPosts())
                 {
                     for(WritablePost pastPost : allPastPosts)
@@ -842,7 +844,7 @@ public class HTTPHandler
                                 }
                                 break;
                             case "files":
-                                File[] filesInPost = DataController.listFilesRecursive(DataController.postDirectory);
+                                File[] filesInPost = GeneralUtil.listFilesRecursive(ServerUtil.postDirectory);
                                 for(File file : filesInPost)
                                 {
                                     String pathToParse = file.getAbsolutePath();

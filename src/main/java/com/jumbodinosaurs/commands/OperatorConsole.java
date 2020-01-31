@@ -7,7 +7,7 @@ import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.objects.Session;
-import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -37,12 +37,12 @@ public class OperatorConsole implements Runnable
         exceptions = 0;
         debug = true;
         
-        File[] oldSessionsLogs = DataController.listFilesRecursive(DataController.checkFor(DataController.logsDirectory,
-                                                                                           "Session " + "Logs"));
+        File[] oldSessionsLogs = ServerUtil.listFilesRecursive(ServerUtil.checkFor(ServerUtil.logsDirectory,
+                                                                                   "Session " + "Logs"));
         ArrayList<Session> pastSession = new ArrayList<Session>();
         for(File logFile: oldSessionsLogs)
         {
-            String fileContents = DataController.getFileContents(logFile);
+            String fileContents = ServerUtil.getFileContents(logFile);
             Type type = new TypeToken<ArrayList<Session>>()
             {}.getType();
             ArrayList<Session> sessions = new Gson().fromJson(fileContents, type);
@@ -71,7 +71,7 @@ public class OperatorConsole implements Runnable
                                                          boolean debugMessage,
                                                          boolean exception)
     {
-        //DataController.writeSilentConsole(message);
+        //ServerUtil.writeSilentConsole(message);
         if(exception)
         {
             exceptions++;

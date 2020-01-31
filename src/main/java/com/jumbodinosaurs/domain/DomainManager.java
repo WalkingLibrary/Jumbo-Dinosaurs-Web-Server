@@ -6,7 +6,7 @@ import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.GsonUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
-import com.jumbodinosaurs.util.DataController;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class DomainManager
 {
     private static ArrayList<Domain> domains;
-    private static File domainDir = GeneralUtil.checkFor(DataController.serverDataDir, "Domains");
+    private static File domainDir = GeneralUtil.checkFor(ServerUtil.serverDataDir, "Domains");
     private static File domainMemory = GeneralUtil.checkFor(domainDir, "domain.json");
     
     
@@ -72,7 +72,7 @@ public class DomainManager
     
     public static void refreshCertificateFiles()
     {
-        File[] certificates = GeneralUtil.listFilesRecursive(DataController.certificateDirectory);
+        File[] certificates = GeneralUtil.listFilesRecursive(ServerUtil.certificateDirectory);
     
         for(Domain domain : domains)
         {
@@ -83,7 +83,7 @@ public class DomainManager
                 {
                     //Certificates Should be JKS with .ks ending
                     //Example www.jumbodinosaurs.com.ks -> www.jumbodinosaurs.com
-                    String certificateFileDomainName = DataController.getTypelessName(certificate);
+                    String certificateFileDomainName = ServerUtil.getTypelessName(certificate);
         
                     if(certificateFileDomainName.equals(domain.getDomain()))
                     {

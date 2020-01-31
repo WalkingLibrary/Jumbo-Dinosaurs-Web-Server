@@ -5,42 +5,39 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.devlib.util.WebUtil;
+import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.*;
 
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DataController
+public class ServerUtil
 {
     public static String host = "";
     public static File codeExecutionDir = new File(System.getProperty("user.dir"));
-    public static File getDirectory = checkFor(codeExecutionDir, "Shared");
-    public static File logsDirectory = checkFor(codeExecutionDir, "LOG");
-    public static File certificateDirectory = checkFor(codeExecutionDir, "Certificates");
-    public static File userInfoDirectory = checkFor(codeExecutionDir, "UserInfo");
-    public static File postDirectory = checkFor(codeExecutionDir, "Post");
-    public static File timeOutHelperDir = checkFor(codeExecutionDir, "TimeoutHelper");
-    public static File serverDataDir = checkFor(codeExecutionDir, "Server Data");
+    public static File getDirectory = GeneralUtil.checkFor(codeExecutionDir, "Shared");
+    public static File logsDirectory = GeneralUtil.checkFor(codeExecutionDir, "LOG");
+    public static File certificateDirectory = GeneralUtil.checkFor(codeExecutionDir, "Certificates");
+    public static File userInfoDirectory = GeneralUtil.checkFor(codeExecutionDir, "UserInfo");
+    public static File postDirectory = GeneralUtil.checkFor(codeExecutionDir, "Post");
+    public static File timeOutHelperDir = GeneralUtil.checkFor(codeExecutionDir, "TimeoutHelper");
+    public static File serverDataDir = GeneralUtil.checkFor(codeExecutionDir, "Server Data");
     public static ArrayList<File> domainSpecificFiles = new ArrayList<File>();
     private static SessionLogger logger;
     private static PostWriter postWriter;
     private static CredentialsManager credentialsManager;
     
-    public DataController(boolean makePageWithDomains)
+    public ServerUtil(boolean makePageWithDomains)
     {
         try
         {
@@ -57,7 +54,7 @@ public class DataController
                 {
                     //www.jumbodinosaurs.com - > jumbodinosaurs
                     String secondLevelDomainName = domain.getSecondLevelDomainName();
-                    File secondLevelDomainNameFile = checkFor(getDirectory, secondLevelDomainName);
+                    File secondLevelDomainNameFile = GeneralUtil.checkFor(getDirectory, secondLevelDomainName);
                     boolean needToAdd = true;
                     for(File fileToCheck : domainSpecificFiles)
                     {
@@ -88,169 +85,9 @@ public class DataController
         catch(Exception e)
         {
             
-            System.out.println("Error Creating DataController");
+            System.out.println("Error Creating ServerUtil");
             e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating DataController", false, true);
-        }
-    }
-    
-    
-    /* @Function: Checks for the String name in the given Dir of File file
-     * returns it and makes it if not there.
-     *
-     * @Return: desired name within file
-     * @param1: File file Dir to search for name in
-     * @param2: String Name name to search for in file
-     * @PreCondition: File must be a Dir and also Exist
-     */
-    public static File checkFor(File file,
-                                String name)
-    {
-        boolean needToMakeFile = true;
-        String[] contentsOfFile = file.list();
-        for(int i = 0; i < contentsOfFile.length; i++)
-        {
-            if(contentsOfFile.equals(name))
-            {
-                needToMakeFile = false;
-            }
-        }
-        
-        File neededFile = new File(file.getPath() + "/" + name);
-        if(needToMakeFile)
-        {
-            if(name.indexOf(".") >= 0)
-            {
-                try
-                {
-                    neededFile.createNewFile();
-                }
-                catch(Exception e)
-                {
-                    OperatorConsole.printMessageFiltered("Error Createing File", false, true);
-                }
-            }
-            else
-            {
-                neededFile.mkdir();
-            }
-        }
-        return neededFile;
-    }
-    
-    
-    /*
-         tl;dr it checks the given file for the given local path and makes it if it's not there
-
-         Example: /home/systemop -> File file
-                  /stats/home.txt -> String localPath
-                  checks for /home/systemop/stats/home.txt
-                  if not there then it will check and make each file in the local path
-
-                
-                  This function should never have Non-Operator Made localPaths Run thru it.
-
-     */
-    public static File checkForLocalPath(File file,
-                                         String localPath)
-    {
-        localPath = fixPathSeparator(localPath);
-        ArrayList<String> levels = new ArrayList<String>();
-        String temp = localPath;
-        String level = "";
-        
-        if(temp.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
-        {
-            temp = File.separator + temp;
-        }
-        
-        if(temp.lastIndexOf(File.separator) != temp.length())// make /helloworld/hello.json into /helloworld/hello.json/
-        {
-            temp += File.separator;
-        }
-        
-        
-        char[] tempchars = temp.toCharArray();
-        int indexOfLastSlash = 0;
-        
-        for(int i = 1; i < temp.length(); i++)
-        {
-            if(tempchars[i] == File.separatorChar)
-            {
-                level = temp.substring(indexOfLastSlash + 1, i);
-                levels.add(level);
-                indexOfLastSlash = i;
-            }
-        }
-        
-        File lastParent = file;
-        for(String subPath : levels)
-        {
-            try
-            {
-                File fileToMake = checkFor(lastParent, subPath);
-                lastParent = fileToMake;
-            }
-            catch(Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error checking for Local Path", false, true);
-                e.printStackTrace();
-            }
-            
-        }
-        return lastParent;
-    }
-    
-    
-    public static String fixPathSeparator(String path)
-    {
-        
-        char[] charToChange = path.toCharArray();
-        if(File.separator.equals("\\"))
-        {
-            for(int i = 0; i < charToChange.length; i++)
-            {
-                if(charToChange[i] == '/')
-                {
-                    charToChange[i] = '\\';
-                }
-            }
-        }
-        else
-        {
-            for(int i = 0; i < charToChange.length; i++)
-            {
-                if(charToChange[i] == '\\')
-                {
-                    charToChange[i] = '/';
-                }
-            }
-        }
-        
-        String pathToReturn = "";
-        for(char character : charToChange)
-        {
-            pathToReturn += character;
-        }
-        
-        return pathToReturn;
-        
-    }
-    
-    
-    public static void writeContents(File fileToWrite,
-                                     String contents,
-                                     boolean append)
-    {
-        try
-        {
-            PrintWriter output = new PrintWriter(new FileOutputStream(fileToWrite, append));
-            output.write(contents);
-            output.close();
-        }
-        catch(Exception e)
-        {
-            OperatorConsole.printMessageFiltered("Error Writing to File", false, true);
+            OperatorConsole.printMessageFiltered("Error Creating ServerUtil", false, true);
         }
     }
     
@@ -275,15 +112,6 @@ public class DataController
         return domains;
     }
     
-    public static String getType(File file)
-    {
-        String temp = file.getName();
-        while(temp.indexOf(".") > -1)
-        {
-            temp = temp.substring(temp.indexOf(".") + 1);
-        }
-        return temp;
-    }
     
     public static String getTypelessName(File file)
     {
@@ -305,8 +133,8 @@ public class DataController
                 WritablePost sanitizedPost = WritablePost.getSanitized(post);
                 
                 
-                File fileToWriteTo = checkForLocalPath(postDirectory, sanitizedPost.getLocalPath());
-                String fileContents = getFileContents(fileToWriteTo);
+                File fileToWriteTo = GeneralUtil.checkForLocalPath(postDirectory, sanitizedPost.getLocalPath());
+                String fileContents = GeneralUtil.scanFileContents(fileToWriteTo);
                 Type typeToken = new TypeToken<ArrayList<WritablePost>>()
                 {}.getType();
                 ArrayList<WritablePost> pastPosts = new Gson().fromJson(fileContents, typeToken);
@@ -320,7 +148,7 @@ public class DataController
                     pastPosts.add(sanitizedPost);
                 }
                 String contentsToWrite = new Gson().toJson(pastPosts);
-                writeContents(fileToWriteTo, contentsToWrite, false);
+                GeneralUtil.writeContents(fileToWriteTo, contentsToWrite, false);
             }
         }
         catch(Exception e)
@@ -333,10 +161,10 @@ public class DataController
     public static ArrayList<WritablePost> getAllPostsList()
     {
         ArrayList<WritablePost> allPastPosts = new ArrayList<WritablePost>();
-        File[] filesInPostFolder = listFilesRecursive(postDirectory);
+        File[] filesInPostFolder = GeneralUtil.listFilesRecursive(postDirectory);
         for(File file : filesInPostFolder)
         {
-            String contents = DataController.getFileContents(file);
+            String contents = GeneralUtil.scanFileContents(file);
             Type typeToken = new TypeToken<ArrayList<WritablePost>>()
             {}.getType();
             try
@@ -360,7 +188,7 @@ public class DataController
         {
             Type typeToken = new TypeToken<ArrayList<WritablePost>>()
             {}.getType();
-            return new Gson().fromJson(getFileContents(fileToRead), typeToken);
+            return new Gson().fromJson(GeneralUtil.scanFileContents(fileToRead), typeToken);
         }
         return null;
     }
@@ -369,11 +197,9 @@ public class DataController
     //Returns the fileWanted if it is in the directory given.
     //The Code Returns null if the file is not in the directory
     //Works with local paths
-    public static File safeSearchDir(File dirToSearch,
-                                     String localPath,
-                                     boolean matchPath)
+    public static File safeSearchDir(File dirToSearch, String localPath, boolean matchPath)
     {
-        localPath = fixPathSeparator(localPath);
+        localPath = GeneralUtil.fixPathSeparator(localPath);
         
         
         if(localPath.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
@@ -384,7 +210,7 @@ public class DataController
         
         File fileToGive = null;
         //Gets all files in allowedDir
-        File[] filesInAllowedDir = listFilesRecursive(dirToSearch);
+        File[] filesInAllowedDir = GeneralUtil.listFilesRecursive(dirToSearch);
         //If count is greater than 1 might have duplicate files and could be a problem
         int count = 0;
         
@@ -424,8 +250,10 @@ public class DataController
     {
         try
         {
-            String localPath = "/Session Logs/" + sessionDate.getYear() + "/" + sessionDate.getMonth() + "/" + sessionDate.getDayOfMonth() + "/" + sessionDate.getHour() + "/" + "logs.json";
-            File logFile = checkForLocalPath(logsDirectory, localPath);
+            String localPath = "/Session Logs/" + sessionDate.getYear() + "/" + sessionDate.getMonth() + "/" + sessionDate
+                                                                                                                       .getDayOfMonth() + "/" + sessionDate
+                                                                                                                                                        .getHour() + "/" + "logs.json";
+            File logFile = GeneralUtil.checkForLocalPath(logsDirectory, localPath);
             return logFile;
         }
         catch(Exception e)
@@ -437,27 +265,6 @@ public class DataController
         return null;
     }
     
-    
-    //For Reading any file on the system
-    public static String getFileContents(File file)
-    {
-        //Read File
-        String fileRequestedContents = "";
-        try
-        {
-            Scanner input = new Scanner(file);
-            while(input.hasNextLine())
-            {
-                fileRequestedContents += input.nextLine();
-            }
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Reading File Contents", false, true);
-        }
-        return fileRequestedContents;
-    }
     
     public static byte[] readZip(File file)
     {
@@ -474,64 +281,6 @@ public class DataController
             e.printStackTrace();
         }
         return fileContents;
-    }
-    
-    
-    //https://dzone.com/articles/sending-mail-using-javamail-api-for-gmail-server
-    public static boolean sendEmail(String userEmailAddress,
-                                    String topic,
-                                    String message)
-    {
-        if(ServerControl.getArguments() != null && ServerControl.getArguments().getEmails() != null && ServerControl.getArguments().getEmails().size() > 0)
-        {
-            Email email = ServerControl.getArguments().getEmails().get(0);
-            String emailUsername, emailPassword;
-            emailUsername = email.getUsername();
-            emailPassword = email.getPassword();
-            //Setting up configurations for the email connection to the Google SMTP server using TLS
-            Properties props = new Properties();
-            props.put("mail.smtp.host", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.host", "smtp.gmail.com");
-            props.put("mail.smtp.port", "587");
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            //Establishing a session with required user details
-            javax.mail.Session session = javax.mail.Session.getInstance(props, new javax.mail.Authenticator()
-            {
-                protected PasswordAuthentication getPasswordAuthentication()
-                {
-                    return new PasswordAuthentication(emailUsername, emailPassword);
-                }
-            });
-            
-            try
-            {
-                //Creating a Message object to set the email content
-                MimeMessage msg = new MimeMessage(session);
-                //Storing the comma seperated values to email addresses
-                String to = userEmailAddress;
-                /*Parsing the String with default delimiter as a comma by marking the boolean as true and storing the email
-                addresses in an array of InternetAddress objects*/
-                InternetAddress[] address = InternetAddress.parse(to, true);
-                //Setting the recepients from the address variable
-                msg.setRecipients(Message.RecipientType.TO, address);
-                
-                msg.setSubject(topic);
-                msg.setSentDate(new Date());
-                msg.setText(message);
-                msg.setHeader("XPriority", "1");
-                Transport.send(msg);
-                return true;
-            }
-            catch(Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error Sending E-Mail", false, true);
-                e.printStackTrace();
-            }
-        }
-        return false;
     }
     
     
@@ -607,8 +356,9 @@ public class DataController
                                 {
                                     MinecraftSign pastSign = new Gson().fromJson(pastPost.getContent(),
                                                                                  MinecraftSign.class);
-                                    if(pastSign.getDateLess().equals(temporaySanitizedSign.getDateLess()) && pastPost.getPostIdentifier().equals(
-                                            thisPostConnection))
+                                    if(pastSign.getDateLess()
+                                               .equals(temporaySanitizedSign.getDateLess()) && pastPost.getPostIdentifier()
+                                                                                                       .equals(thisPostConnection))
                                     {
                                         spamSign = true;
                                     }
@@ -737,8 +487,7 @@ public class DataController
     }
     
     
-    public static String pingMCServer(String ip,
-                                      int port)
+    public static String pingMCServer(String ip, int port)
     {
         String response = null;
         try
@@ -803,8 +552,8 @@ public class DataController
         LocalDateTime now = LocalDateTime.now();
         
         Type typeToken = new TypeToken<ArrayList<PastPing>>() {}.getType();
-        File pastMcPingsFile = checkForLocalPath(logsDirectory, "/pings/mcpings.json");
-        String contents = getFileContents(pastMcPingsFile);
+        File pastMcPingsFile = GeneralUtil.checkForLocalPath(logsDirectory, "/pings/mcpings.json");
+        String contents = GeneralUtil.scanFileContents(pastMcPingsFile);
         ArrayList<PastPing> pastPings = new Gson().fromJson(contents, typeToken);
         PastPing thisPing = null;
         
@@ -863,7 +612,7 @@ public class DataController
         
         pastPings.add(thisPing);
         String pastPingsJsonString = new Gson().toJson(pastPings);
-        writeContents(pastMcPingsFile, pastPingsJsonString, false);
+        GeneralUtil.writeContents(pastMcPingsFile, pastPingsJsonString, false);
         return thisPing.isGoodPing();
     }
     
@@ -889,73 +638,6 @@ public class DataController
         return temp;
     }
     
-    public static URLResponse getResponse(HttpURLConnection connection)
-    {
-        URLResponse urlResponse = null;
-        try
-        {
-            int returnCode = connection.getResponseCode();
-            InputStream connectionIn = null;
-            if(returnCode == 200)
-            {
-                connectionIn = connection.getInputStream();
-            }
-            else
-            {
-                connectionIn = connection.getErrorStream();
-            }
-            
-            
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connectionIn));
-            String response = "";
-            while(bufferedReader.ready())
-            {
-                response += bufferedReader.readLine();
-            }
-            
-            urlResponse = new URLResponse(returnCode, response);
-        }
-        catch(IOException e)
-        {
-            OperatorConsole.printMessageFiltered("URL Connection Exception", true, false);
-        }
-        return urlResponse;
-    }
-    
-    
-    public static URLResponse getResponse(HttpsURLConnection connection)
-    {
-        URLResponse urlResponse = null;
-        try
-        {
-            int returnCode = connection.getResponseCode();
-            InputStream connectionIn = null;
-            if(returnCode == 200)
-            {
-                connectionIn = connection.getInputStream();
-            }
-            else
-            {
-                connectionIn = connection.getErrorStream();
-            }
-            
-            
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connectionIn));
-            String response = "";
-            while(bufferedReader.ready())
-            {
-                response += bufferedReader.readLine();
-            }
-            
-            urlResponse = new URLResponse(returnCode, response);
-        }
-        catch(IOException e)
-        {
-            OperatorConsole.printMessageFiltered("URL Connection Exception", true, false);
-        }
-        return urlResponse;
-    }
-    
     
     public static byte[] readPhoto(File file)
     {
@@ -975,45 +657,6 @@ public class DataController
         return null;
     }
     
-    public static File[] listFilesRecursive(File directory)
-    {
-        ArrayList<File> files = new ArrayList<File>();
-        for(File file : directory.listFiles())
-        {
-            if(file.isDirectory())
-            {
-                files.addAll(Arrays.asList(listFilesRecursive(file)));
-            }
-            else
-            {
-                files.add(file);
-            }
-        }
-        File[] filesToReturn = new File[files.size()];
-        for(int i = 0; i < files.size(); i++)
-        {
-            filesToReturn[i] = files.get(i);
-        }
-        return filesToReturn;
-    }
-
-
-
-    /*
-    public String getPictureLength(String pictureName)
-    {
-        String contents = "";
-        for (String[] content : this.pictureFilesContents)
-        {
-            if (content[0].equals(this.getFileFromGETDirectory(pictureName).getAbsolutePath()))
-            {
-                contents = "" + content[1].getBytes().length;
-                break;
-            }
-        }
-        return contents;
-    }
-    */
     
     public static StringBuffer replaceUnicodeCharacters(String data)
     {
@@ -1067,7 +710,7 @@ public class DataController
         {
             URL address = new URL("http://bot.whatismyipaddress.com");
             HttpURLConnection connection = (HttpURLConnection) address.openConnection();
-            URLResponse ipResponse = getResponse(connection);
+            HttpResponse ipResponse = WebUtil.getResponse(connection);
             host = ipResponse.getResponse();
             OperatorConsole.printMessageFiltered("Public IP: " + host, false, false);
             
@@ -1078,41 +721,7 @@ public class DataController
             OperatorConsole.printMessageFiltered("Error Setting Host", false, true);
         }
     }
-
-    /*
-    public static void writeSilentConsole(String message)
-    {
-        try
-        {
-            if(logsDirectory != null)
-            {
-                File fileToWriteTo = checkFor(logsDirectory, "silentconsole.json");
-                String contents = getFileContents(fileToWriteTo);
-                LocalDateTime now = LocalDateTime.now();
-                SilentConsoleMessage consoleMessage = new SilentConsoleMessage(message, now.toString());
-                Type type = new TypeToken<ArrayList<SilentConsoleMessage>>(){}.getType();
-                ArrayList<SilentConsoleMessage> messages = new Gson().fromJson(contents, type);
-                if(messages != null)
-                {
-                    messages.add(consoleMessage);
-                }
-                else
-                {
-                    messages = new ArrayList<SilentConsoleMessage>();
-                    messages.add(consoleMessage);
-                }
-                String messagesJson = new Gson().toJson(messages);
-                writeContents(fileToWriteTo, messagesJson, false);
-            }
-
-        }
-        catch (Exception e)
-        {
-            System.out.println("Problems with silent console");
-            e.printStackTrace();
-        }
-    }
-    */
+    
     
     public String getHost()
     {
@@ -1123,20 +732,20 @@ public class DataController
     {
         try
         {
-            File pageIndex = checkFor(getDirectory, "index.html");
+            File pageIndex = GeneralUtil.checkFor(getDirectory, "index.html");
             String indexHTML = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "Index\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h4>\n" + "Sites<br>";
             
-            for(File file : listFilesRecursive(getDirectory))
+            for(File file : GeneralUtil.listFilesRecursive(getDirectory))
             {
                 indexHTML += "<a href = http://" + host + "/" + file.getName() + ">" + host + "/" + file.getName() + "</a><br>";
             }
             
             indexHTML += "</h4>\n" + "</body>\n" + "</html>";
-            writeContents(pageIndex, indexHTML, false);
+            GeneralUtil.writeContents(pageIndex, indexHTML, false);
             
-            File page404 = checkFor(getDirectory, "404.html");
+            File page404 = GeneralUtil.checkFor(getDirectory, "404.html");
             String HTML404 = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "404 :(\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h1>\n" + "404 - File has Either Been Moved or Relocated\n" + "</h1>\n" + "<a href = \"./index.html\">Index</a>\n" + "</body>\n" + "</html>";
-            writeContents(page404, HTML404, false);
+            GeneralUtil.writeContents(page404, HTML404, false);
         }
         catch(Exception e)
         {
@@ -1149,18 +758,18 @@ public class DataController
     {
         try
         {
-            File pageIndex = checkFor(getDirectory, "index.html");
+            File pageIndex = GeneralUtil.checkFor(getDirectory, "index.html");
             String indexHTML = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "Index\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h4>\n" + "Sites<br>";
             for(String domain : getDomains())
             {
                 indexHTML += "<a href = http://" + domain + ">" + domain + "</a><br>";
             }
             indexHTML += "</h4>\n" + "</body>\n" + "</html>";
-            writeContents(pageIndex, indexHTML, false);
+            GeneralUtil.writeContents(pageIndex, indexHTML, false);
             
-            File page404 = checkFor(getDirectory, "404.html");
+            File page404 = GeneralUtil.checkFor(getDirectory, "404.html");
             String HTML404 = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "404 :(\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h1>\n" + "404 - File has Either Been Moved or Relocated\n" + "</h1>\n" + "<a href = \"./index.html\">Index</a>\n" + "</body>\n" + "</html>";
-            writeContents(page404, HTML404, false);
+            GeneralUtil.writeContents(page404, HTML404, false);
             
         }
         catch(Exception e)

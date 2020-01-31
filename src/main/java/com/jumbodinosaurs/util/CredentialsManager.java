@@ -3,6 +3,7 @@ package com.jumbodinosaurs.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.objects.FloatUser;
 import com.jumbodinosaurs.objects.User;
 
@@ -79,8 +80,8 @@ public class CredentialsManager
         ArrayList<User> users = new ArrayList<User>();
         try
         {
-            File usersInfo = DataController.checkFor(DataController.userInfoDirectory, "userinfo.json");
-            String fileContents = DataController.getFileContents(usersInfo);
+            File usersInfo = GeneralUtil.checkFor(ServerUtil.userInfoDirectory, "userinfo.json");
+            String fileContents = GeneralUtil.scanFileContents(usersInfo);
             Type typeToken = new TypeToken<ArrayList<User>>()
             {}.getType();
             users = new Gson().fromJson(fileContents, typeToken);
@@ -91,7 +92,7 @@ public class CredentialsManager
             
             for(User user : users)
             {
-                user.setPassword(DataController.replaceUnicodeCharacters(user.getPassword()).toString());
+                user.setPassword(ServerUtil.replaceUnicodeCharacters(user.getPassword()).toString());
             }
             
         }
@@ -197,6 +198,21 @@ public class CredentialsManager
         setWatchList(abusers);
     }
     
+    public static void setUserList(ArrayList<User> users)
+    {
+        try
+        {
+            String listToWrite = new Gson().toJson(users);
+            File usersInfo = GeneralUtil.checkFor(ServerUtil.userInfoDirectory, "userinfo.json");
+            GeneralUtil.writeContents(usersInfo, listToWrite, false);
+        }
+        catch(Exception e)
+        {
+            OperatorConsole.printMessageFiltered("Error writing to User List", false, true);
+            e.printStackTrace();
+        }
+    }
+    
     public static ArrayList<FloatUser> getWatchList()
     {
         ArrayList<FloatUser> watchList = new ArrayList<FloatUser>();
@@ -204,8 +220,8 @@ public class CredentialsManager
         {
             Type typeToken = new TypeToken<ArrayList<FloatUser>>()
             {}.getType();
-            File watchListFile = DataController.checkFor(DataController.timeOutHelperDir, "watchlist.json");
-            String fileContents = DataController.getFileContents(watchListFile);
+            File watchListFile = GeneralUtil.checkFor(ServerUtil.timeOutHelperDir, "watchlist.json");
+            String fileContents = GeneralUtil.scanFileContents(watchListFile);
             watchList = new Gson().fromJson(fileContents, typeToken);
         }
         catch(Exception e)
@@ -216,88 +232,18 @@ public class CredentialsManager
         return watchList;
     }
     
-    public synchronized String getTokenOneUse(User userToMint,
-                                              String ip)
+    public static void setWatchList(ArrayList<FloatUser> users)
     {
-        String token = null;
-        LocalDateTime now = LocalDateTime.now();
-        String hundredCharRandom = User.generateRandom();
-        String tokenTemp = hundredCharRandom.substring(0, 50);
-        String tokenRandom = hundredCharRandom.substring(50);
-        String password = ip + tokenTemp + now.toString() + tokenRandom;
         try
         {
-            String hash = DataController.safeHashPassword(password);
-            User updatedUserInfo = userToMint.clone();
-            updatedUserInfo.setTokenRandom(tokenRandom);
-            updatedUserInfo.setTokenDate(now);
-            updatedUserInfo.setToken(hash);
-            updatedUserInfo.setTokenIsOneUse(true);
-            //The user should only receive this minted token by email.
-            updatedUserInfo.setTokenRandomToSend("");
-            if(modifyUser(userToMint, updatedUserInfo))
-            {
-                token = tokenTemp;
-            }
-            else
-            {
-                OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
-            }
-            
+            File fileToWriteTo = GeneralUtil.checkFor(ServerUtil.timeOutHelperDir, "watchlist.json");
+            String contentsToWrite = new Gson().toJson(users);
+            GeneralUtil.writeContents(fileToWriteTo, contentsToWrite, false);
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error getting Token", false, true);
+            OperatorConsole.printMessageFiltered("Error Getting timoutFile", false, true);
             e.printStackTrace();
-        }
-        
-        return token;
-    }
-    
-    public synchronized String getToken(User userToMint,
-                                        String ip)
-    {
-        if(userToMint.getTokenRandomToSend() != null)
-        {
-            return userToMint.getTokenRandomToSend();
-        }
-        else
-        {
-            String token = null;
-            LocalDateTime now = LocalDateTime.now();
-            
-            String hundredCharRandom = User.generateRandom();
-            String tokenTemp = hundredCharRandom.substring(0, 50);
-            String tokenRandom = hundredCharRandom.substring(50);
-            
-            String password = ip + tokenTemp + now.toString() + tokenRandom;
-            try
-            {
-                String hash = DataController.safeHashPassword(password);
-                
-                User updatedUserInfo = userToMint.clone();
-                updatedUserInfo.setTokenRandom(tokenRandom);
-                updatedUserInfo.setTokenDate(now);
-                updatedUserInfo.setToken(hash);
-                updatedUserInfo.setTokenIsOneUse(false);
-                updatedUserInfo.setTokenRandomToSend(tokenTemp);
-                if(modifyUser(userToMint, updatedUserInfo))
-                {
-                    token = tokenTemp;
-                }
-                else
-                {
-                    OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
-                }
-                
-            }
-            catch(Exception e)
-            {
-                OperatorConsole.printMessageFiltered("Error getting Token", false, true);
-                e.printStackTrace();
-            }
-            
-            return token;
         }
     }
     
@@ -340,19 +286,42 @@ public class CredentialsManager
         return false;
     }
     
-    public static void setUserList(ArrayList<User> users)
+    public synchronized String getTokenOneUse(User userToMint,
+                                              String ip)
     {
+        String token = null;
+        LocalDateTime now = LocalDateTime.now();
+        String hundredCharRandom = User.generateRandom();
+        String tokenTemp = hundredCharRandom.substring(0, 50);
+        String tokenRandom = hundredCharRandom.substring(50);
+        String password = ip + tokenTemp + now.toString() + tokenRandom;
         try
         {
-            String listToWrite = new Gson().toJson(users);
-            File usersInfo = DataController.checkFor(DataController.userInfoDirectory, "userinfo.json");
-            DataController.writeContents(usersInfo, listToWrite, false);
+            String hash = ServerUtil.safeHashPassword(password);
+            User updatedUserInfo = userToMint.clone();
+            updatedUserInfo.setTokenRandom(tokenRandom);
+            updatedUserInfo.setTokenDate(now);
+            updatedUserInfo.setToken(hash);
+            updatedUserInfo.setTokenIsOneUse(true);
+            //The user should only receive this minted token by email.
+            updatedUserInfo.setTokenRandomToSend("");
+            if(modifyUser(userToMint, updatedUserInfo))
+            {
+                token = tokenTemp;
+            }
+            else
+            {
+                OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
+            }
+            
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error writing to User List", false, true);
+            OperatorConsole.printMessageFiltered("Error getting Token", false, true);
             e.printStackTrace();
         }
+        
+        return token;
     }
     
     public static boolean isIPCaptchaLocked(String ip)
@@ -523,18 +492,50 @@ public class CredentialsManager
         return null;
     }
     
-    public static void setWatchList(ArrayList<FloatUser> users)
+    public synchronized String getToken(User userToMint,
+                                        String ip)
     {
-        try
+        if(userToMint.getTokenRandomToSend() != null)
         {
-            File fileToWriteTo = DataController.checkFor(DataController.timeOutHelperDir, "watchlist.json");
-            String contentsToWrite = new Gson().toJson(users);
-            DataController.writeContents(fileToWriteTo, contentsToWrite, false);
+            return userToMint.getTokenRandomToSend();
         }
-        catch(Exception e)
+        else
         {
-            OperatorConsole.printMessageFiltered("Error Getting timoutFile", false, true);
-            e.printStackTrace();
+            String token = null;
+            LocalDateTime now = LocalDateTime.now();
+            
+            String hundredCharRandom = User.generateRandom();
+            String tokenTemp = hundredCharRandom.substring(0, 50);
+            String tokenRandom = hundredCharRandom.substring(50);
+            
+            String password = ip + tokenTemp + now.toString() + tokenRandom;
+            try
+            {
+                String hash = ServerUtil.safeHashPassword(password);
+                
+                User updatedUserInfo = userToMint.clone();
+                updatedUserInfo.setTokenRandom(tokenRandom);
+                updatedUserInfo.setTokenDate(now);
+                updatedUserInfo.setToken(hash);
+                updatedUserInfo.setTokenIsOneUse(false);
+                updatedUserInfo.setTokenRandomToSend(tokenTemp);
+                if(modifyUser(userToMint, updatedUserInfo))
+                {
+                    token = tokenTemp;
+                }
+                else
+                {
+                    OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
+                }
+                
+            }
+            catch(Exception e)
+            {
+                OperatorConsole.printMessageFiltered("Error getting Token", false, true);
+                e.printStackTrace();
+            }
+            
+            return token;
         }
     }
     
@@ -574,7 +575,7 @@ public class CredentialsManager
         }
         
         
-        String hashedPassword = DataController.safeHashPassword(password);
+        String hashedPassword = ServerUtil.safeHashPassword(password);
         
         if(hashedPassword.equals(""))
         {

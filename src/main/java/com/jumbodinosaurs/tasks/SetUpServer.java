@@ -2,11 +2,11 @@ package com.jumbodinosaurs.tasks;
 
 import com.jumbodinosaurs.netty.handler.SessionHandler;
 
-public class InitilizeSessionHandler implements Runnable
+public class SetUpServer implements Runnable
 {
     private SessionHandler sessionHandler;
     
-    public InitilizeSessionHandler(SessionHandler sessionHandler)
+    public SetUpServer(SessionHandler sessionHandler)
     {
         this.sessionHandler = sessionHandler;
     }
