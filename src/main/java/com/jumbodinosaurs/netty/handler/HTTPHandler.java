@@ -107,7 +107,7 @@ public class HTTPHandler
                         if(!ServerUtil.readPhoto(fileRequested).equals(""))
                         {
                             
-                            headers += this.contentImageHeader + ServerUtil.getType(fileRequested);
+                            headers += this.contentImageHeader + GeneralUtil.getType(fileRequested);
                             byte[] photoBytes = ServerUtil.readPhoto(fileRequested);
                             headers += this.contentLengthHeader + photoBytes.length;
                             //this.messageToSend += this.contentLengthHeader + dataIO.getPictureLength(fileRequested.getName());

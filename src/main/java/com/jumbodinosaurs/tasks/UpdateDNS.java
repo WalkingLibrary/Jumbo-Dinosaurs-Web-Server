@@ -11,10 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public class UpdateDNS implements Runnable
+public class UpdateDNS extends ServerTask
 {
     private UpdatableDomain domain;
-    
+    //TODO make it update all domains
     public UpdateDNS(UpdatableDomain domain)
     {
         this.domain = domain;

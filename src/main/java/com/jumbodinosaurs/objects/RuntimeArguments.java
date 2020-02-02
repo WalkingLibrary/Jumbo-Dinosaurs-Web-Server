@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.objects;
 
-import com.jumbodinosaurs.devlib.util.objects.Email;
+import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.domain.util.Domain;
 
 import java.util.ArrayList;

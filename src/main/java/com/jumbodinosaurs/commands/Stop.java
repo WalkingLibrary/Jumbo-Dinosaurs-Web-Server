@@ -3,8 +3,8 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.log.SessionLogger;
 import com.jumbodinosaurs.util.PostWriter;
-import com.jumbodinosaurs.util.SessionLogger;
 
 public class Stop extends Command
 {

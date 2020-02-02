@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.objects;
+package com.jumbodinosaurs.log;
 
 
 import io.netty.channel.Channel;

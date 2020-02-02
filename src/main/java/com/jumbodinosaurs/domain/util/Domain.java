@@ -2,10 +2,14 @@ package com.jumbodinosaurs.domain.util;
 
 import com.google.gson.Gson;
 
+import java.io.File;
+
 public class Domain
 {
     private String domain;
     private String type;
+    private transient File getDir;
+    private transient File postDir;
     
     public Domain(String domain)
     {
@@ -46,5 +50,25 @@ public class Domain
     public void setType(String type)
     {
         this.type = type;
+    }
+    
+    public File getGetDir()
+    {
+        return getDir;
+    }
+    
+    public void setGetDir(File getDir)
+    {
+        this.getDir = getDir;
+    }
+    
+    public File getPostDir()
+    {
+        return postDir;
+    }
+    
+    public void setPostDir(File postDir)
+    {
+        this.postDir = postDir;
     }
 }

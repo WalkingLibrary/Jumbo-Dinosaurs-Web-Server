@@ -10,15 +10,10 @@ public class PostWriter implements Runnable
 {
     public static ArrayList<WritablePost> postsToWrite = new ArrayList<WritablePost>();
     
-    public PostWriter()
+    
+    public static synchronized void addPost(WritablePost post)
     {
-    
-    }
-    
-    
-    public synchronized void addPost(WritablePost post)
-    {
-        this.postsToWrite.add(post);
+        postsToWrite.add(post);
     }
     
     public void run()
@@ -39,6 +34,12 @@ public class PostWriter implements Runnable
             e.printStackTrace();
             OperatorConsole.printMessageFiltered("Error Logging Session", false, true);
         }
+    }
+    
+    public static void initializePostWriter()
+    {
+        Thread postWriterThread = new Thread(new PostWriter());
+        postWriterThread.start();
     }
     
     

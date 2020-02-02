@@ -3,13 +3,14 @@ package com.jumbodinosaurs.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
-import com.jumbodinosaurs.domain.util.Domain;
-import com.jumbodinosaurs.objects.*;
+import com.jumbodinosaurs.objects.MinecraftSign;
+import com.jumbodinosaurs.objects.MinecraftWrittenBook;
+import com.jumbodinosaurs.objects.PastPing;
+import com.jumbodinosaurs.objects.WritablePost;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -25,92 +26,14 @@ public class ServerUtil
 {
     public static String host = "";
     public static File codeExecutionDir = new File(System.getProperty("user.dir"));
-    public static File getDirectory = GeneralUtil.checkFor(codeExecutionDir, "Shared");
-    public static File logsDirectory = GeneralUtil.checkFor(codeExecutionDir, "LOG");
-    public static File certificateDirectory = GeneralUtil.checkFor(codeExecutionDir, "Certificates");
-    public static File userInfoDirectory = GeneralUtil.checkFor(codeExecutionDir, "UserInfo");
-    public static File postDirectory = GeneralUtil.checkFor(codeExecutionDir, "Post");
-    public static File timeOutHelperDir = GeneralUtil.checkFor(codeExecutionDir, "TimeoutHelper");
+    public static File getDirectory = GeneralUtil.checkFor(codeExecutionDir, "GET");
+    public static File postDirectory = GeneralUtil.checkFor(codeExecutionDir, "POST");
     public static File serverDataDir = GeneralUtil.checkFor(codeExecutionDir, "Server Data");
-    public static ArrayList<File> domainSpecificFiles = new ArrayList<File>();
-    private static SessionLogger logger;
-    private static PostWriter postWriter;
-    private static CredentialsManager credentialsManager;
-    
-    public ServerUtil(boolean makePageWithDomains)
-    {
-        try
-        {
-            credentialsManager = new CredentialsManager();
-            OperatorConsole.printMessageFiltered("Code Execution Dir: " + codeExecutionDir.getAbsolutePath(),
-                                                 true,
-                                                 false);
-            this.setHost();
-            if(makePageWithDomains)
-            {
-                this.makeSiteIndexand404PageWthDomains();
-                ArrayList<Domain> domains = ServerControl.getArguments().getDomains();
-                for(Domain domain : domains)
-                {
-                    //www.jumbodinosaurs.com - > jumbodinosaurs
-                    String secondLevelDomainName = domain.getSecondLevelDomainName();
-                    File secondLevelDomainNameFile = GeneralUtil.checkFor(getDirectory, secondLevelDomainName);
-                    boolean needToAdd = true;
-                    for(File fileToCheck : domainSpecificFiles)
-                    {
-                        if(fileToCheck.getAbsolutePath().equals(secondLevelDomainNameFile.getAbsolutePath()))
-                        {
-                            needToAdd = false;
-                        }
-                    }
-                    if(needToAdd)
-                    {
-                        domainSpecificFiles.add(secondLevelDomainNameFile);
-                    }
-                }
-            }
-            else
-            {
-                this.makeSiteIndexand404PageDefault();
-            }
-            //For logging sessions thread
-            logger = new SessionLogger();
-            Thread loggerThread = new Thread(logger);
-            loggerThread.start();
-            
-            postWriter = new PostWriter();
-            Thread postWriterThread = new Thread(postWriter);
-            postWriterThread.start();
-        }
-        catch(Exception e)
-        {
-            
-            System.out.println("Error Creating ServerUtil");
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating ServerUtil", false, true);
-        }
-    }
-    
-    
-    public static void log(Session session)
-    {
-        logger.addSession(session);
-    }
-    
-    public static String[] getDomains()
-    {
-        String[] domains = null;
-        if(ServerControl.getArguments() != null && ServerControl.getArguments().getDomains() != null)
-        {
-            ArrayList<Domain> hosts = ServerControl.getArguments().getDomains();
-            domains = new String[hosts.size()];
-            for(int i = 0; i < domains.length; i++)
-            {
-                domains[i] = hosts.get(i).getDomain();
-            }
-        }
-        return domains;
-    }
+    public static File timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper");
+    public static File userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo");
+    public static File logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log");
+    public static File certificateDirectory = GeneralUtil.checkFor(serverDataDir, "Certificates");
+   
     
     
     public static String getTypelessName(File file)
@@ -119,10 +42,6 @@ public class ServerUtil
     }
     
     
-    public static void handOffPost(WritablePost post)
-    {
-        postWriter.addPost(post);
-    }
     
     public static void writePostData(WritablePost post)
     {
@@ -699,12 +618,9 @@ public class ServerUtil
         return "";
     }
     
-    public static CredentialsManager getCredentialsManager()
-    {
-        return credentialsManager;
-    }
     
-    private void setHost()
+    
+    public static void setHost()
     {
         try
         {
@@ -723,61 +639,12 @@ public class ServerUtil
     }
     
     
-    public String getHost()
+    public static String getHost()
     {
         return host;
     }
     
-    public void makeSiteIndexand404PageDefault()
-    {
-        try
-        {
-            File pageIndex = GeneralUtil.checkFor(getDirectory, "index.html");
-            String indexHTML = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "Index\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h4>\n" + "Sites<br>";
-            
-            for(File file : GeneralUtil.listFilesRecursive(getDirectory))
-            {
-                indexHTML += "<a href = http://" + host + "/" + file.getName() + ">" + host + "/" + file.getName() + "</a><br>";
-            }
-            
-            indexHTML += "</h4>\n" + "</body>\n" + "</html>";
-            GeneralUtil.writeContents(pageIndex, indexHTML, false);
-            
-            File page404 = GeneralUtil.checkFor(getDirectory, "404.html");
-            String HTML404 = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "404 :(\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h1>\n" + "404 - File has Either Been Moved or Relocated\n" + "</h1>\n" + "<a href = \"./index.html\">Index</a>\n" + "</body>\n" + "</html>";
-            GeneralUtil.writeContents(page404, HTML404, false);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
-        }
-    }
-    
-    public void makeSiteIndexand404PageWthDomains()
-    {
-        try
-        {
-            File pageIndex = GeneralUtil.checkFor(getDirectory, "index.html");
-            String indexHTML = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "Index\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h4>\n" + "Sites<br>";
-            for(String domain : getDomains())
-            {
-                indexHTML += "<a href = http://" + domain + ">" + domain + "</a><br>";
-            }
-            indexHTML += "</h4>\n" + "</body>\n" + "</html>";
-            GeneralUtil.writeContents(pageIndex, indexHTML, false);
-            
-            File page404 = GeneralUtil.checkFor(getDirectory, "404.html");
-            String HTML404 = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    background-color: lightgreen;\n" + "}\n" + "</style>\n" + "<title>\n" + "404 :(\n" + "</title>\n" + "</head>\n" + "<body>\n" + "<h1>\n" + "404 - File has Either Been Moved or Relocated\n" + "</h1>\n" + "<a href = \"./index.html\">Index</a>\n" + "</body>\n" + "</html>";
-            GeneralUtil.writeContents(page404, HTML404, false);
-            
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating Index and 404 Page", false, true);
-        }
-    }
+   
     
     
 }

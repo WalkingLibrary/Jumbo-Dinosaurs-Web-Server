@@ -28,6 +28,11 @@ public class DomainManager
             domains = new ArrayList<Domain>();
         }
         refreshCertificateFiles();
+        for(Domain domain: domains)
+        {
+            domain.setGetDir(GeneralUtil.checkFor(ServerUtil.getDirectory, domain.getSecondLevelDomainName()));
+            domain.setGetDir(GeneralUtil.checkFor(ServerUtil.postDirectory, domain.getSecondLevelDomainName()));
+        }
     }
     
     public static void addDomain(Domain domain)
@@ -52,7 +57,7 @@ public class DomainManager
         ArrayList<Domain> domains = new ArrayList<Domain>();
         try
         {
-            domains = GsonUtil.readList(domainMemory, Domain.class, new TypeToken<ArrayList<Domain>>(){}, true );
+            domains = GsonUtil.readObjectHoldersList(domainMemory, Domain.class, new TypeToken<ArrayList<Domain>>(){});
         }
         catch(JsonParseException e)
         {

@@ -11,14 +11,14 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 
-public abstract class ConnectListenerInitializer extends ChannelInitializer<SocketChannel> implements Runnable
+public abstract class ConnectionListenerInitializer extends ChannelInitializer<SocketChannel> implements Runnable
 {
     private int port;
     private boolean isRunning;
     private EventLoopGroup bossGroup, workerGroup;
     protected SimpleChannelInboundHandler<String> handler;
     
-    public ConnectListenerInitializer(int port, SimpleChannelInboundHandler<String> handler)
+    public ConnectionListenerInitializer(int port, SimpleChannelInboundHandler<String> handler)
     {
         this.port = port;
         this.handler = handler;

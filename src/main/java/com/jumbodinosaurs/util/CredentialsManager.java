@@ -15,13 +15,12 @@ import java.util.ArrayList;
 
 public class CredentialsManager
 {
-    public CredentialsManager()
-    {
-    
-    }
     
     
-    public synchronized int getUserCount()
+    
+    
+    
+    public static synchronized int getUserCount()
     {
         return getUserList().size();
     }
@@ -247,14 +246,14 @@ public class CredentialsManager
         }
     }
     
-    public synchronized void addUser(User userToAdd)
+    public static synchronized void addUser(User userToAdd)
     {
         ArrayList<User> users = getUserList();
         users.add(userToAdd);
         setUserList(users);
     }
     
-    public synchronized boolean usernameAvailable(String username)
+    public static synchronized boolean usernameAvailable(String username)
     {
         ArrayList<User> users = getUserList();
         
@@ -270,7 +269,7 @@ public class CredentialsManager
         
     }
     
-    public synchronized boolean emailInUse(String email)
+    public static synchronized boolean emailInUse(String email)
     {
         
         ArrayList<User> users = getUserList();
@@ -286,7 +285,7 @@ public class CredentialsManager
         return false;
     }
     
-    public synchronized String getTokenOneUse(User userToMint,
+    public static synchronized String getTokenOneUse(User userToMint,
                                               String ip)
     {
         String token = null;
@@ -375,7 +374,7 @@ public class CredentialsManager
         return true;
     }
     
-    public synchronized User getUserByEmail(String email)
+    public static synchronized User getUserByEmail(String email)
     {
         
         ArrayList<User> users = getUserList();
@@ -391,7 +390,7 @@ public class CredentialsManager
         return null;
     }
     
-    public synchronized User loginToken(String token,
+    public static synchronized User loginToken(String token,
                                         String ip)
     {
         ArrayList<User> users = getUserList();
@@ -451,7 +450,7 @@ public class CredentialsManager
         return null;
     }
     
-    public synchronized User loginUsernamePassword(String username,
+    public static synchronized User loginUsernamePassword(String username,
                                                    String password)
     {
         ArrayList<User> users = getUserList();
@@ -492,7 +491,7 @@ public class CredentialsManager
         return null;
     }
     
-    public synchronized String getToken(User userToMint,
+    public static synchronized String getToken(User userToMint,
                                         String ip)
     {
         if(userToMint.getTokenRandomToSend() != null)
@@ -539,7 +538,7 @@ public class CredentialsManager
         }
     }
     
-    public synchronized boolean createUser(String username,
+    public static synchronized boolean createUser(String username,
                                            String password,
                                            String email)
     {

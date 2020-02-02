@@ -1,8 +1,9 @@
 package com.jumbodinosaurs.tasks;
 
 import com.jumbodinosaurs.netty.handler.SessionHandler;
+import com.jumbodinosaurs.util.ServerUtil;
 
-public class SetUpServer implements Runnable
+public class SetUpServer extends ServerTask
 {
     private SessionHandler sessionHandler;
     
@@ -14,6 +15,13 @@ public class SetUpServer implements Runnable
     @Override
     public void run()
     {
-    
+        /*
+         *
+         *
+         *
+         */
+        
+        ServerUtil.setHost();
+        
     }
 }

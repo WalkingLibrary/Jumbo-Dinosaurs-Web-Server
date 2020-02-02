@@ -1,9 +1,9 @@
 package com.jumbodinosaurs.netty.handler;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.log.Session;
 import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
 import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
-import com.jumbodinosaurs.objects.Session;
 import com.jumbodinosaurs.util.ServerUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;

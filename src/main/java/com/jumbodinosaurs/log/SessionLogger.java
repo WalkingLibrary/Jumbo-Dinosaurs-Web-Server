@@ -1,9 +1,9 @@
-package com.jumbodinosaurs.util;
+package com.jumbodinosaurs.log;
 
 import com.google.gson.Gson;
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.objects.Session;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -4,9 +4,10 @@ import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.domain.util.Domain;
-import com.jumbodinosaurs.objects.Email;
 import com.jumbodinosaurs.objects.RuntimeArguments;
+import com.jumbodinosaurs.util.CredentialsManager;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ public class StatisticsExtra extends Command
         outputMessage += "Exceptions: " + OperatorConsole.exceptions + "\n";
         outputMessage += "Debug Messages Will Be Shown: " + OperatorConsole.debug + "\n";
         outputMessage += "Time for The Server: " + LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + "\n";
-        outputMessage += "Users: " + ServerUtil.getCredentialsManager().getUserCount() + "\n";
+        outputMessage += "Users: " + CredentialsManager.getUserCount() + "\n";
         outputMessage += "Amount of Posts: " + ServerUtil.getAllPostsList().size() + "\n";
         if(ServerControl.getArguments() != null)
         {

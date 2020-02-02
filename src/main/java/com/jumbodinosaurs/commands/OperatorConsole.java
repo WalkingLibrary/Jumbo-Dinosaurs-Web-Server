@@ -6,7 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.objects.Session;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.log.Session;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
@@ -37,12 +38,12 @@ public class OperatorConsole implements Runnable
         exceptions = 0;
         debug = true;
         
-        File[] oldSessionsLogs = ServerUtil.listFilesRecursive(ServerUtil.checkFor(ServerUtil.logsDirectory,
-                                                                                   "Session " + "Logs"));
+        File[] oldSessionsLogs = GeneralUtil.listFilesRecursive(GeneralUtil.checkFor(ServerUtil.logsDirectory,
+                                                                                    "Session " + "Logs"));
         ArrayList<Session> pastSession = new ArrayList<Session>();
         for(File logFile: oldSessionsLogs)
         {
-            String fileContents = ServerUtil.getFileContents(logFile);
+            String fileContents = GeneralUtil.scanFileContents(logFile);
             Type type = new TypeToken<ArrayList<Session>>()
             {}.getType();
             ArrayList<Session> sessions = new Gson().fromJson(fileContents, type);
