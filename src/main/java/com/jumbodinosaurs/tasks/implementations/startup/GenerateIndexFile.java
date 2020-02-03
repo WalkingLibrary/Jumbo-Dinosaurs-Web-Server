@@ -1,6 +1,7 @@
-package com.jumbodinosaurs.tasks;
+package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.tasks.StartUpTask;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
@@ -29,7 +30,12 @@ public class GenerateIndexFile extends StartUpTask
         if(!indexFile.exists())
         {
             String indexPage = getIndexPage();
-            GeneralUtil.writeContents(GeneralUtil.checkFor(indexFile, indexFileName), indexPage, false);
+            GeneralUtil.writeContents(GeneralUtil.checkFor(ServerUtil.getDirectory, indexFileName), indexPage, false);
         }
+    }
+    @Override
+    public boolean isPreInitPhase()
+    {
+        return false;
     }
 }

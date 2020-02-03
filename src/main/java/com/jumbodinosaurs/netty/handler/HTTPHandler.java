@@ -6,13 +6,13 @@ import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.*;
 import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
 import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
 import com.jumbodinosaurs.util.CredentialsManager;
 import com.jumbodinosaurs.util.PasswordStorage;
+import com.jumbodinosaurs.util.PostWriter;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import javax.naming.NamingException;
@@ -272,7 +272,7 @@ public class HTTPHandler
                 {
                     if(postRequest.getUsername() != null)
                     {
-                        if(ServerUtil.getCredentialsManager().usernameAvailable(postRequest.getUsername()))
+                        if(CredentialsManager.usernameAvailable(postRequest.getUsername()))
                         {
                             send400Code = false;
                             response.setMessage200();
@@ -284,7 +284,7 @@ public class HTTPHandler
                     if(postRequest.getEmail() != null && ((!CredentialsManager.isIPEmailCheckLocked(this.request.getIp()) || CredentialsManager.isAbuserUnlocked(
                             this.request.getIp()))))
                     {
-                        if(!ServerUtil.getCredentialsManager().emailInUse(postRequest.getEmail()))
+                        if(!CredentialsManager.emailInUse(postRequest.getEmail()))
                         {
                             send400Code = false;
                             response.setMessage200();
@@ -299,7 +299,7 @@ public class HTTPHandler
                     {
                         if(captchaScore > .5)
                         {
-                            if(ServerUtil.getCredentialsManager().createUser(postRequest.getUsername(),
+                            if(CredentialsManager.createUser(postRequest.getUsername(),
                                                                              postRequest.getPassword(),
                                                                              postRequest.getEmail()))
                             {
@@ -311,9 +311,9 @@ public class HTTPHandler
                 }
                 else if(command.equals("resetPassword"))
                 {
-                    if(postRequest.getEmail() != null && ServerUtil.getCredentialsManager().emailInUse(postRequest.getEmail()))
+                    if(postRequest.getEmail() != null && CredentialsManager.emailInUse(postRequest.getEmail()))
                     {
-                        User userToSendCodeTo = ServerUtil.getCredentialsManager().getUserByEmail(postRequest.getEmail());
+                        User userToSendCodeTo = CredentialsManager.getUserByEmail(postRequest.getEmail());
                         
                         
                         if((captchaScore >= .8) || ((captchaScore > .5) && userToSendCodeTo.isEmailVerified()))
@@ -339,10 +339,10 @@ public class HTTPHandler
                             
                             if(sendEmail)
                             {
-                                String token = ServerUtil.getCredentialsManager().getTokenOneUse(userToSendCodeTo,
+                                String token = CredentialsManager.getTokenOneUse(userToSendCodeTo,
                                                                                                  this.request.getIp());
                                 String messageToSend = "There has been a password change request to the account linked to this email" + " at https://jumbodinosaurs.com/. If this was not you contact us at jumbodinosaurs@gmail.com.\n\n" + "If this was you visit https://www.jumbodinosaurs.com/changepassword.html and enter this code\n To change your password." + "\n\n" + token;
-                                WebUtil.sendEmail(userToSendCodeTo.getEmail(), "Password Change", messageToSend);
+                                //WebUtil.sendEmail(userToSendCodeTo.getEmail(), "Password Change", messageToSend);
                             }
                         }
                         
@@ -360,13 +360,13 @@ public class HTTPHandler
                     {
                         if(postRequest.getUsername() != null && postRequest.getPassword() != null)
                         {
-                            user = ServerUtil.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(),
+                            user = CredentialsManager.loginUsernamePassword(postRequest.getUsername(),
                                                                                             postRequest.getPassword());
                             tokenLogin = false;
                         }
                         else if(postRequest.getToken() != null)
                         {
-                            user = ServerUtil.getCredentialsManager().loginToken(postRequest.getToken(),
+                            user = CredentialsManager.loginToken(postRequest.getToken(),
                                                                                  this.request.getIp());
                         }
                         
@@ -379,13 +379,13 @@ public class HTTPHandler
                     {
                         if(postRequest.getUsername() != null && postRequest.getPassword() != null)
                         {
-                            user = ServerUtil.getCredentialsManager().loginUsernamePassword(postRequest.getUsername(),
+                            user = CredentialsManager.loginUsernamePassword(postRequest.getUsername(),
                                                                                             postRequest.getPassword());
                             tokenLogin = false;
                         }
                         else if(postRequest.getToken() != null)
                         {
-                            user = ServerUtil.getCredentialsManager().loginToken(postRequest.getToken(),
+                            user = CredentialsManager.loginToken(postRequest.getToken(),
                                                                                  this.request.getIp());
                         }
                     }
@@ -413,9 +413,7 @@ public class HTTPHandler
                                     if(CredentialsManager.modifyUser(user, updatedUserInfo))
                                     {
                                         String messageToSend = "The password for your account at https://jumbodinosaurs/ has been changed." + "\nIf this was not you contact us at jumbodinosaurs@gmail.com.";
-                                        WebUtil.sendEmail(updatedUserInfo.getEmail(),
-                                                             "Password Changed",
-                                                             messageToSend);
+                                       // WebUtil.sendEmail(updatedUserInfo.getEmail(),"Password Changed",messageToSend);
                                         send400Code = false;
                                         response.setMessage200("passwordChanged");
                                         
@@ -503,7 +501,7 @@ public class HTTPHandler
                                     if(!tokenLogin)
                                     {
                                         
-                                        response.setMessage200(ServerUtil.getCredentialsManager().getToken(user,
+                                        response.setMessage200(CredentialsManager.getToken(user,
                                                                                                            this.request.getIp()));
                                         send400Code = false;
                                     }
@@ -582,9 +580,8 @@ public class HTTPHandler
                                             
                                             if(CredentialsManager.modifyUser(user, updatedUserInfo))
                                             {
-                                                if(WebUtil.sendEmail(user.getEmail(),
-                                                                     "Email Verification Code",
-                                                                     message))
+                                                /*
+                                                if(WebUtil.sendEmail(user.getEmail(), "Email Verification Code", message))
                                                 {
                                                     send400Code = false;
                                                     response.setMessage200("codeSent");
@@ -595,6 +592,7 @@ public class HTTPHandler
                                                                                          false,
                                                                                          true);
                                                 }
+                                                */
                                                 
                                             }
                                             else
@@ -635,7 +633,7 @@ public class HTTPHandler
             
             if(post != null && !send400Code)
             {
-                ServerUtil.handOffPost(post);
+                PostWriter.addPost(post);
                 //Message to send is determined case by case
             }
             

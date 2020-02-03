@@ -3,12 +3,12 @@ package com.jumbodinosaurs.objects.HTTP;
 import com.google.gson.Gson;
 import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.PostRequest;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 
 public class HTTPRequest
 {
@@ -52,19 +52,17 @@ public class HTTPRequest
     {
         if(ServerControl.getArguments() != null)
         {
-            ArrayList<Domain> domains = ServerControl.getArguments().getDomains();
-            if(domains != null)
-            {
+            
                 String headers = getClientMessageHeaders();
                 String hostHead = "Host: ";
-                for(Domain domain : domains)
+                for(Domain domain : DomainManager.getDomains())
                 {
                     if(headers.contains(hostHead + domain.getDomain()))
                     {
                         return domain;
                     }
                 }
-            }
+            
         }
         return null;
     }

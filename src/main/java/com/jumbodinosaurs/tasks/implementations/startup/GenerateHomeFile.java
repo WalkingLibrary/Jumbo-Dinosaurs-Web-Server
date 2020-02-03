@@ -1,6 +1,7 @@
-package com.jumbodinosaurs.tasks;
+package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.tasks.StartUpTask;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
@@ -42,9 +43,13 @@ public class GenerateHomeFile extends StartUpTask
         if(!homeHTMLFile.exists())
         {
             String defaultHomePage = getDefaultHomePage();
-            GeneralUtil.writeContents(GeneralUtil.checkFor(homeHTMLFile, homeHTMLFileName), defaultHomePage, false);
+            GeneralUtil.writeContents(GeneralUtil.checkFor(ServerUtil.getDirectory, homeHTMLFileName), defaultHomePage, false);
         }
     }
-    
+    @Override
+    public boolean isPreInitPhase()
+    {
+        return true;
+    }
     
 }

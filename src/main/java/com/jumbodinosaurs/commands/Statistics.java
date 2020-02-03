@@ -4,6 +4,7 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.util.CredentialsManager;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ public class Statistics extends Command
         outputMessage += "Debug Messages Will Be Shown: " + OperatorConsole.debug + "\n";
         outputMessage += "Time for The Server: " + LocalTime.now().getHour()  + ":" + LocalTime.now().getMinute() +
                                  "\n";
-        outputMessage += "Users: " + ServerUtil.getCredentialsManager().getUserCount() + "\n";
+        outputMessage += "Users: " + CredentialsManager.getUserCount() + "\n";
         outputMessage += "Amount of Posts: " + ServerUtil.getAllPostsList().size() + "\n";
         return new MessageResponse(outputMessage);
     }

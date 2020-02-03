@@ -1,6 +1,7 @@
-package com.jumbodinosaurs.tasks;
+package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.tasks.StartUpTask;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
@@ -37,16 +38,20 @@ public class Generate404File extends StartUpTask
     @Override
     public void run()
     {
-        
         String fouroFourFileName = "404.html";
         File fouroFourHtml = new File(ServerUtil.getDirectory.getAbsolutePath() + fouroFourFileName);
         if(!fouroFourHtml.exists())
         {
             String default404 = getDefault404Page();
-            GeneralUtil.writeContents(GeneralUtil.checkFor(fouroFourHtml, fouroFourFileName), default404, false);
+            GeneralUtil.writeContents(GeneralUtil.checkFor(ServerUtil.getDirectory, fouroFourFileName), default404, false);
         }
         
     }
     
     
+    @Override
+    public boolean isPreInitPhase()
+    {
+        return true;
+    }
 }

@@ -5,6 +5,8 @@ import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.devlib.email.Email;
+import com.jumbodinosaurs.devlib.email.EmailManager;
+import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.util.CredentialsManager;
@@ -34,23 +36,21 @@ public class StatisticsExtra extends Command
             RuntimeArguments args = ServerControl.getArguments();
             
             outputMessage += "Server in Test Mode: " + args.isInTestMode() + "\n";
-            if(args.getDomains() != null && args.getDomains().size() > 0)
-            {
+          
                 outputMessage += "Domains Hosted: " + "\n";
-                for(Domain domain : args.getDomains())
+                for(Domain domain : DomainManager.getDomains())
                 {
                     outputMessage += domain.getDomain() + "\n";
                 }
-            }
-            
-            if(args.getEmails() != null && args.getEmails().size() > 0)
-            {
+    
+    
+           
                 outputMessage += "Emails In Service: " + "\n";
-                for(Email email : args.getEmails())
+                for(Email email : EmailManager.getEmails())
                 {
                     outputMessage += email.getUsername() + "\n";
                 }
-            }
+            
             
         }
         outputMessage += "White List Enabled: " + OperatorConsole.whitelist + "\n";
