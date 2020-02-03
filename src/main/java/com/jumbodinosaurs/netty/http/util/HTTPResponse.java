@@ -1,4 +1,5 @@
-package com.jumbodinosaurs.objects.HTTP;
+package com.jumbodinosaurs.netty.http.util;
+
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.util.ServerUtil;

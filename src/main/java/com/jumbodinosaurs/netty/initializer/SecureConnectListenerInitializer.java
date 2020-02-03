@@ -4,8 +4,8 @@ import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
-import com.jumbodinosaurs.netty.ResponseEncoder;
 import com.jumbodinosaurs.netty.exceptions.MissingCertificateException;
+import com.jumbodinosaurs.netty.http.util.HTTPResponseEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelPipeline;
@@ -61,7 +61,7 @@ public class SecureConnectListenerInitializer extends ConnectionListenerInitiali
         pipeline.addLast("sni", new SniHandler(this.domainToContextMap));
         pipeline.addLast("framer", new DelimiterBasedFrameDecoder(10000000, buffer));
         pipeline.addLast("decoder", new StringDecoder());
-        pipeline.addLast("encoder", new ResponseEncoder());
+        pipeline.addLast("encoder", new HTTPResponseEncoder());
         pipeline.addLast("streamer", new ChunkedWriteHandler());
         pipeline.addLast("handler", this.handler);
         

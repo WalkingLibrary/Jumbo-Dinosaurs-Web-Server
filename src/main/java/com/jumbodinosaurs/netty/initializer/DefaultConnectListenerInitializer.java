@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.netty.initializer;
 
-import com.jumbodinosaurs.netty.ResponseEncoder;
+import com.jumbodinosaurs.netty.http.util.HTTPResponseEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelPipeline;
@@ -26,7 +26,7 @@ public class DefaultConnectListenerInitializer extends ConnectionListenerInitial
         buffer.writeBytes(delimiter.getBytes());
         pipeline.addLast("framer", new DelimiterBasedFrameDecoder(10000000, buffer));
         pipeline.addLast("decoder", new StringDecoder());
-        pipeline.addLast("encoder", new ResponseEncoder());
+        pipeline.addLast("encoder", new HTTPResponseEncoder());
         pipeline.addLast("streamer", new ChunkedWriteHandler());
         pipeline.addLast("handler", this.handler);
         

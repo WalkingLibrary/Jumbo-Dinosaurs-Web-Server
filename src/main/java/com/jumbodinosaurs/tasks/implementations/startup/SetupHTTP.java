@@ -4,7 +4,7 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.ChannelManager;
-import com.jumbodinosaurs.netty.handler.HTTPSessionHandler;
+import com.jumbodinosaurs.netty.http.handler.HTTPSessionHandler;
 import com.jumbodinosaurs.netty.initializer.DefaultConnectListenerInitializer;
 import com.jumbodinosaurs.netty.initializer.SecureConnectListenerInitializer;
 import com.jumbodinosaurs.tasks.StartUpTask;

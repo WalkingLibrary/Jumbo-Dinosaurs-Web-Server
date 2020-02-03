@@ -1,13 +1,12 @@
-package com.jumbodinosaurs.netty;
+package com.jumbodinosaurs.netty.http.util;
 
-import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
 
 import java.util.List;
 
-public class ResponseEncoder extends MessageToMessageEncoder<HTTPResponse>
+public class HTTPResponseEncoder extends MessageToMessageEncoder<HTTPResponse>
 {
     @Override
     protected void encode(ChannelHandlerContext context,

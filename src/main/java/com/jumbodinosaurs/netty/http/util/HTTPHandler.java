@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.netty.handler;
+package com.jumbodinosaurs.netty.http.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -8,8 +8,6 @@ import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.*;
-import com.jumbodinosaurs.objects.HTTP.HTTPRequest;
-import com.jumbodinosaurs.objects.HTTP.HTTPResponse;
 import com.jumbodinosaurs.util.CredentialsManager;
 import com.jumbodinosaurs.util.PasswordStorage;
 import com.jumbodinosaurs.util.PostWriter;
