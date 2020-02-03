@@ -32,7 +32,6 @@ public class ServerUtil
     public static File timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper");
     public static File userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo");
     public static File logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log");
-    public static File certificateDirectory = GeneralUtil.checkFor(serverDataDir, "Certificates");
    
     
     

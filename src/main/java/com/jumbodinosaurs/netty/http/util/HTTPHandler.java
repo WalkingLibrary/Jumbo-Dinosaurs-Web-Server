@@ -161,14 +161,15 @@ public class HTTPHandler
                 response.setMessage501();
             }
         }
+        /*
         else if(this.request.isPost())
         {
             if(this.request.isEncryptedConnection())
             {
                 //To avoid saving password in the logs.json
-                /*
+                
                 //See Post Diagram for more Post Insight
-                */
+                
                 if(OperatorConsole.allowPost())
                 {
                     String postJson = this.request.getPostRequestUTF8();
@@ -208,6 +209,7 @@ public class HTTPHandler
                 response.setMessageToRedirectToHTTPS(this.request);
             }
         }
+        */
         else
         {
             response.setMessage501();

@@ -6,6 +6,7 @@ import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.GsonUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
+import com.jumbodinosaurs.netty.CertificateManager;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
@@ -77,7 +78,7 @@ public class DomainManager
     
     public static void refreshCertificateFiles()
     {
-        File[] certificates = GeneralUtil.listFilesRecursive(ServerUtil.certificateDirectory);
+        File[] certificates = GeneralUtil.listFilesRecursive(CertificateManager.certificateDirectory);
     
         for(Domain domain : domains)
         {

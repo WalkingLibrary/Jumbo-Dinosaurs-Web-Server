@@ -7,9 +7,10 @@ public class SecureDomain extends UpdatableDomain
     private String certificatePassword;
     private transient File certificateFile;
     
-    public SecureDomain(String domain, String username, String password)
+    public SecureDomain(String domain, String username, String password, String certificatePassword)
     {
         super(domain, username, password);
+        this.certificatePassword = certificatePassword;
     }
     
     public String getCertificatePassword()

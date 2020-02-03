@@ -132,21 +132,24 @@ public class OperatorConsole implements Runnable
         {
             String userInput = "";
             userInput += input.nextLine();
-            try
+            if(!userInput.equals(""))
             {
-                MessageResponse response = CommandManager.filter(userInput, true);
-                if(response == null)
+                try
                 {
-                    System.out.println("Unrecognized command /help or /? for more Help." + "");
+                    MessageResponse response = CommandManager.filter(userInput, true);
+                    if(response == null)
+                    {
+                        System.out.println("Unrecognized command /help or /? for more Help." + "");
+                    }
+                    else
+                    {
+                        System.out.println(response.getMessage());
+                    }
                 }
-                else
+                catch(WaveringParametersException e)
                 {
-                    System.out.println(response.getMessage());
+                    e.printStackTrace();
                 }
-            }
-            catch(WaveringParametersException e)
-            {
-                e.printStackTrace();
             }
         }
     }

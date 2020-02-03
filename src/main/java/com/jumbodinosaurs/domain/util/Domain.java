@@ -14,6 +14,7 @@ public class Domain
     public Domain(String domain)
     {
         this.domain = domain;
+        this.type = this.getClass().getSimpleName();
     }
     
     public Domain clone()
