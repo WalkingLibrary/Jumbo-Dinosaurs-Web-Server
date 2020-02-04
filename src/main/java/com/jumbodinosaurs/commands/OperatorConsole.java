@@ -20,7 +20,7 @@ import java.util.Scanner;
 public class OperatorConsole implements Runnable
 {
     
-    
+    //TODO move options to ServerControl.optionsManager
     public static boolean debug;
     public static int hitsToday = 0;
     public static LocalDate today = LocalDate.now();
@@ -152,5 +152,25 @@ public class OperatorConsole implements Runnable
                 }
             }
         }
+    }
+    
+    public static String getEnsuredAnswer()
+    {
+        String ensuredAnswer = null;
+        Scanner userInputScanner = new Scanner(System.in);
+        String userInput = "";
+        do
+        {
+            if(ensuredAnswer != null)
+            {
+                System.out.println("Re-Enter: ");
+            }
+            userInput = userInputScanner.nextLine();
+            ensuredAnswer = userInput;
+            System.out.println("Is this correct: \"" + userInput + "\" (y/n)");
+            userInput = userInputScanner.nextLine();
+        }
+        while(!userInput.toLowerCase().contains("y"));
+        return ensuredAnswer;
     }
 }

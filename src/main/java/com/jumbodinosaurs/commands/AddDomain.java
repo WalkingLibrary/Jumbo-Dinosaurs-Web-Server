@@ -3,6 +3,7 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.options.NoSuchOptionException;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
@@ -22,7 +23,7 @@ public class AddDomain extends Command
         
         System.out.println("Enter Domain: ");
         System.out.println("Example: www.jumbodinosaurs.com");
-        String domain = getEnsuredAnswer();
+        String domain = OperatorConsole.getEnsuredAnswer();
         
         System.out.println("Is the Domain Updatable?(y/n)");
         Scanner userInputScanner = new Scanner(System.in);
@@ -39,9 +40,9 @@ public class AddDomain extends Command
         //since the domain is update able we need the credentials needed to update it
         String username, password;
         System.out.println("Enter the Username: ");
-        username = getEnsuredAnswer();
+        username = OperatorConsole.getEnsuredAnswer();
         System.out.println("Enter the Password: ");
-        password = getEnsuredAnswer();
+        password = OperatorConsole.getEnsuredAnswer();
     
         System.out.println("Is the Domain Securable?(y/n)");
         userInputScanner = new Scanner(System.in);
@@ -55,7 +56,7 @@ public class AddDomain extends Command
         
         String certificatePassword;
         System.out.println("Enter Certificate Password: ");
-        certificatePassword = getEnsuredAnswer();
+        certificatePassword = OperatorConsole.getEnsuredAnswer();
     
         SecureDomain secureDomain = new SecureDomain(domain, username, password, certificatePassword);
         try
@@ -64,31 +65,17 @@ public class AddDomain extends Command
             DomainManager.addDomain(secureDomain);
             return new MessageResponse("Added Secure Domain: " + domain);
         }
+        catch(NoSuchEmailException e)
+        {
+            return new MessageResponse("Missing Email From Email Manager");
+        }
         catch(NoSuchOptionException e)
         {
             return new MessageResponse("No Email Set For The Server");
         }
     }
     
-    public String getEnsuredAnswer()
-    {
-        String ensuredAnswer = null;
-        Scanner userInputScanner = new Scanner(System.in);
-        String userInput = "";
-        do
-        {
-            if(ensuredAnswer != null)
-            {
-                System.out.println("Re-Enter: ");
-            }
-            userInput = userInputScanner.nextLine();
-            ensuredAnswer = userInput;
-            System.out.println("Is this correct: \"" + userInput + "\" (y/n)");
-            userInput = userInputScanner.nextLine();
-        }
-        while(!userInput.toLowerCase().contains("y"));
-        return ensuredAnswer;
-    }
+    
     
     @Override
     public String getHelpMessage()
