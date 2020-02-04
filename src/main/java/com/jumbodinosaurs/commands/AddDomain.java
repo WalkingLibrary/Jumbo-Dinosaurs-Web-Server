@@ -3,10 +3,12 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.options.NoSuchOptionException;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.domain.util.UpdatableDomain;
+import com.jumbodinosaurs.netty.CertificateManager;
 
 import java.util.Scanner;
 
@@ -56,8 +58,16 @@ public class AddDomain extends Command
         certificatePassword = getEnsuredAnswer();
     
         SecureDomain secureDomain = new SecureDomain(domain, username, password, certificatePassword);
-        DomainManager.addDomain(secureDomain);
-        return new MessageResponse("Added Secure Domain: " + domain);
+        try
+        {
+            CertificateManager.setupSecureDomain(secureDomain);
+            DomainManager.addDomain(secureDomain);
+            return new MessageResponse("Added Secure Domain: " + domain);
+        }
+        catch(NoSuchOptionException e)
+        {
+            return new MessageResponse("No Email Set For The Server");
+        }
     }
     
     public String getEnsuredAnswer()

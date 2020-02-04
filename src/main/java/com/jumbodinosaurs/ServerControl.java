@@ -1,9 +1,13 @@
 package com.jumbodinosaurs;
 
+import com.jumbodinosaurs.devlib.options.OptionsManager;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.tasks.ScheduledServerTask;
 import com.jumbodinosaurs.tasks.implementations.startup.SetupServer;
+import com.jumbodinosaurs.util.ServerUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -16,12 +20,14 @@ public class ServerControl
     private static RuntimeArguments arguments;
     private static ScheduledThreadPoolExecutor threadScheduler = new ScheduledThreadPoolExecutor(4);
     private static ArrayList<ScheduledServerTask> scheduledServerTasks = new ArrayList<ScheduledServerTask>();
+    private static File optionsJson = GeneralUtil.checkFor(ServerUtil.serverDataDir, "options.json");
+    public static OptionsManager optionsManager = new OptionsManager(optionsJson);
     
     
     
     public ServerControl(RuntimeArguments arguments)
     {
-        System.out.println("Starting Jumbo Dinosaurs .6");//G
+        System.out.println("Starting Jumbo Dinosaurs " + version);//G
         if(arguments == null)
         {
             System.out.println("Test Mode: " + ServerControl.arguments.isInTestMode());
