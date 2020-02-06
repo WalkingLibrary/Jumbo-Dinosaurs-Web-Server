@@ -54,7 +54,7 @@ public class CertificateManager
     private static void renewCertificates()
     {
         String renewCommand = "sudo bash renew_certificates.sh";
-        String output = LinuxUtil.execute(renewCommand, LinuxUtil.scriptsDir);
+        String output = LinuxUtil.execute(renewCommand, LinuxUtil.unpackedScriptsDir);
         System.out.println(output);
     }
     
@@ -64,7 +64,7 @@ public class CertificateManager
         createCommand += " " + domain.getGetDir().getAbsolutePath();
         createCommand += " " + domain.getDomain();
         createCommand += " " + email.getUsername();
-        String output = LinuxUtil.execute(createCommand, LinuxUtil.scriptsDir);
+        String output = LinuxUtil.execute(createCommand, LinuxUtil.unpackedScriptsDir);
         System.out.println(output);
     }
     
@@ -73,7 +73,7 @@ public class CertificateManager
         String convertCommand = "sudo bash convert_pem_to_ks.sh";
         convertCommand += " " + domain.getDomain();
         convertCommand += " " + domain.getCertificatePassword();
-        String output = LinuxUtil.execute(convertCommand, LinuxUtil.scriptsDir);
+        String output = LinuxUtil.execute(convertCommand, LinuxUtil.unpackedScriptsDir);
         System.out.println(output);
     }
 }
