@@ -11,6 +11,7 @@ import java.util.Scanner;
 public class LinuxUtil
 {
     public static File scriptsDir = GeneralUtil.checkFor(ServerUtil.serverDataDir, "Linux Scripts");
+    public static File unpackedScriptsDir = GeneralUtil.checkFor(scriptsDir, "scripts");
     
     
     public static void unpackScripts()
@@ -18,6 +19,14 @@ public class LinuxUtil
         ResourceLoaderUtil resourceLoaderUtil = new ResourceLoaderUtil();
         try
         {
+            /* Process for Preping Scripts for Running
+             * Unpack them from resources
+             * run dos2unix command on all of them
+             * profit
+             *
+             */
+            
+            //Unpack them from resources
             ArrayList<String> scripts = resourceLoaderUtil.listResources("scripts");
             for(String scriptName: scripts)
             {
@@ -25,6 +34,12 @@ public class LinuxUtil
                 String scriptContents = resourceLoaderUtil.scanResource(scriptName);
                 File unpackedFile = GeneralUtil.checkForLocalPath(scriptsDir, scriptName);
                 GeneralUtil.writeContents(unpackedFile, scriptContents, false);
+            }
+            
+            //run dos2unix command on all of them
+            for(File file: unpackedScriptsDir.listFiles())
+            {
+                String output = execute("sudo dos2unix " + file.getName(), unpackedScriptsDir);
             }
         }
         catch(IOException e)
