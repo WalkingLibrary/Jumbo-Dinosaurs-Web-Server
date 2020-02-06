@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.netty.http.util;
+package com.jumbodinosaurs.netty.handler.http.util;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.Domain;

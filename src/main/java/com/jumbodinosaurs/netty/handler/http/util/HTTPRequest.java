@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.netty.http.util;
+package com.jumbodinosaurs.netty.handler.http.util;
 
 import com.google.gson.Gson;
 import com.jumbodinosaurs.ServerControl;

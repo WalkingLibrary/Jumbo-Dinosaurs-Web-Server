@@ -5,11 +5,11 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.exceptions.MissingCertificateException;
-import com.jumbodinosaurs.netty.http.util.HTTPResponseEncoder;
+import com.jumbodinosaurs.netty.handler.IHandlerHolder;
+import com.jumbodinosaurs.netty.handler.http.util.HTTPResponseEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
@@ -32,9 +32,9 @@ public class SecureConnectListenerInitializer extends ConnectionListenerInitiali
     private Mapping<String, SslContext> domainToContextMap = null;
     
     public SecureConnectListenerInitializer(int port,
-                                            SimpleChannelInboundHandler<String> handler)
+                                            IHandlerHolder iHandlerHolder)
     {
-        super(port, handler);
+        super(port, iHandlerHolder);
         initMapping();
     }
     
@@ -63,7 +63,7 @@ public class SecureConnectListenerInitializer extends ConnectionListenerInitiali
         pipeline.addLast("decoder", new StringDecoder());
         pipeline.addLast("encoder", new HTTPResponseEncoder());
         pipeline.addLast("streamer", new ChunkedWriteHandler());
-        pipeline.addLast("handler", this.handler);
+        pipeline.addLast("handlerHolder", this.handlerHolder.getInstance());
         
         
     }

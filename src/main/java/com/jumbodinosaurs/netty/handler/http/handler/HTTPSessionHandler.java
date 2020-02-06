@@ -1,17 +1,18 @@
-package com.jumbodinosaurs.netty.http.handler;
+package com.jumbodinosaurs.netty.handler.http.handler;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.log.Session;
-import com.jumbodinosaurs.netty.http.util.HTTPHandler;
-import com.jumbodinosaurs.netty.http.util.HTTPRequest;
-import com.jumbodinosaurs.netty.http.util.HTTPResponse;
+import com.jumbodinosaurs.netty.handler.IHandlerHolder;
+import com.jumbodinosaurs.netty.handler.http.util.HTTPHandler;
+import com.jumbodinosaurs.netty.handler.http.util.HTTPRequest;
+import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-public class HTTPSessionHandler extends SimpleChannelInboundHandler<String>
+public class HTTPSessionHandler extends SimpleChannelInboundHandler<String> implements IHandlerHolder
 {
     
     
@@ -49,7 +50,7 @@ public class HTTPSessionHandler extends SimpleChannelInboundHandler<String>
             {
                 HTTPResponse response = new HTTPResponse();
                 response.setMessage501();
-                boolean isEncrypted = context.pipeline().names().contains("io.netty.handler.ssl.SslHandler");
+                boolean isEncrypted = context.pipeline().names().contains("io.netty.handlerHolder.ssl.SslHandler");
                 HTTPRequest request = new HTTPRequest(session.getMessage(), isEncrypted, session.getWho());
                 if(request.isHTTP())
                 {
@@ -105,5 +106,11 @@ public class HTTPSessionHandler extends SimpleChannelInboundHandler<String>
                              String message)
     {
         context.fireChannelRead(message);
+    }
+    
+    @Override
+    public SimpleChannelInboundHandler<String> getInstance()
+    {
+        return new HTTPSessionHandler();
     }
 }

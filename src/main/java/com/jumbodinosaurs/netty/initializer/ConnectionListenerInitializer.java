@@ -2,10 +2,10 @@ package com.jumbodinosaurs.netty.initializer;
 
 
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.netty.handler.IHandlerHolder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -16,12 +16,12 @@ public abstract class ConnectionListenerInitializer extends ChannelInitializer<S
     private int port;
     private boolean isRunning;
     private EventLoopGroup bossGroup, workerGroup;
-    protected SimpleChannelInboundHandler<String> handler;
+    protected IHandlerHolder handlerHolder;
     
-    public ConnectionListenerInitializer(int port, SimpleChannelInboundHandler<String> handler)
+    public ConnectionListenerInitializer(int port, IHandlerHolder iHandlerHolder)
     {
         this.port = port;
-        this.handler = handler;
+        this.handlerHolder = iHandlerHolder;
     }
     
     public void run()
