@@ -25,14 +25,28 @@ import java.util.regex.Pattern;
 public class ServerUtil
 {
     public static String host = "";
-    public static File codeExecutionDir = new File(System.getProperty("user.dir"));
-    public static File getDirectory = GeneralUtil.checkFor(codeExecutionDir, "GET");
-    public static File postDirectory = GeneralUtil.checkFor(codeExecutionDir, "POST");
-    public static File serverDataDir = GeneralUtil.checkFor(codeExecutionDir, "Server Data");
-    public static File timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper");
-    public static File userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo");
-    public static File logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log");
+    public static File codeExecutionDir;
+    public static File getDirectory;
+    public static File postDirectory;
+    public static File serverDataDir;
+    public static File timeOutHelperDir;
+    public static File userInfoDirectory;
+    public static File logsDirectory;
    
+    
+    static
+    {
+        System.out.println("Setting up Server Util Files");
+        codeExecutionDir = new File(System.getProperty("user.dir"));
+        System.out.println("USER DIR: " + codeExecutionDir.getAbsolutePath());
+        getDirectory = GeneralUtil.checkFor(codeExecutionDir, "GET", true);
+        postDirectory = GeneralUtil.checkFor(codeExecutionDir, "POST", true);
+        serverDataDir = GeneralUtil.checkFor(codeExecutionDir, "Server Data", true);
+        timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper", true);
+        userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo", true);
+        logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log", true);
+        System.out.println("Finished Creating Server Util Files");
+    }
     
     
     public static String getTypelessName(File file)

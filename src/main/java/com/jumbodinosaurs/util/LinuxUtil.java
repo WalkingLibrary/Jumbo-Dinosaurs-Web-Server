@@ -5,7 +5,7 @@ import com.jumbodinosaurs.devlib.util.ResourceLoaderUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class LinuxUtil
@@ -16,12 +16,20 @@ public class LinuxUtil
     public static void unpackScripts()
     {
         ResourceLoaderUtil resourceLoaderUtil = new ResourceLoaderUtil();
-        List<File> linuxScripts = resourceLoaderUtil.getFiles("scripts");
-        for(File file: linuxScripts)
+        try
         {
-            File unpackedFile = GeneralUtil.checkFor(scriptsDir, file.getName());
-            String scriptContents = GeneralUtil.scanFileContents(file);
-            GeneralUtil.writeContents(unpackedFile, scriptContents,false);
+            ArrayList<String> scripts = resourceLoaderUtil.listResources("scripts");
+            for(String scriptName: scripts)
+            {
+                System.out.println("Unpacking: " + scriptName);
+                String scriptContents = resourceLoaderUtil.scanResource(scriptName);
+                File unpackedFile = GeneralUtil.checkForLocalPath(scriptsDir, scriptName);
+                GeneralUtil.writeContents(unpackedFile, scriptContents, false);
+            }
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
         }
         
     }

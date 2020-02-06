@@ -16,7 +16,7 @@ public class ServerControl
 {
     
     
-    public static String version = "0.0.6";
+    public static String version = "0.0.7";
     private static RuntimeArguments arguments;
     private static ScheduledThreadPoolExecutor threadScheduler = new ScheduledThreadPoolExecutor(4);
     private static ArrayList<ScheduledServerTask> scheduledServerTasks = new ArrayList<ScheduledServerTask>();

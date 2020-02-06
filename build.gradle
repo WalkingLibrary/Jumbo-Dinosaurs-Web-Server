@@ -15,14 +15,15 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'idea'
 
-version '.6'
+version '.7'
 group 'com.jumbodinosaurs'
-archivesBaseName = "jdwebserver"
+archivesBaseName = "Jumbo-Dinosaurs-WebServer-Netty"
 
 sourceCompatibility = 1.8
 
 
 sourceSets.main.java.srcDir "src/main/Java"
+sourceSets.main.resources.srcDir "src/resources"
 
 
 repositories {
@@ -33,7 +34,7 @@ repositories {
 dependencies {
 
     testCompile 'junit:junit:4.12'
-    compile 'com.github.WalkingLibrary:Dev-Lib:4efc293129'
+    compile 'com.github.WalkingLibrary:Dev-Lib:b44d7e0085'
     compile 'com.google.code.gson:gson:2.8.5'
     // https://mvnrepository.com/artifact/io.netty/netty-all
     compile 'io.netty:netty-all:4.1.33.Final'
@@ -44,9 +45,11 @@ dependencies {
 
 shadowJar {
     dependencies {
-        include(dependency('com.github.WalkingLibrary:Dev-Lib:4efc293129'))
+        include(dependency('com.github.WalkingLibrary:Dev-Lib:b44d7e0085'))
         include(dependency('com.github.classgraph:classgraph:28b32ec'))
         include(dependency('com.google.code.gson:gson:2.8.5'))
+        include(dependency('io.netty:netty-all:4.1.33.Final'))
+        include(dependency('com.sun.mail:javax.mail:1.6.1'))
     }
     classifier = 'fatjar'
 }
@@ -62,5 +65,6 @@ jar {
         )
     }
 }
+
 
         

@@ -31,7 +31,7 @@ public class SetupServer extends ServerTask
          * Initialize DNSUpdater
          * Initialize CertificateRenewer
          */
-        System.out.println("Setting Up Server");
+        System.out.println("Running SetUp Server Task");
         ArrayList<Class> startUpTasksClasses = ReflectionUtil.getSubClasses(StartUpTask.class);
         ArrayList<StartUpTask> startUpTasks = new ArrayList<StartUpTask>();
         for(Class classType: startUpTasksClasses)
@@ -84,6 +84,6 @@ public class SetupServer extends ServerTask
             }
         }
         ServerControl.setScheduledServerTasks(scheduledServerTasks);
-        System.out.println("Server Setup Complete");
+        System.out.println("Server Setup Task Complete");
     }
 }
