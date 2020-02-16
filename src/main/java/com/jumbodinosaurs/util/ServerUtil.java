@@ -632,12 +632,13 @@ public class ServerUtil
     }
     
     
-    
+    //http://checkip.amazonaws.com/
+    //http://bot.whatismyipaddress.com
     public static void setHost()
     {
         try
         {
-            URL address = new URL("http://bot.whatismyipaddress.com");
+            URL address = new URL("http://checkip.amazonaws.com/");
             HttpURLConnection connection = (HttpURLConnection) address.openConnection();
             HttpResponse ipResponse = WebUtil.getResponse(connection);
             host = ipResponse.getResponse();

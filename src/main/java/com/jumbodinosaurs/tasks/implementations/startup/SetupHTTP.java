@@ -1,7 +1,6 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.domain.DomainManager;
-import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.ChannelManager;
 import com.jumbodinosaurs.netty.handler.http.handler.HTTPSessionHandler;
@@ -19,9 +18,9 @@ public class SetupHTTP extends StartUpTask
         
         
         boolean needsSecureListener = false;
-        for(Domain domain: DomainManager.getDomains())
+        for(SecureDomain domain: DomainManager.getDomains())
         {
-            if(domain instanceof SecureDomain)
+            if(domain.hasCertificateFile())
             {
                 needsSecureListener = true;
                 break;

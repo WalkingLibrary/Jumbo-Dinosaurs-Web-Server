@@ -1,11 +1,15 @@
 package com.jumbodinosaurs.domain.util;
 
 import com.google.gson.Gson;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
 
-public class Domain
+public abstract class Domain
 {
+    
+    
     private String domain;
     private String type;
     private transient File getDir;
@@ -14,7 +18,10 @@ public class Domain
     public Domain(String domain)
     {
         this.domain = domain;
-        this.type = this.getClass().getSimpleName();
+        this.type = getClass().getSimpleName();
+        this.getDir = GeneralUtil.checkFor(ServerUtil.getDirectory, getSecondLevelDomainName());
+        this.postDir = GeneralUtil.checkFor(ServerUtil.postDirectory, getSecondLevelDomainName());
+     
     }
     
     public Domain clone()
@@ -24,9 +31,8 @@ public class Domain
     
     public String getSecondLevelDomainName()
     {
-        String domainName = this.domain;
-        String[] domains = domainName.split(".");
-        if(domains.length > 2)
+        String[] domains = this.domain.split("\\.");
+        if(domains.length >= 2)
         {
             return domains[domains.length - 2];
         }
@@ -41,11 +47,6 @@ public class Domain
     public void setDomain(String domain)
     {
         this.domain = domain;
-    }
-    
-    public String getType()
-    {
-        return type;
     }
     
     public void setType(String type)
@@ -71,5 +72,19 @@ public class Domain
     public void setPostDir(File postDir)
     {
         this.postDir = postDir;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return "Domain{" +
+                       "domain='" + domain + '\'' +
+                       '}';
+    }
+    
+   
+    public String getType()
+    {
+        return type;
     }
 }

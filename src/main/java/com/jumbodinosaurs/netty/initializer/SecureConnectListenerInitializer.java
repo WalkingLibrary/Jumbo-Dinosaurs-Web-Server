@@ -2,7 +2,6 @@ package com.jumbodinosaurs.netty.initializer;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.domain.DomainManager;
-import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.exceptions.MissingCertificateException;
 import com.jumbodinosaurs.netty.handler.IHandlerHolder;
@@ -75,13 +74,13 @@ public class SecureConnectListenerInitializer extends ConnectionListenerInitiali
         try
         {
             DomainNameMapping domainMap = null;
-            for(Domain domain : DomainManager.getDomains())
+            for(SecureDomain domain : DomainManager.getDomains())
             {
-                if(domain instanceof SecureDomain)
+                if(domain.hasCertificateFile())
                 {
                     try
                     {
-                        SslContext domainContext = getDomainContext((SecureDomain) domain);
+                        SslContext domainContext = getDomainContext((SecureDomain)domain);
                         if(domainMap == null)
                         {
                             domainMap = new DomainNameMapping(domainContext);

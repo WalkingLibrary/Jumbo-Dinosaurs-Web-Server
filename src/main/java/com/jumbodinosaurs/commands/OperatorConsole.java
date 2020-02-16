@@ -1,17 +1,11 @@
 package com.jumbodinosaurs.commands;
 
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.log.Session;
-import com.jumbodinosaurs.util.ServerUtil;
 
-import java.io.File;
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +29,8 @@ public class OperatorConsole implements Runnable
     
     public OperatorConsole()
     {
+        //TODO fix this
+        /*
         exceptions = 0;
         debug = true;
         
@@ -64,6 +60,7 @@ public class OperatorConsole implements Runnable
                 }
             }
         }
+        */
         System.out.println("Console Online");
     }
     
@@ -124,36 +121,6 @@ public class OperatorConsole implements Runnable
         return allowPost;
     }
     
-    public void run()
-    {
-        Scanner input = new Scanner(System.in);
-        CommandManager.refreshCommands();
-        while(true)
-        {
-            String userInput = "";
-            userInput += input.nextLine();
-            if(!userInput.equals(""))
-            {
-                try
-                {
-                    MessageResponse response = CommandManager.filter(userInput, true);
-                    if(response == null)
-                    {
-                        System.out.println("Unrecognized command /help or /? for more Help." + "");
-                    }
-                    else
-                    {
-                        System.out.println(response.getMessage());
-                    }
-                }
-                catch(WaveringParametersException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-    
     public static String getEnsuredAnswer()
     {
         String ensuredAnswer = null;
@@ -165,12 +132,50 @@ public class OperatorConsole implements Runnable
             {
                 System.out.println("Re-Enter: ");
             }
-            userInput = userInputScanner.nextLine();
-            ensuredAnswer = userInput;
-            System.out.println("Is this correct: \"" + userInput + "\" (y/n)");
+            ensuredAnswer = userInputScanner.nextLine();
+            System.out.println("Is this correct: \"" + ensuredAnswer + "\" (y/n)");
             userInput = userInputScanner.nextLine();
         }
         while(!userInput.toLowerCase().contains("y"));
+        
         return ensuredAnswer;
+    }
+    
+    public void run()
+    {
+        Scanner input = new Scanner(System.in);
+        CommandManager.refreshCommands();
+        while(true)
+        {
+            try
+            {
+                String userInput = "";
+                userInput += input.nextLine();
+                if(!userInput.equals(""))
+                {
+                    try
+                    {
+                        MessageResponse response = CommandManager.filter(userInput, true);
+                        if(response == null)
+                        {
+                            System.out.println("Unrecognized command /help or /? for more Help." + "");
+                        }
+                        else
+                        {
+                            System.out.println(response.getMessage());
+                        }
+                    }
+                    catch(WaveringParametersException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                System.out.println("Un-caught Exception in Operator Console");
+                e.printStackTrace();
+            }
+        }
     }
 }

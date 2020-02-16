@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class DomainManager
 {
-    private static ArrayList<Domain> domains;
+    private static ArrayList<SecureDomain> domains;
     private static File domainDir = GeneralUtil.checkFor(ServerUtil.serverDataDir, "Domains");
     private static File domainMemory = GeneralUtil.checkFor(domainDir, "domain.json");
     
@@ -26,7 +26,7 @@ public class DomainManager
         domains = loadDomains();
         if(domains == null)
         {
-            domains = new ArrayList<Domain>();
+            domains = new ArrayList<SecureDomain>();
         }
         refreshCertificateFiles();
         for(Domain domain: domains)
@@ -36,10 +36,33 @@ public class DomainManager
         }
     }
     
-    public static void addDomain(Domain domain)
+    public static SecureDomain getDomain(String domainName)
+    {
+        for(SecureDomain domain: domains)
+        {
+            if(domain.getDomain().equals(domainName))
+            {
+                return domain;
+            }
+        }
+        return null;
+    }
+    
+    public static void addDomain(SecureDomain domain)
     {
         domains.add(domain);
         saveDomains();
+    }
+    
+    public static void removeDomain(SecureDomain domain)
+    {
+        domains.remove(domain);
+        saveDomains();
+    }
+    
+    public static void removeDomain(String domain)
+    {
+        removeDomain(getDomain(domain));
     }
     
     //Use the methods in this class to modify domains
@@ -48,17 +71,17 @@ public class DomainManager
         saveDomains(domains);
     }
     
-    private static void saveDomains(ArrayList<Domain> domains)
+    private static void saveDomains(ArrayList<SecureDomain> domains)
     {
         GsonUtil.saveObjectsToHolderList(domainMemory, domains, Domain.class);
     }
     
-    private static ArrayList<Domain> loadDomains()
+    private static ArrayList<SecureDomain> loadDomains()
     {
-        ArrayList<Domain> domains = new ArrayList<Domain>();
+        ArrayList<SecureDomain> domains = new ArrayList<SecureDomain>();
         try
         {
-            domains = GsonUtil.readObjectHoldersList(domainMemory, Domain.class, new TypeToken<ArrayList<Domain>>(){});
+            domains = GsonUtil.readObjectHoldersList(domainMemory, Domain.class, new TypeToken<ArrayList<SecureDomain>>(){});
         }
         catch(JsonParseException e)
         {
@@ -80,9 +103,9 @@ public class DomainManager
     {
         File[] certificates = GeneralUtil.listFilesRecursive(CertificateManager.certificateDirectory);
     
-        for(Domain domain : domains)
+        for(SecureDomain domain : domains)
         {
-            if(domain instanceof SecureDomain)
+            if(domain.hasCertificateFile())
             {
                 boolean hasCertificate = false;
                 for(File certificate : certificates)
@@ -93,7 +116,7 @@ public class DomainManager
         
                     if(certificateFileDomainName.equals(domain.getDomain()))
                     {
-                        ((SecureDomain) domain).setCertificateFile(certificate);
+                        ((SecureDomain)domain).setCertificateFile(certificate);
                         hasCertificate = true;
                     }
                 }
@@ -106,13 +129,13 @@ public class DomainManager
         }
     }
     
-    public static ArrayList<Domain> getDomains()
+    public static ArrayList<SecureDomain> getDomains()
     {
         return domains;
     }
     
     //Returns true if a domain was updated
-    public boolean updateDomain(Domain updatedDomain)
+    public static boolean updateDomain(SecureDomain updatedDomain)
     {
         for(Domain domain: domains)
         {

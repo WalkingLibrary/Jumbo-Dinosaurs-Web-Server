@@ -39,7 +39,7 @@ public class LinuxUtil
             //run dos2unix command on all of them
             for(File file: unpackedScriptsDir.listFiles())
             {
-                String output = execute("sudo dos2unix " + file.getName(), unpackedScriptsDir);
+                String output = execute("sudo dos2unix " + file.getName(),null, unpackedScriptsDir);
             }
         }
         catch(IOException e)
@@ -49,17 +49,26 @@ public class LinuxUtil
         
     }
     
-    public static String execute(String command, File executionDir)
+    public static String execute(String command, ArrayList<String> arguments, File executionDir)
     {
+        if(arguments != null && arguments.size() != 0)
+        {
+            for(String argument: arguments)
+            {
+                command += " " + argument;
+            }
+        }
+        
         try
         {
+            System.out.println("Executing Command: " + command);
             Process process = Runtime.getRuntime().exec(command, null, executionDir);
             process.waitFor();
-            Scanner proccessScanner = new Scanner(process.getInputStream());
+            Scanner processScanner = new Scanner(process.getInputStream());
             String output = "";
-            while(proccessScanner.hasNext())
+            while(processScanner.hasNext())
             {
-                output += proccessScanner.nextLine();
+                output += processScanner.nextLine();
             }
             return output;
             
