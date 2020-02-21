@@ -1,5 +1,6 @@
-package com.jumbodinosaurs.netty.handler.http.util;
+package com.jumbodinosaurs.netty.pipline;
 
+import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;

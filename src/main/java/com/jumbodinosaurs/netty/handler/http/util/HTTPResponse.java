@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.netty.handler.http.util;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.domain.util.Domain;
+import com.jumbodinosaurs.netty.handler.http.exceptions.NoSuchHeaderException;
 import com.jumbodinosaurs.util.ServerUtil;
 
 public class HTTPResponse
@@ -75,20 +75,22 @@ public class HTTPResponse
         this.messageOut += closeHeader;
     }
     
-    public void setMessageToRedirectToHTTPS(HTTPRequest request)
+    public void setMessageToRedirectToHTTPS(HTTPMessage request)
     {
-        Domain domainToRedirectTo = request.getDomainFromHostHeader();
-        boolean canRedirect = domainToRedirectTo != null;
-        if(canRedirect)
+        try
         {
+            String host = request.getHeader(ClientHeaderPatterns.HOSTHEADER.getPattern());
+            host = host.split(" ").length <= 1 ? ServerUtil.getHost() : host.split(" ")[1];
             this.messageOut = this.sC301;
-            this.messageOut += this.locationHeader + " https://" + domainToRedirectTo.getDomain() + request.getGetRequest();
+            this.messageOut += this.locationHeader + " https://" + host + request.getPath();
             this.messageOut += this.closeHeader;
         }
-        else
+        catch(NoSuchHeaderException e)
         {
             setMessage400();
         }
+       
+       
     }
     
     public void setMessage400()

@@ -1,8 +1,9 @@
 package com.jumbodinosaurs.netty.handler;
 
-import io.netty.channel.SimpleChannelInboundHandler;
+import com.jumbodinosaurs.log.Session;
+import io.netty.handler.codec.MessageToMessageDecoder;
 
 public interface IHandlerHolder
 {
-    SimpleChannelInboundHandler<String> getInstance();
+    MessageToMessageDecoder<Session> getInstance();
 }

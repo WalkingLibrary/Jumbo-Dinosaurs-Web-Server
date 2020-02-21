@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-public class HTTPHandler
+public class HTTPResponseGenerator
 {
     //headers
     private final String keepAlive = "\r\nConnection: keep-alive\r\n\r\n";
@@ -39,11 +39,11 @@ public class HTTPHandler
     private final String contentApplicationHeader = "\r\nContent-Type: application/";
     private final String contentLengthHeader = "\r\nContent-Length: "; //[length in bytes of the image]\r\n
     
-    private HTTPRequest request;
+    private HTTPMessage message;
     
-    public HTTPHandler(HTTPRequest request)
+    public HTTPResponseGenerator(HTTPMessage message)
     {
-        this.request = request;
+        this.message = message;
     }
     
     public HTTPResponse generateResponse()
@@ -51,10 +51,10 @@ public class HTTPHandler
         HTTPResponse response = new HTTPResponse();
         String headers = "";
         //If Get Request
-        if(this.request.isGet())
+        if(this.message.isGet())
         {
             //Clean Name from get Request for dataIO
-            String getRequest = this.request.getGetRequest();
+            String getRequest = this.message.getGetRequest();
             if(getRequest != null)
             {
                 if(getRequest.equals("/"))
@@ -64,9 +64,9 @@ public class HTTPHandler
                 
                 File fileRequested = null;
                 
-                if(this.request.hasHostHeader())
+                if(this.message.hasHostHeader())
                 {
-                    Domain requestsDomain = this.request.getDomainFromHostHeader();
+                    Domain requestsDomain = this.message.getDomainFromHostHeader();
                     if(requestsDomain != null)
                     {
                         
@@ -133,15 +133,15 @@ public class HTTPHandler
                 }
                 else//Send 404 not found server doesn't have the file
                 {
-                    //Make sure the client didn't send any thing that can be a post request
-                    //If the get request can become a Post request then add it to the request for censoring
+                    //Make sure the client didn't send any thing that can be a post message
+                    //If the get message can become a Post message then add it to the message for censoring
                     try
                     {
-                        if(this.request.getGetRequestUTF8() != null && this.request.getGetRequestUTF8().length() > 1)
+                        if(this.message.getGetRequestUTF8() != null && this.message.getGetRequestUTF8().length() > 1)
                         {
-                            String postInfo = this.request.getGetRequest().substring(1);
+                            String postInfo = this.message.getGetRequest().substring(1);
                             PostRequest postRequest = new Gson().fromJson(postInfo, PostRequest.class);
-                            this.request.setPostRequest(postRequest);
+                            this.message.setPostRequest(postRequest);
                             response.setMessage400();
                         }
                         else
@@ -162,9 +162,9 @@ public class HTTPHandler
             }
         }
         /*
-        else if(this.request.isPost())
+        else if(this.message.isPost())
         {
-            if(this.request.isEncryptedConnection())
+            if(this.message.isEncryptedConnection())
             {
                 //To avoid saving password in the logs.json
                 
@@ -172,7 +172,7 @@ public class HTTPHandler
                 
                 if(OperatorConsole.allowPost())
                 {
-                    String postJson = this.request.getPostRequestUTF8();
+                    String postJson = this.message.getPostRequestUTF8();
                     //System.out.println("Post Json: " + postJson);
                     if(postJson != null)
                     {
@@ -181,8 +181,8 @@ public class HTTPHandler
                             PostRequest postRequest = new Gson().fromJson(postJson, PostRequest.class);
                             if(postRequest != null)
                             {
-                                this.request.setPostRequest(postRequest);
-                                response = generateResponse(this.request.getPostRequest());
+                                this.message.setPostRequest(postRequest);
+                                response = generateResponse(this.message.getPostRequest());
                             }
                             else
                             {
@@ -206,7 +206,7 @@ public class HTTPHandler
             }
             else
             {
-                response.setMessageToRedirectToHTTPS(this.request);
+                response.setMessageToRedirectToHTTPS(this.message);
             }
         }
         */
@@ -281,8 +281,8 @@ public class HTTPHandler
                 }
                 else if(command.equals("emailCheck"))
                 {
-                    if(postRequest.getEmail() != null && ((!CredentialsManager.isIPEmailCheckLocked(this.request.getIp()) || CredentialsManager.isAbuserUnlocked(
-                            this.request.getIp()))))
+                    if(postRequest.getEmail() != null && ((!CredentialsManager.isIPEmailCheckLocked(this.message.getIp()) || CredentialsManager.isAbuserUnlocked(
+                            this.message.getIp()))))
                     {
                         if(!CredentialsManager.emailInUse(postRequest.getEmail()))
                         {
@@ -290,7 +290,7 @@ public class HTTPHandler
                             response.setMessage200();
                         }
                         
-                        CredentialsManager.emailStrikeIP(this.request.getIp());
+                        CredentialsManager.emailStrikeIP(this.message.getIp());
                     }
                 }
                 else if(command.equals("createAccount"))
@@ -340,8 +340,8 @@ public class HTTPHandler
                             if(sendEmail)
                             {
                                 String token = CredentialsManager.getTokenOneUse(userToSendCodeTo,
-                                                                                                 this.request.getIp());
-                                String messageToSend = "There has been a password change request to the account linked to this email" + " at https://jumbodinosaurs.com/. If this was not you contact us at jumbodinosaurs@gmail.com.\n\n" + "If this was you visit https://www.jumbodinosaurs.com/changepassword.html and enter this code\n To change your password." + "\n\n" + token;
+                                                                                                 this.message.getIp());
+                                String messageToSend = "There has been a password change message to the account linked to this email" + " at https://jumbodinosaurs.com/. If this was not you contact us at jumbodinosaurs@gmail.com.\n\n" + "If this was you visit https://www.jumbodinosaurs.com/changepassword.html and enter this code\n To change your password." + "\n\n" + token;
                                 //WebUtil.sendEmail(userToSendCodeTo.getEmail(), "Password Change", messageToSend);
                             }
                         }
@@ -355,8 +355,8 @@ public class HTTPHandler
                 {
                     User user = null;
                     boolean tokenLogin = true;
-                    if(!CredentialsManager.isIPCaptchaLocked(this.request.getIp()) || CredentialsManager.isAbuserUnlocked(
-                            this.request.getIp()))
+                    if(!CredentialsManager.isIPCaptchaLocked(this.message.getIp()) || CredentialsManager.isAbuserUnlocked(
+                            this.message.getIp()))
                     {
                         if(postRequest.getUsername() != null && postRequest.getPassword() != null)
                         {
@@ -367,12 +367,12 @@ public class HTTPHandler
                         else if(postRequest.getToken() != null)
                         {
                             user = CredentialsManager.loginToken(postRequest.getToken(),
-                                                                                 this.request.getIp());
+                                                                                 this.message.getIp());
                         }
                         
                         if(user == null)
                         {
-                            CredentialsManager.loginStrikeIP(this.request.getIp());
+                            CredentialsManager.loginStrikeIP(this.message.getIp());
                         }
                     }
                     else if(captchaScore > .5)
@@ -386,7 +386,7 @@ public class HTTPHandler
                         else if(postRequest.getToken() != null)
                         {
                             user = CredentialsManager.loginToken(postRequest.getToken(),
-                                                                                 this.request.getIp());
+                                                                                 this.message.getIp());
                         }
                     }
                     
@@ -502,7 +502,7 @@ public class HTTPHandler
                                     {
                                         
                                         response.setMessage200(CredentialsManager.getToken(user,
-                                                                                                           this.request.getIp()));
+                                                                                                           this.message.getIp()));
                                         send400Code = false;
                                     }
                                     break;
@@ -512,7 +512,7 @@ public class HTTPHandler
                                     {
                                         try
                                         {
-                                            String emailCode = this.request.getIp() + emailCodeSendDate.toString() + postRequest.getEmailCode();
+                                            String emailCode = this.message.getIp() + emailCodeSendDate.toString() + postRequest.getEmailCode();
                                             if(PasswordStorage.verifyPassword(emailCode, user.getEmailCode()))
                                             {
                                                 User userConfirmedEmail = user.clone();
@@ -571,7 +571,7 @@ public class HTTPHandler
                                         if(sendEmail)
                                         {
                                             String randomEmailCode = User.generateRandomEmailCode();
-                                            String emailCode = this.request.getIp() + now.toString() + randomEmailCode;
+                                            String emailCode = this.message.getIp() + now.toString() + randomEmailCode;
                                             String safeHash = ServerUtil.safeHashPassword(emailCode);
                                             String message = "You have been sent a code to verify your email at Jumbo Dinosaurs. \n" + "To verify your email you need to visit https://www.jumbodinosaurs.com/verifyemail.html and enter your code." + "\n\nCode for Verification: " + randomEmailCode + " \n\n\n   Regards, Jumbo";
                                             User updatedUserInfo = user.clone();

@@ -11,11 +11,12 @@ public class Session
     private LocalDateTime datetime;
     private String message;
     private String messageSent;
+    private boolean isSecureConnection;
     private transient Channel channel;
 
     
     
-    public Session(Channel channel, String message) throws Exception
+    public Session(Channel channel, String message)
     {
         String ip = channel.remoteAddress().toString();
         if(ip.contains(":"))
@@ -76,5 +77,23 @@ public class Session
     }
     
     
+    public boolean isSecureConnection()
+    {
+        return isSecureConnection;
+    }
     
+    public void setSecureConnection(boolean secureConnection)
+    {
+        isSecureConnection = secureConnection;
+    }
+    
+    public Channel getChannel()
+    {
+        return channel;
+    }
+    
+    public void setChannel(Channel channel)
+    {
+        this.channel = channel;
+    }
 }
