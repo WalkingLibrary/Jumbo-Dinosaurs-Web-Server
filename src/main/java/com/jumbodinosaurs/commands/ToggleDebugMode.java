@@ -3,22 +3,27 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.options.Option;
+import com.jumbodinosaurs.util.OptionIdentifier;
+import com.jumbodinosaurs.util.OptionUtil;
 
-public class ToggleDebugMessages extends Command
+public class ToggleDebugMode extends Command
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
+        
+        Option<Boolean> debugMode = new Option<Boolean>(!OptionUtil.isInDebugMode(), OptionIdentifier.debugMode.getIdentifier());
+        OptionUtil.setOption(debugMode);
         String outputMessage = "";
-        if(OperatorConsole.debug)
+        if(OptionUtil.isInDebugMode())
         {
-            outputMessage += "Debug Messages will not be displayed"+ "\n";
+            outputMessage += "The server is now in debugMode"+ "\n";
         }
         else
         {
-            outputMessage += "Debug Messages will be displayed"+ "\n";
+            outputMessage += "The server is no longer in debugMode"+ "\n";
         }
-        OperatorConsole.debug = !OperatorConsole.debug;
         return new MessageResponse(outputMessage);
     }
     

@@ -7,6 +7,7 @@ import com.jumbodinosaurs.netty.handler.IHandlerHolder;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPHandler;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.util.OptionUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,24 +28,24 @@ public class HTTPSessionHandler extends SimpleChannelInboundHandler<String> impl
             Channel channel = context.channel();
             Session session = new Session(channel, message);
             boolean allowConnection = false;
-            if(OperatorConsole.whitelist)
+            if(OptionUtil.isWhiteListOn())
             {
-                if(OperatorConsole.whitelistedIps != null)
+                
+                for(String ip : OptionUtil.getWhiteList())
                 {
-                    for(String ip : OperatorConsole.whitelistedIps)
+                    if(session.getWho().contains(ip))
                     {
-                        if(session.getWho().contains(ip))
-                        {
-                            allowConnection = true;
-                            break;
-                        }
+                        allowConnection = true;
+                        break;
                     }
                 }
+                
             }
             else
             {
                 allowConnection = true;
             }
+            
             
             if(allowConnection)
             {
@@ -62,7 +63,7 @@ public class HTTPSessionHandler extends SimpleChannelInboundHandler<String> impl
                     {
                         response = new HTTPHandler(request).generateResponse();
                     }
-    
+                    
                     //Would be kinda point less to hash a password if we saved it over in logs.json :P
                     session.setMessage(request.getCensoredMessage());
                     session.setMessageSent(response.getMessageToLog());
@@ -70,8 +71,6 @@ public class HTTPSessionHandler extends SimpleChannelInboundHandler<String> impl
                 //Send Message
                 context.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
                 
-               
-             
                 
                 OperatorConsole.printMessageFiltered(session.toString(), true, false);
                 
@@ -90,7 +89,8 @@ public class HTTPSessionHandler extends SimpleChannelInboundHandler<String> impl
     public void exceptionCaught(ChannelHandlerContext context,
                                 Throwable cause)
     {
-        if(!(cause.getMessage() != null || cause.getMessage().contains("no cipher suites in common") || cause.getMessage().contains(
+        if(!(cause.getMessage() != null || cause.getMessage()
+                                                .contains("no cipher suites in common") || cause.getMessage().contains(
                 "not an SSL/TLS") || cause.getMessage().contains(
                 "Client requested protocol SSLv3 not enabled or not supported") || cause.getMessage().contains(
                 "Connection reset by peer")))

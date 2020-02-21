@@ -1,20 +1,28 @@
 package com.jumbodinosaurs.commands;
 
-import com.jumbodinosaurs.devlib.commands.CommandWithParameters;
+import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.options.Option;
+import com.jumbodinosaurs.util.OptionIdentifier;
+import com.jumbodinosaurs.util.OptionUtil;
 
-public class WhiteListAdd extends CommandWithParameters
+import java.util.ArrayList;
+
+public class WhiteListAdd extends Command
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         try
         {
-            String ip = this.getParameters().get(0).getParameter();
-            OperatorConsole.whitelistedIps.add(ip);
-            String outputMessage = "I.P. added: " + ip + "\n";
-            return new MessageResponse(outputMessage);
+            System.out.println("Enter IP:");
+            String ip = OperatorConsole.getEnsuredAnswer();
+            ArrayList<String> whiteList = OptionUtil.getWhiteList();
+            whiteList.add(ip);
+            Option<ArrayList<String>> whiteListedIps = new Option<ArrayList<String>>(whiteList, OptionIdentifier.whiteList.getIdentifier());
+            OptionUtil.setOption(whiteListedIps);
+            return new MessageResponse("I.P. added: " + ip + "\n");
         }
         catch(Exception e)
         {

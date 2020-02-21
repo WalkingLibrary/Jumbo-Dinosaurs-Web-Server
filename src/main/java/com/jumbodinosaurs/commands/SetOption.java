@@ -1,10 +1,10 @@
 package com.jumbodinosaurs.commands;
 
-import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.devlib.commands.CommandWithParameters;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.devlib.options.Option;
+import com.jumbodinosaurs.util.OptionUtil;
 
 public class SetOption extends CommandWithParameters
 {
@@ -17,7 +17,8 @@ public class SetOption extends CommandWithParameters
         }
         String optionIdentifier = this.getParameters().get(0).getParameter();
         String optionValue = this.getParameters().get(1).getParameter();
-        ServerControl.optionsManager.setOption(new Option<String>(optionValue, optionIdentifier));
+        
+        OptionUtil.setOption(new Option<String>(optionValue, optionIdentifier));
         return new MessageResponse("Set " + optionIdentifier + " to " + optionValue);
     }
     

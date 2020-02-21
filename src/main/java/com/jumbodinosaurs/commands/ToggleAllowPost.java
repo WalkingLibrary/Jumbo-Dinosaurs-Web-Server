@@ -4,6 +4,9 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.options.Option;
+import com.jumbodinosaurs.util.OptionIdentifier;
+import com.jumbodinosaurs.util.OptionUtil;
 
 public class ToggleAllowPost extends Command
 {
@@ -12,15 +15,20 @@ public class ToggleAllowPost extends Command
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         String outputMessage = "";
-        if(OperatorConsole.allowPost)
+        boolean allowPostCurrentState = OptionUtil.allowPost();
+        Option<Boolean> updatedAllowPostState = new Option<Boolean>(!allowPostCurrentState,
+                                                                    OptionIdentifier.allowPost.getIdentifier());
+        OptionUtil.setOption(updatedAllowPostState);
+        if(OptionUtil.allowPost())
         {
-            outputMessage += "The server will no longer accept post requests" + "\n";
+            outputMessage += "The server will now accept posts" + "\n";
         }
         else
         {
-            outputMessage += "The server will now accept post requests" + "\n";
+            outputMessage += "The server will no longer accept posts" + "\n";
         }
-        OperatorConsole.allowPost = !OperatorConsole.allowPost;
+        
+        
         return new MessageResponse(outputMessage);
     }
     

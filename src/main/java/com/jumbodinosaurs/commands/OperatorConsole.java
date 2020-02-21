@@ -1,11 +1,18 @@
 package com.jumbodinosaurs.commands;
 
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.log.Session;
+import com.jumbodinosaurs.util.OptionUtil;
+import com.jumbodinosaurs.util.ServerUtil;
 
+import java.io.File;
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,28 +21,21 @@ import java.util.Scanner;
 public class OperatorConsole implements Runnable
 {
     
-    //TODO move options to ServerControl.optionsManager
-    public static boolean debug;
+    //TODO make statistics manager
     public static int hitsToday = 0;
     public static LocalDate today = LocalDate.now();
     public static int totalHits = 0;
     public static int exceptions = 0;
-    public static boolean allowPost = true;
-    public static boolean whitelist = false;
-    public static ArrayList<String> whitelistedIps = new ArrayList<String>();
     public static boolean redirectToSSL;
     public static boolean sslThreadRunning;
     
     
     public OperatorConsole()
     {
-        //TODO fix this
-        /*
-        exceptions = 0;
-        debug = true;
         
+        exceptions = 0;
         File[] oldSessionsLogs = GeneralUtil.listFilesRecursive(GeneralUtil.checkFor(ServerUtil.logsDirectory,
-                                                                                    "Session " + "Logs"));
+                                                                                     "Session " + "Logs"));
         ArrayList<Session> pastSession = new ArrayList<Session>();
         for(File logFile: oldSessionsLogs)
         {
@@ -60,7 +60,7 @@ public class OperatorConsole implements Runnable
                 }
             }
         }
-        */
+        
         System.out.println("Console Online");
     }
     
@@ -78,7 +78,7 @@ public class OperatorConsole implements Runnable
         
         if(debugMessage)
         {
-            if(debug)
+            if(OptionUtil.isInDebugMode())
             {
                 System.out.println(message);
             }
@@ -116,10 +116,6 @@ public class OperatorConsole implements Runnable
         }
     }
     
-    public static boolean allowPost()
-    {
-        return allowPost;
-    }
     
     public static String getEnsuredAnswer()
     {

@@ -10,6 +10,7 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.util.CredentialsManager;
+import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class StatisticsExtra extends Command
         outputMessage += "Total Hits: " + OperatorConsole.totalHits + "\n";
         outputMessage += "Hits Today: " + OperatorConsole.hitsToday + "\n";
         outputMessage += "Exceptions: " + OperatorConsole.exceptions + "\n";
-        outputMessage += "Debug Messages Will Be Shown: " + OperatorConsole.debug + "\n";
+        outputMessage += "Debug Messages Will Be Shown: " + OptionUtil.isInDebugMode() + "\n";
         outputMessage += "Time for The Server: " + LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + "\n";
         outputMessage += "Users: " + CredentialsManager.getUserCount() + "\n";
         outputMessage += "Amount of Posts: " + ServerUtil.getAllPostsList().size() + "\n";
@@ -53,12 +54,12 @@ public class StatisticsExtra extends Command
             
             
         }
-        outputMessage += "White List Enabled: " + OperatorConsole.whitelist + "\n";
+        outputMessage += "White List Enabled: " + OptionUtil.isWhiteListOn() + "\n";
         
-        if(OperatorConsole.whitelistedIps.size() > 0)
+        if(OptionUtil.getWhiteList().size() > 0)
         {
             outputMessage += "White Listed I.P.s: " + "\n";
-            for(String ip : OperatorConsole.whitelistedIps)
+            for(String ip : OptionUtil.getWhiteList())
             {
                 outputMessage += "I.P.: " + ip + "\n";
             }

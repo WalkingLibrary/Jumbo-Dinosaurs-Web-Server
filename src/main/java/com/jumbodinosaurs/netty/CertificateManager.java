@@ -1,6 +1,5 @@
 package com.jumbodinosaurs.netty;
 
-import com.jumbodinosaurs.ServerControl;
 import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.devlib.email.EmailManager;
 import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
@@ -9,6 +8,7 @@ import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.util.LinuxUtil;
+import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class CertificateManager
     
     public static void setupSecureDomain(SecureDomain domain) throws NoSuchOptionException, NoSuchEmailException
     {
-        String serversEmailsUsername = (String)ServerControl.optionsManager.getOption("email").getOption();
+        String serversEmailsUsername = OptionUtil.getDefaultEmail();
         Email serversEmail = EmailManager.getEmail(serversEmailsUsername);
         makeCertificate(domain, serversEmail);
         convertPemToKS(domain);
