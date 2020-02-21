@@ -45,7 +45,7 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 }
                 else
                 {
-                    response = new HTTPResponseGenerator(message).generateResponse();
+                    response = HTTPResponseGenerator.generateResponse(message);
                 }
     
                 //Would be kinda point less to hash a password if we saved it over in logs.json :P

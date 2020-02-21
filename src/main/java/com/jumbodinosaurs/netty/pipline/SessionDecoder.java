@@ -12,7 +12,6 @@ public class SessionDecoder extends MessageToMessageDecoder<String>
     @Override
     protected void decode(ChannelHandlerContext ctx, String msg, List<Object> out) throws Exception
     {
-        System.out.println("Session");
         Session sessionContext = new Session(ctx.channel(), msg);
         sessionContext.setSecureConnection(isSecureSession(sessionContext));
         ctx.fireChannelRead(sessionContext);

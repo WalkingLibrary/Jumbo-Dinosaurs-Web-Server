@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.netty.handler.http.util;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.netty.handler.http.exceptions.NoSuchHeaderException;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.util.ServerUtil;
 
 public class HTTPResponse
@@ -20,7 +20,7 @@ public class HTTPResponse
     //headers
     private final String locationHeader = "\r\nLocation:";
     private final String closeHeader = " \r\nConnection: Close\r\n\r\n";
-   
+    
     private String messageOut;
     private byte[] bytesOut;
     
@@ -77,20 +77,15 @@ public class HTTPResponse
     
     public void setMessageToRedirectToHTTPS(HTTPMessage request)
     {
-        try
-        {
-            String host = request.getHeader(ClientHeaderPatterns.HOSTHEADER.getPattern());
-            host = host.split(" ").length <= 1 ? ServerUtil.getHost() : host.split(" ")[1];
-            this.messageOut = this.sC301;
-            this.messageOut += this.locationHeader + " https://" + host + request.getPath();
-            this.messageOut += this.closeHeader;
-        }
-        catch(NoSuchHeaderException e)
+        Domain messageHost = request.getDomain();
+        if(messageHost == null)
         {
             setMessage400();
+            return;
         }
-       
-       
+        this.messageOut = this.sC301;
+        this.messageOut += this.locationHeader + " https://" + messageHost + request.getPath();
+        this.messageOut += this.closeHeader;
     }
     
     public void setMessage400()
@@ -112,8 +107,8 @@ public class HTTPResponse
         this.messageOut = this.sC404;
         this.messageOut += this.closeHeader;
         this.messageOut += GeneralUtil.scanFileContents(ServerUtil.safeSearchDir(ServerUtil.getDirectory,
-                                                                "/404.html",
-                                                                true));
+                                                                                 "/404.html",
+                                                                                 true));
     }
     
     public void setMessage501()
@@ -127,5 +122,5 @@ public class HTTPResponse
         return this.messageOut.substring(0, this.messageOut.indexOf(this.closeHeader));
     }
     
-   
+    
 }

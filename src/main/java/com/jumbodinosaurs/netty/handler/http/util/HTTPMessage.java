@@ -1,6 +1,8 @@
 package com.jumbodinosaurs.netty.handler.http.util;
 
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
+import com.jumbodinosaurs.domain.DomainManager;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.netty.handler.http.exceptions.NoSuchHeaderException;
 
 import java.util.ArrayList;
@@ -111,6 +113,25 @@ public class HTTPMessage
             censoredMessage += header + "\r\n";
         }
         return censoredMessage;
+    }
+    
+    public Domain getDomain()
+    {
+        try
+        {
+            String hostHeader = getHeader(ClientHeaderPatterns.HOSTHEADER.getPattern());
+            String[] hostHeaderSplit = hostHeader.split(" ");
+            if(hostHeaderSplit.length <= 1)
+            {
+                return null;
+            }
+            String host = hostHeaderSplit[1];
+            return DomainManager.getDomain(host);
+        }
+        catch(NoSuchHeaderException e)
+        {
+            return null;
+        }
     }
     
     public String getHeader(String pattern) throws NoSuchHeaderException
