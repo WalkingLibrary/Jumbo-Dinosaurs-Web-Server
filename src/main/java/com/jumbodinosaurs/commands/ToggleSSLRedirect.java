@@ -3,6 +3,9 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.options.Option;
+import com.jumbodinosaurs.util.OptionIdentifier;
+import com.jumbodinosaurs.util.OptionUtil;
 
 public class ToggleSSLRedirect extends Command
 {
@@ -10,16 +13,19 @@ public class ToggleSSLRedirect extends Command
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
+        boolean currentStateOfRedirects = OptionUtil.shouldUpgradeInsecureConnections();
+        Option<Boolean> updatedState = new Option<Boolean>(!currentStateOfRedirects,
+                                                           OptionIdentifier.shouldUpgradeInsecureConnections.getIdentifier());
+        OptionUtil.setOption(updatedState);
         String outputMessage = "";
-        if(OperatorConsole.redirectToSSL)
+        if(OptionUtil.shouldUpgradeInsecureConnections())
         {
-            outputMessage += "HTTP requests will no longer be Redirected to HTTPS" + "\n";
+            outputMessage += "Insecure Connections will be redirected to secure connections" + "\n";
         }
         else
         {
-            outputMessage += "HTTP requests will now try to Redirect To HTTPS"+ "\n";
+            outputMessage += "Insecure Connections will not be redirected to secure connections"+ "\n";
         }
-        OperatorConsole.redirectToSSL = !OperatorConsole.redirectToSSL;
         return new MessageResponse(outputMessage);
     }
     

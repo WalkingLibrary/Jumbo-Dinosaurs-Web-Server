@@ -2,7 +2,12 @@ package com.jumbodinosaurs.util;
 
 public enum OptionIdentifier
 {
-    debugMode("debugMode"), allowPost("allowPost"), isWhiteListOn("isWhiteListOn"), whiteList("whiteList"), email("email") ;
+    debugMode("debugMode"),
+    allowPost("allowPost"),
+    isWhiteListOn("isWhiteListOn"),
+    whiteList("whiteList"),
+    email("email"),
+    shouldUpgradeInsecureConnections("shouldUpgradeInsecureConnections");
     private String identifier;
     
     OptionIdentifier(String identifier)

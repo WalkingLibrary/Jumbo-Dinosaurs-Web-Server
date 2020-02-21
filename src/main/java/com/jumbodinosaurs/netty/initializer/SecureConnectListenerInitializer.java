@@ -41,8 +41,6 @@ public class SecureConnectListenerInitializer extends ConnectionListenerInitiali
     {
         if(domainToContextMap == null)
         {
-            OperatorConsole.redirectToSSL = false;
-            OperatorConsole.sslThreadRunning = false;
             return;
         }
         super.run();

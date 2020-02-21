@@ -51,11 +51,12 @@ public class HTTPSessionHandler extends SimpleChannelInboundHandler<String> impl
             {
                 HTTPResponse response = new HTTPResponse();
                 response.setMessage501();
+                //TODO FIX THIS
                 boolean isEncrypted = context.pipeline().names().contains("io.netty.handlerHolder.ssl.SslHandler");
                 HTTPRequest request = new HTTPRequest(session.getMessage(), isEncrypted, session.getWho());
                 if(request.isHTTP())
                 {
-                    if(!isEncrypted && OperatorConsole.redirectToSSL && OperatorConsole.sslThreadRunning)
+                    if(!isEncrypted && OptionUtil.shouldUpgradeInsecureConnections())
                     {
                         response.setMessageToRedirectToHTTPS(request);
                     }

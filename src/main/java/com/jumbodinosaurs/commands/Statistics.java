@@ -16,13 +16,12 @@ public class Statistics extends Command
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
-        OperatorConsole.updateTodaysDate();
         String outputMessage = "";
         outputMessage += "As of " + LocalDateTime.now().toString() + "\n";
         outputMessage += "Public I.P.: " + ServerUtil.host + "\n";
-        outputMessage += "Total Hits: " + OperatorConsole.totalHits + "\n";
-        outputMessage += "Hits Today: " + OperatorConsole.hitsToday + "\n";
-        outputMessage += "Exceptions: " + OperatorConsole.exceptions + "\n";
+        //outputMessage += "Total Hits: " + OperatorConsole.totalHits + "\n";
+        //outputMessage += "Hits Today: " + OperatorConsole.hitsToday + "\n";
+        //outputMessage += "Exceptions: " + OperatorConsole.exceptions + "\n";
         outputMessage += "Debug Messages Will Be Shown: " + OptionUtil.isInDebugMode() + "\n";
         outputMessage += "Time for The Server: " + LocalTime.now().getHour()  + ":" + LocalTime.now().getMinute() +
                                  "\n";

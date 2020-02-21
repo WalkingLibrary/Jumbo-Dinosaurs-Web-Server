@@ -38,6 +38,11 @@ public class OptionUtil
         return optionsManager.getOption(OptionIdentifier.whiteList.getIdentifier(), new ArrayList<String>()).getOption();
     }
     
+    public static boolean shouldUpgradeInsecureConnections()
+    {
+        return optionsManager.getOption(OptionIdentifier.shouldUpgradeInsecureConnections.getIdentifier(), false).getOption();
+    }
+    
     
     public static <E> void setOption(Option<E> option)
     {

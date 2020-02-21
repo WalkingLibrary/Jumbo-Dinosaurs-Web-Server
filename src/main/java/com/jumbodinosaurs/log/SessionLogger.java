@@ -45,7 +45,7 @@ public class SessionLogger implements Runnable
 
     public synchronized void log(Session session)
     {
-        OperatorConsole.addHit(session);
+        //OperatorConsole.addHit(session);
         File logFile = ServerUtil.getLogFileFromDate(session.getDateTime());
         String fileContents = GeneralUtil.scanFileContents(logFile);
         if(fileContents != null && fileContents != "")
