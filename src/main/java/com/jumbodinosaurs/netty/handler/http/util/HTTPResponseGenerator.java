@@ -12,16 +12,27 @@ public class HTTPResponseGenerator
     {
         if(message.getMethod().equals(Method.GET))
         {
-            /*
-             *
-             *
-             *
+            /* Dealing with GET Requests
+             * We first need to analyze the file they are requesting and change it if need be
+             * We then need to search our GET dir for the specified file
+             * If we Don't have the file they are looking for we return a 404 message with the 404 page
+             * Next we need to form our headers for the message which depends on the type of file we are sending
              */
+            
+            
+            
+            //We first need to analyze the file they are requesting and change it if need be
             String filePath = message.getPath();
             if(filePath.equals("/"))
             {
                 filePath = "/home.html";
             }
+            
+            
+            
+            
+            
+            // We then need to search our GET dir for the specified file
             Domain messageHost = message.getDomain();
             File dirToSearch = ServerUtil.getDirectory;
             
@@ -35,6 +46,8 @@ public class HTTPResponseGenerator
             if(fileToServe == null)
             {
                 fileToServe = ServerUtil.safeSearchDir(ServerUtil.getDirectory, filePath, false);
+                
+                //If we Don't have the file they are looking for we return a 404 message with the 404 page
                 if(fileToServe == null)
                 {
                     HTTPResponse response = new HTTPResponse();
@@ -43,7 +56,7 @@ public class HTTPResponseGenerator
                 }
             }
             
-            
+            //Next we need to form our headers for the message which depends on the type of file we are sending
             String headers = "";
             String type = GeneralUtil.getType(fileToServe);
             

@@ -15,7 +15,13 @@ public class GenerateIndexFile extends StartUpTask
     
         for(File file : GeneralUtil.listFilesRecursive(ServerUtil.getDirectory))
         {
-            indexHTML += "<a href = ./" + file.getName() + ">" + "./" + file.getName() + "</a><br>";
+            String allowedHiddenDir = ".well-known";
+            String hiddenDirPattern = File.separator + ".";
+            if(!file.getAbsolutePath().contains(hiddenDirPattern) || file.getAbsolutePath().contains(allowedHiddenDir))
+            {
+                String relitivePath = file.getParentFile().getName() + File.separator + file.getName();
+                indexHTML += "<a href = ./" + file.getName() + ">" + relitivePath + "</a><br>";
+            }
         }
     
         indexHTML += "</h4>\n" + "</body>\n" + "</html>";
@@ -27,6 +33,7 @@ public class GenerateIndexFile extends StartUpTask
     {
         String indexFileName = "index.html";
         File indexFile = new File(ServerUtil.getDirectory.getAbsolutePath() + indexFileName);
+        
         if(!indexFile.exists())
         {
             String indexPage = getIndexPage();

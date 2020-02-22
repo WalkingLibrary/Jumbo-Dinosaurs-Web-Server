@@ -15,23 +15,6 @@ public class HTTPParser
     public static HTTPMessage parseResponse(Session session) throws MalformedHTTPMessage
     {
         
-        /*
-         public HTTPMessage(boolean encryptedConnection,
-                       PostRequest postRequest,
-                       String ip,
-                       Method method, String path, ArrayList<String> headers, String postData)
-    {
-        this.encryptedConnection = encryptedConnection;
-        this.postRequest = postRequest;
-        this.ip = ip;
-        this.method = method;
-        this.path = path;
-        this.headers = headers;
-        this.postData = postData;
-    }*/
-    
-        
-        
         String messageFromClient = session.getMessage();
         String[] lines = messageFromClient.split("\r\n");
         if(lines.length <= 0)
@@ -101,7 +84,5 @@ public class HTTPParser
         {
             return new HTTPMessage(secureConnection, ip, method, path, headers);
         }
-        
-        
     }
 }

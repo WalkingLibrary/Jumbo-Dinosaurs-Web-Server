@@ -146,25 +146,31 @@ public class ServerUtil
         //If count is greater than 1 might have duplicate files and could be a problem
         int count = 0;
         
-        String pathofRequestedFile = dirToSearch.getAbsolutePath() + localPath;
+        String pathOfRequestedFile = dirToSearch.getAbsolutePath() + localPath;
+        
+        String allowedHiddenDir = ".well-known";
+        String hiddenDirPattern = File.separator + ".";
         for(File file : filesInAllowedDir)
         {
-            if(matchPath)
+            if(!file.getAbsolutePath().contains(hiddenDirPattern) || file.getAbsolutePath().contains(allowedHiddenDir))
             {
-                if(file.getAbsolutePath().equals(pathofRequestedFile))
+                if(matchPath)
                 {
-                    fileToGive = file;
-                    count++;
+                    if(file.getAbsolutePath().equals(pathOfRequestedFile))
+                    {
+                        fileToGive = file;
+                        count++;
+                    }
                 }
-            }
-            else
-            {
-                
-                String pathToCheck = file.getAbsolutePath().substring(dirToSearch.getAbsolutePath().length());
-                if(pathToCheck.contains(localPath))
+                else
                 {
-                    fileToGive = file;
-                    count++;
+        
+                    String pathToCheck = file.getAbsolutePath().substring(dirToSearch.getAbsolutePath().length());
+                    if(pathToCheck.contains(localPath))
+                    {
+                        fileToGive = file;
+                        count++;
+                    }
                 }
             }
         }
