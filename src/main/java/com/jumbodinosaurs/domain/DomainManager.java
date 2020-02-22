@@ -32,7 +32,7 @@ public class DomainManager
         for(Domain domain: domains)
         {
             domain.setGetDir(GeneralUtil.checkFor(ServerUtil.getDirectory, domain.getSecondLevelDomainName()));
-            domain.setGetDir(GeneralUtil.checkFor(ServerUtil.postDirectory, domain.getSecondLevelDomainName()));
+            domain.setPostDir(GeneralUtil.checkFor(ServerUtil.postDirectory, domain.getSecondLevelDomainName()));
         }
     }
     
@@ -40,7 +40,7 @@ public class DomainManager
     {
         for(SecureDomain domain: domains)
         {
-            if(domain.getDomain().equals(domainName))
+           if(domain.getDomain().equals(domainName))
             {
                 return domain;
             }

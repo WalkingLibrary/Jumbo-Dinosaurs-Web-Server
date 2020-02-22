@@ -178,7 +178,7 @@ public class ServerUtil
         //DEBUG
         if(count > 1)
         {
-            System.out.println(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
+            OperatorConsole.printMessageFiltered(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath(), true, false);
         }
         return fileToGive;
     }
