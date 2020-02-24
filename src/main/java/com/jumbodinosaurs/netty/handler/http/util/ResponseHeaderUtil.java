@@ -21,7 +21,9 @@ public class ResponseHeaderUtil
         imageFileTypes.add("png");
         imageFileTypes.add("jpeg");
         imageFileTypes.add("JPG");
+        imageFileTypes.add("jpg");
         imageFileTypes.add("ico");
+        imageFileTypes.add("gif");
         return imageFileTypes;
     }
     
