@@ -1,13 +1,12 @@
 package com.jumbodinosaurs.commands.domain;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
-import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 
-public class SetDomainCertificatePassword extends Command
+public class SetDomainCertificatePassword extends DomainCommand
 {
     
     @Override

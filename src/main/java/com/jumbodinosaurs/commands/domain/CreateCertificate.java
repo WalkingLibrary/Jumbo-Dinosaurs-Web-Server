@@ -1,7 +1,6 @@
 package com.jumbodinosaurs.commands.domain;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
-import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
@@ -10,7 +9,7 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.CertificateManager;
 
-public class CreateCertificate extends Command
+public class CreateCertificate extends DomainCommand
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException

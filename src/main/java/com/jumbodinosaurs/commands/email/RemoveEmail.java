@@ -1,13 +1,12 @@
 package com.jumbodinosaurs.commands.email;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
-import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.devlib.email.EmailManager;
 
-public class RemoveEmail extends Command
+public class RemoveEmail extends EmailCommand
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException

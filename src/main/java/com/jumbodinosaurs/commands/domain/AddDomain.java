@@ -1,7 +1,6 @@
 package com.jumbodinosaurs.commands.domain;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
-import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.domain.DomainManager;
@@ -10,7 +9,7 @@ import com.jumbodinosaurs.domain.util.UpdatableDomain;
 
 import java.util.Scanner;
 
-public class AddDomain extends Command
+public class AddDomain extends DomainCommand
 {
     
     @Override

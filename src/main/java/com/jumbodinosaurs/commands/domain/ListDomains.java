@@ -1,12 +1,11 @@
 package com.jumbodinosaurs.commands.domain;
 
-import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 
-public class ListDomains extends Command
+public class ListDomains extends DomainCommand
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException

@@ -1,12 +1,11 @@
 package com.jumbodinosaurs.commands.domain;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
-import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.domain.DomainManager;
 
-public class RemoveDomain extends Command
+public class RemoveDomain extends DomainCommand
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
