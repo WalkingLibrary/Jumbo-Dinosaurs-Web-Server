@@ -27,12 +27,12 @@ import java.io.FileNotFoundException;
 import java.security.KeyStore;
 
 
-public class SecureConnectListenerInitializer extends ConnectionListenerInitializer
+public class SecureHTTPConnectListenerInitializer extends ConnectionListenerInitializer
 {
     private Mapping<String, SslContext> domainToContextMap = null;
     
-    public SecureConnectListenerInitializer(int port,
-                                            IHandlerHolder iHandlerHolder)
+    public SecureHTTPConnectListenerInitializer(int port,
+                                                IHandlerHolder iHandlerHolder)
     {
         super(port, iHandlerHolder);
         initMapping();

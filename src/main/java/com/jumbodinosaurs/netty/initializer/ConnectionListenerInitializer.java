@@ -38,7 +38,7 @@ public abstract class ConnectionListenerInitializer extends ChannelInitializer<S
         catch(Exception e)
         {
             e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Creating Server on port " + this.port, false, true);
+            OperatorConsole.printMessageFiltered("Error Setting up Listener on port " + this.port, false, true);
         }
         finally
         {

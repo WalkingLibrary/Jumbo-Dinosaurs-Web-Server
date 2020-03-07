@@ -4,8 +4,8 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.ChannelManager;
 import com.jumbodinosaurs.netty.handler.http.HTTPHandler;
-import com.jumbodinosaurs.netty.initializer.DefaultConnectListenerInitializer;
-import com.jumbodinosaurs.netty.initializer.SecureConnectListenerInitializer;
+import com.jumbodinosaurs.netty.initializer.DefaultHTTPConnectListenerInitializer;
+import com.jumbodinosaurs.netty.initializer.SecureHTTPConnectListenerInitializer;
 import com.jumbodinosaurs.tasks.StartUpTask;
 
 public class SetupHTTP extends StartUpTask
@@ -13,7 +13,7 @@ public class SetupHTTP extends StartUpTask
     @Override
     public void run()
     {
-        DefaultConnectListenerInitializer port80 = new DefaultConnectListenerInitializer(80, new HTTPHandler());
+        DefaultHTTPConnectListenerInitializer port80 = new DefaultHTTPConnectListenerInitializer(80, new HTTPHandler());
         ChannelManager.addConnectionListener(port80);
         
         
@@ -29,8 +29,8 @@ public class SetupHTTP extends StartUpTask
         
         if(needsSecureListener)
         {
-            SecureConnectListenerInitializer port443 = new SecureConnectListenerInitializer(443,
-                                                                                            new HTTPHandler());
+            SecureHTTPConnectListenerInitializer port443 = new SecureHTTPConnectListenerInitializer(443,
+                                                                                                    new HTTPHandler());
             ChannelManager.addConnectionListener(port443);
         }
         else

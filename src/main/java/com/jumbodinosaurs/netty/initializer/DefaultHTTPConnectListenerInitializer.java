@@ -11,9 +11,9 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
-public class DefaultConnectListenerInitializer extends ConnectionListenerInitializer
+public class DefaultHTTPConnectListenerInitializer extends ConnectionListenerInitializer
 {
-    public DefaultConnectListenerInitializer(int port, IHandlerHolder iHandlerHolder)
+    public DefaultHTTPConnectListenerInitializer(int port, IHandlerHolder iHandlerHolder)
     {
         super(port, iHandlerHolder);
     }
