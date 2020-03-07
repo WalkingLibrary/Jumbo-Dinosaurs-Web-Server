@@ -11,9 +11,6 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- switch project over to devlib
-- stream line connection protocols
-- stream line domains and sni handler
 - fix post only reading from url
 - automate certificate update process
 - prep for Trom-Bone Integration
