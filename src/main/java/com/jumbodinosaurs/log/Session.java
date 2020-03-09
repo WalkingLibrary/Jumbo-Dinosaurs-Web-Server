@@ -16,7 +16,7 @@ public class Session
 
     
     
-    public Session(Channel channel, String message)
+    public Session(Channel channel)
     {
         String ip = channel.remoteAddress().toString();
         if(ip.contains(":"))
@@ -29,7 +29,6 @@ public class Session
         }
         this.datetime = LocalDateTime.now();
         this.channel = channel;
-        this.message = message;
     }
     
     public Session(String who, LocalDateTime dateTime, String message, String messageSent)

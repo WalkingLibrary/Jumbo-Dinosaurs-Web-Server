@@ -11,7 +11,6 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- fix post only reading from url
 - automate certificate update process
 - prep for Trom-Bone Integration
 

@@ -5,14 +5,13 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.exceptions.MissingCertificateException;
 import com.jumbodinosaurs.netty.handler.IHandlerHolder;
+import com.jumbodinosaurs.netty.pipline.HTTPRequestConverter;
 import com.jumbodinosaurs.netty.pipline.HTTPResponseEncoder;
-import com.jumbodinosaurs.netty.pipline.SessionDecoder;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import com.jumbodinosaurs.netty.pipline.SessionLogger;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.ssl.SniHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -50,21 +49,15 @@ public class SecureHTTPConnectListenerInitializer extends ConnectionListenerInit
     @Override
     protected void initChannel(SocketChannel channel) throws Exception
     {
-        
-        
         ChannelPipeline pipeline = channel.pipeline();
-        String delimiter = "\r\n\r\n";
-        ByteBuf buffer = Unpooled.buffer(delimiter.getBytes().length);
-        buffer.writeBytes(delimiter.getBytes());
         pipeline.addLast("sni", new SniHandler(this.domainToContextMap));
-        pipeline.addLast("framer", new DelimiterBasedFrameDecoder(10000000, buffer));
-        pipeline.addLast("decoder", new StringDecoder());
-        pipeline.addLast("sessionDecoder", new SessionDecoder());
+        pipeline.addLast("decoder", new HttpRequestDecoder());
+        pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
         pipeline.addLast("encoder", new HTTPResponseEncoder());
         pipeline.addLast("streamer", new ChunkedWriteHandler());
+        pipeline.addLast("sessionlogger", new SessionLogger());
+        pipeline.addLast("converter", new HTTPRequestConverter());
         pipeline.addLast("handler", this.handlerHolder.getInstance());
-        
-        
     }
     
     

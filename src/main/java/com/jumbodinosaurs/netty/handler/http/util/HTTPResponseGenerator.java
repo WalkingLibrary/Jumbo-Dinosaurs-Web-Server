@@ -3,14 +3,16 @@ package com.jumbodinosaurs.netty.handler.http.util;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.util.ServerUtil;
+import io.netty.handler.codec.http.HttpMethod;
 
 import java.io.File;
 
 public class HTTPResponseGenerator
 {
-    public static HTTPResponse generateResponse(HTTPMessage message)
+    public static HTTPResponse generateResponse(HTTPRequest message)
     {
-        if(message.getMethod().equals(Method.GET))
+        HTTPResponse response = new HTTPResponse();
+        if(message.getMethod().equals(HttpMethod.GET))
         {
             /* Dealing with GET Requests
              * We first need to analyze the file they are requesting and change it if need be
@@ -22,7 +24,7 @@ public class HTTPResponseGenerator
             
             
             //We first need to analyze the file they are requesting and change it if need be
-            String filePath = message.getPath();
+            String filePath = message.getUri();
             if(filePath.equals("/"))
             {
                 filePath = "/home.html";
@@ -50,7 +52,6 @@ public class HTTPResponseGenerator
                 //If we Don't have the file they are looking for we return a 404 message with the 404 page
                 if(fileToServe == null)
                 {
-                    HTTPResponse response = new HTTPResponse();
                     response.setMessage404();
                     return response;
                 }
@@ -66,7 +67,6 @@ public class HTTPResponseGenerator
                 byte[] photoBytes = ServerUtil.readPhoto(fileToServe);
                 headers += ResponseHeaderUtil.contentImageHeader + type;
                 headers += ResponseHeaderUtil.contentLengthHeader + photoBytes.length;
-                HTTPResponse response = new HTTPResponse();
                 response.setMessage200(headers, photoBytes);
                 return response;
             }
@@ -77,20 +77,28 @@ public class HTTPResponseGenerator
                 byte[] applicationBytes = ServerUtil.readZip(fileToServe);
                 headers += ResponseHeaderUtil.contentApplicationHeader + type;
                 headers += ResponseHeaderUtil.contentLengthHeader + applicationBytes.length;
-                HTTPResponse response = new HTTPResponse();
                 response.setMessage200(headers, applicationBytes);
                 return response;
             }
             
             
             headers += ResponseHeaderUtil.contentTextHeader + type;
-            HTTPResponse response = new HTTPResponse();
             response.setMessage200(headers, GeneralUtil.scanFileContents(fileToServe));
             return response;
         }
-    
-    
-        HTTPResponse response = new HTTPResponse();
+        
+        
+        
+        
+        if(message.getMethod().equals(HttpMethod.POST))
+        {
+            if(message.getPostRequest() == null)
+            {
+               response.setMessage400();
+               return response;
+            }
+        }
+        
         response.setMessage501();
         return response;
     }
