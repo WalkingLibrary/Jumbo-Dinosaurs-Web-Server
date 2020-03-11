@@ -12,6 +12,8 @@ Java Based Web Server
 
 ### Todos
 - automate certificate update process
+- add Time Stamps to output messages
+- fix/stream line logging system
 - add database systems
 - make auth lib and design auth system
 - prep for Trom-Bone Integration
