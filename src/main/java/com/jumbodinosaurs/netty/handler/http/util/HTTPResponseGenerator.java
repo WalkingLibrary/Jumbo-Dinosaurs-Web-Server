@@ -89,11 +89,6 @@ public class HTTPResponseGenerator
             return response;
         }
         
-        if(Method.POST.equals(message.getMethod()))
-        {
-            System.out.println("Message: " + message.toString());
-        }
-    
         HTTPResponse response = new HTTPResponse();
         response.setMessage501();
         return response;
