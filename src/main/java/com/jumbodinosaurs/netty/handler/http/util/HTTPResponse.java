@@ -2,9 +2,10 @@ package com.jumbodinosaurs.netty.handler.http.util;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.Domain;
+import com.jumbodinosaurs.netty.handler.ISessionLoggable;
 import com.jumbodinosaurs.util.ServerUtil;
 
-public class HTTPResponse
+public class HTTPResponse implements ISessionLoggable
 {
     //Status Codes
     private final String sC100 = "HTTP/1.1 100 Continue";
@@ -21,6 +22,7 @@ public class HTTPResponse
     private final String locationHeader = "\r\nLocation:";
     private final String closeHeader = " \r\nConnection: Close\r\n\r\n";
     
+    private String messageRecieved;
     private String messageOut;
     private byte[] bytesOut;
     
@@ -75,7 +77,7 @@ public class HTTPResponse
         this.messageOut += closeHeader;
     }
     
-    public void setMessageToRedirectToHTTPS(HTTPMessage request)
+    public void setMessageToRedirectToHTTPS(HTTPRequest request)
     {
         Domain messageHost = request.getDomain();
         if(messageHost == null)
@@ -84,7 +86,7 @@ public class HTTPResponse
             return;
         }
         this.messageOut = this.sC301;
-        this.messageOut += this.locationHeader + " https://" + messageHost + request.getPath();
+        this.messageOut += this.locationHeader + " https://" + messageHost + request.getUri();
         this.messageOut += this.closeHeader;
     }
     
@@ -123,4 +125,20 @@ public class HTTPResponse
     }
     
     
+    @Override
+    public String getMessageReceived()
+    {
+        return messageRecieved;
+    }
+    
+    public void setMessageReceived(String messageReceived)
+    {
+        this.messageRecieved = messageReceived;
+    }
+    
+    @Override
+    public String getMessageSent()
+    {
+        return getMessageToLog();
+    }
 }

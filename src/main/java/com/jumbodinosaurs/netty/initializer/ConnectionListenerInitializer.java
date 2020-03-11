@@ -42,9 +42,7 @@ public abstract class ConnectionListenerInitializer extends ChannelInitializer<S
         }
         finally
         {
-            this.bossGroup.shutdownGracefully();
-            this.workerGroup.shutdownGracefully();
-            this.isRunning = false;
+            shutDown();
         }
     }
     
@@ -52,6 +50,7 @@ public abstract class ConnectionListenerInitializer extends ChannelInitializer<S
     {
         this.bossGroup.shutdownGracefully();
         this.workerGroup.shutdownGracefully();
+        this.isRunning = false;
     }
     
     
