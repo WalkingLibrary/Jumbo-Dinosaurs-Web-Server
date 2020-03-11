@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.ServerControl;
-import com.jumbodinosaurs.devlib.util.ReflectionUtil;
+import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.tasks.ScheduledServerTask;
 import com.jumbodinosaurs.tasks.ServerTask;
 import com.jumbodinosaurs.tasks.StartUpTask;

@@ -16,9 +16,12 @@ buildscript {
 
 //https://docs.gradle.org/1.8-rc-1/userguide/dependency_management.html#sec:controlling_caching
 configurations.all {
-    resolutionStrategy.cacheDynamicVersionsFor 10, 'minutes'
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'minutes'
 }
 
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 1, 'minutes'
+}
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'

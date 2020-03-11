@@ -2,8 +2,8 @@ package com.jumbodinosaurs.domain;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
+import com.jumbodinosaurs.devlib.json.GsonUtil;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.devlib.util.GsonUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.CertificateManager;

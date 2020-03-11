@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.util;
 
+import com.jumbodinosaurs.devlib.reflection.ResourceLoaderUtil;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.devlib.util.ResourceLoaderUtil;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,7 +1,8 @@
 package com.jumbodinosaurs;
 
-import com.jumbodinosaurs.devlib.util.ReflectionUtil;
-import com.jumbodinosaurs.devlib.util.exceptions.NoSuchJarAttribute;
+
+import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
+import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.tasks.ScheduledServerTask;
 import com.jumbodinosaurs.tasks.implementations.startup.SetupServer;
