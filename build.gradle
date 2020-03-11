@@ -14,6 +14,10 @@ buildscript {
     }
 }
 
+//https://docs.gradle.org/1.8-rc-1/userguide/dependency_management.html#sec:controlling_caching
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 10, 'minutes'
+}
 
 
 apply plugin: 'java'
@@ -39,7 +43,7 @@ repositories {
 dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.github.WalkingLibrary:Dev-Lib:0f492cd6c0'
+    compile 'com.github.WalkingLibrary:Dev-Lib:-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.8.5'
     // https://mvnrepository.com/artifact/io.netty/netty-all
     compile 'io.netty:netty-all:4.1.33.Final'
@@ -53,7 +57,7 @@ dependencies {
 
 shadowJar {
     dependencies {
-        include(dependency('com.github.WalkingLibrary:Dev-Lib:0f492cd6c0'))
+        include(dependency('com.github.WalkingLibrary:Dev-Lib:-SNAPSHOT'))
         include(dependency('com.github.classgraph:classgraph:28b32ec'))
         include(dependency('com.google.code.gson:gson:2.8.5'))
         include(dependency('io.netty:netty-all:4.1.33.Final'))
