@@ -11,8 +11,9 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- fix post only reading from url
 - automate certificate update process
+- add database systems
+- make auth lib and design auth system
 - prep for Trom-Bone Integration
 
 License

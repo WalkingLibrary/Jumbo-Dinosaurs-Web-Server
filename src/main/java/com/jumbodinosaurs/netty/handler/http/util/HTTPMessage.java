@@ -147,4 +147,5 @@ public class HTTPMessage
         
         throw new NoSuchHeaderException("No header matching the pattern: " + pattern );
     }
+    
 }

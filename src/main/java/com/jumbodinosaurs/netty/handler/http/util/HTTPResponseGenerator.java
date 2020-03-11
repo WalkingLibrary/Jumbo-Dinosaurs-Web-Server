@@ -88,7 +88,11 @@ public class HTTPResponseGenerator
             response.setMessage200(headers, GeneralUtil.scanFileContents(fileToServe));
             return response;
         }
-    
+        
+        if(Method.POST.equals(message.getMethod()))
+        {
+            System.out.println("Message: " + message.toString());
+        }
     
         HTTPResponse response = new HTTPResponse();
         response.setMessage501();
