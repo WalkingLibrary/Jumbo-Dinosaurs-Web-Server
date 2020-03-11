@@ -1,6 +1,5 @@
 package com.jumbodinosaurs.log;
 
-
 import io.netty.channel.Channel;
 
 import java.time.LocalDateTime;
@@ -13,10 +12,10 @@ public class Session
     private String messageSent;
     private boolean isSecureConnection;
     private transient Channel channel;
-
     
     
-    public Session(Channel channel)
+    
+    public Session(Channel channel, String message)
     {
         String ip = channel.remoteAddress().toString();
         if(ip.contains(":"))
@@ -29,6 +28,7 @@ public class Session
         }
         this.datetime = LocalDateTime.now();
         this.channel = channel;
+        this.message = message;
     }
     
     public Session(String who, LocalDateTime dateTime, String message, String messageSent)
