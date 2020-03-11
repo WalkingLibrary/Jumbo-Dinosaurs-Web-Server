@@ -50,7 +50,7 @@ public class UpdateDNS extends ScheduledServerTask
     @Override
     public void run()
     {
-        System.out.println("Updating Domains");
+        OperatorConsole.printMessageFiltered("Updating Domains", true, false);
         for(Domain domain: DomainManager.getDomains())
         {
             if(domain instanceof UpdatableDomain)

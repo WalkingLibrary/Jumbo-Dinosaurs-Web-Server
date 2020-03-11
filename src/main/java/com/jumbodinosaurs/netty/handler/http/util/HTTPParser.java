@@ -70,7 +70,6 @@ public class HTTPParser
             httpContent = null;
         }
         
-        System.out.println(httpContent);
     
         //Parsing the HTTP Message
         
