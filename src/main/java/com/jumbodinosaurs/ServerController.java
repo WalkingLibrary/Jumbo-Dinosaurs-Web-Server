@@ -4,7 +4,6 @@ package com.jumbodinosaurs;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
-import com.jumbodinosaurs.objects.RuntimeArguments;
 import com.jumbodinosaurs.tasks.implementations.startup.SetupServer;
 
 import java.util.ArrayList;
@@ -15,13 +14,12 @@ public class ServerController
 {
     
     private static String version;
-    private static RuntimeArguments arguments;
     private static ScheduledThreadPoolExecutor threadScheduler = new ScheduledThreadPoolExecutor(4);
     private static ArrayList<ScheduledTask> scheduledServerTasks = new ArrayList<ScheduledTask>();
     
     
     
-    public ServerController(RuntimeArguments arguments)
+    public ServerController()
     {
         String attributeKey = "Jumbo-Dinosaurs-WebServer-Version";
         try
@@ -33,19 +31,11 @@ public class ServerController
             version = "Development Environment";
         }
         System.out.println("Starting Jumbo Dinosaurs " + version);//G
-        if(arguments == null)
-        {
-            System.out.println("Test Mode: " + ServerController.arguments.isInTestMode());
-        }
-        ServerController.arguments = arguments;
         SetupServer task = new SetupServer();
         task.run();
     }
     
-    public static RuntimeArguments getArguments()
-    {
-        return arguments;
-    }
+    
     
     public static ScheduledThreadPoolExecutor getThreadScheduler()
     {
