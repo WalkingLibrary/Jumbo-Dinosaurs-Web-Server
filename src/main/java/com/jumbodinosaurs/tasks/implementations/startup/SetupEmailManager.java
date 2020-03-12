@@ -1,15 +1,17 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.devlib.email.EmailManager;
-import com.jumbodinosaurs.tasks.StartUpTask;
+import com.jumbodinosaurs.devlib.task.Phase;
+import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.util.ServerUtil;
 
 public class SetupEmailManager extends StartUpTask
 {
-    @Override
-    public boolean isPreInitPhase()
+    
+    
+    public SetupEmailManager()
     {
-        return false;
+        super(Phase.Initialization);
     }
     
     @Override

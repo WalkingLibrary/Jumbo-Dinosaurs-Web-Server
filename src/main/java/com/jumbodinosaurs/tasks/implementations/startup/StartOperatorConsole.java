@@ -1,10 +1,16 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
-import com.jumbodinosaurs.tasks.StartUpTask;
+import com.jumbodinosaurs.devlib.task.Phase;
+import com.jumbodinosaurs.devlib.task.StartUpTask;
 
 public class StartOperatorConsole extends StartUpTask
 {
+    
+    public StartOperatorConsole()
+    {
+        super(Phase.PreInitialization);
+    }
     
     @Override
     public void run()
@@ -13,9 +19,4 @@ public class StartOperatorConsole extends StartUpTask
         commandThread.start();
     }
     
-    @Override
-    public boolean isPreInitPhase()
-    {
-        return false;
-    }
 }

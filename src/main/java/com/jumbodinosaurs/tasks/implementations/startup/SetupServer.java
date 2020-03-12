@@ -1,15 +1,11 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
-import com.jumbodinosaurs.ServerControl;
-import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
-import com.jumbodinosaurs.tasks.ScheduledServerTask;
-import com.jumbodinosaurs.tasks.ServerTask;
-import com.jumbodinosaurs.tasks.StartUpTask;
+import com.jumbodinosaurs.ServerController;
+import com.jumbodinosaurs.devlib.task.*;
 
 import java.util.ArrayList;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-public class SetupServer extends ServerTask
+public class SetupServer extends Task
 {
     
     
@@ -32,58 +28,43 @@ public class SetupServer extends ServerTask
          * Initialize CertificateRenewer
          */
         System.out.println("Running SetUp Server Task");
-        ArrayList<Class> startUpTasksClasses = ReflectionUtil.getSubClasses(StartUpTask.class);
-        ArrayList<StartUpTask> startUpTasks = new ArrayList<StartUpTask>();
-        for(Class classType: startUpTasksClasses)
-        {
-            try
-            {
-                startUpTasks.add((StartUpTask) classType.newInstance());
-            }
-            catch(ReflectiveOperationException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        
-        System.out.println("\n\nStarting Pre Init Phase");
+        ArrayList<StartUpTask> startUpTasks = TaskUtil.getStartUpTasks();
+        System.out.println("\n");
+        System.out.println("Starting Pre-Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
-            if(task.isPreInitPhase())
+            if(task.getPhase().equals(Phase.PreInitialization))
             {
                 System.out.println("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
-        System.out.println("\n\nStarting Post Init Phase");
+        
+        System.out.println("\n");
+        System.out.println("Starting Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
-            if(task.isPostInitPhase())
+            if(task.getPhase().equals(Phase.Initialization))
             {
                 System.out.println("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
-        System.out.println("\n\n");
-        
-        ArrayList<Class> scheduledServerTasksClasses = ReflectionUtil.getSubClasses(ScheduledServerTask.class);
-        ArrayList<ScheduledServerTask> scheduledServerTasks = new ArrayList<ScheduledServerTask>();
-        
-        for(Class classType : scheduledServerTasksClasses)
+        System.out.println("\n");
+        System.out.println("Starting Post Initialization Phase");
+        for(StartUpTask task : startUpTasks)
         {
-            try
+            if(task.getPhase().equals(Phase.PostInitialization))
             {
-                ScheduledServerTask task =
-                        (ScheduledServerTask) classType.getConstructor(ScheduledThreadPoolExecutor.class)
-                                                       .newInstance(ServerControl.getThreadScheduler());
-                scheduledServerTasks.add(task);
-            }
-            catch(ReflectiveOperationException e)
-            {
-                e.printStackTrace();
+                System.out.println("Starting Task: " + task.getClass().getSimpleName());
+                task.run();
             }
         }
-        ServerControl.setScheduledServerTasks(scheduledServerTasks);
+        
+       
+        ArrayList<ScheduledTask> scheduledServerTasks = TaskUtil.getScheduledTasks(ServerController.getThreadScheduler());
+        
+        ServerController.setScheduledServerTasks(scheduledServerTasks);
         System.out.println("Server Setup Task Complete");
     }
 }

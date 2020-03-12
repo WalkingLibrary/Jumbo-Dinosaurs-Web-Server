@@ -1,12 +1,12 @@
 package com.jumbodinosaurs.tasks.implementations.scheduled;
 
 import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.UpdatableDomain;
-import com.jumbodinosaurs.tasks.ScheduledServerTask;
 import sun.misc.BASE64Encoder;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class UpdateDNS extends ScheduledServerTask
+public class UpdateDNS extends ScheduledTask
 {
     //TODO make it update all domains
     

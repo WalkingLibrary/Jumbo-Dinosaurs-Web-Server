@@ -1,19 +1,20 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
+import com.jumbodinosaurs.devlib.task.Phase;
+import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.log.LogManager;
-import com.jumbodinosaurs.tasks.StartUpTask;
 
 public class SetupLogger extends StartUpTask
 {
+    public SetupLogger()
+    {
+        super(Phase.Initialization);
+    }
+    
     @Override
     public void run()
     {
         LogManager.initializeLogger();
     }
     
-    @Override
-    public boolean isPreInitPhase()
-    {
-        return false;
-    }
 }

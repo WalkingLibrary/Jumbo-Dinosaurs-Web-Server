@@ -1,13 +1,19 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
+import com.jumbodinosaurs.devlib.task.Phase;
+import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.tasks.StartUpTask;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
 
 public class Generate404File extends StartUpTask
 {
+    public Generate404File()
+    {
+        super(Phase.PreInitialization);
+    }
+    
     public static String getDefault404Page()
     {
         String HTML404 = "<!DOCTYPE html>\n" +
@@ -48,10 +54,4 @@ public class Generate404File extends StartUpTask
         
     }
     
-    
-    @Override
-    public boolean isPreInitPhase()
-    {
-        return true;
-    }
 }

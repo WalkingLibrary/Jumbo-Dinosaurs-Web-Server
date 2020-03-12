@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Main
 {
-    private static ServerControl controler;
+    private static ServerController controler;
     
     public static void main(String[] args)
     {
@@ -27,7 +27,7 @@ public class Main
                         File fileToRead = new File(path);
                         String contents = GeneralUtil.scanFileContents(fileToRead);
                         RuntimeArguments arguments = new Gson().fromJson(contents, RuntimeArguments.class);
-                        controler = new ServerControl(arguments);
+                        controler = new ServerController(arguments);
                     }
                     else
                     {
@@ -44,7 +44,7 @@ public class Main
             if(response.toLowerCase().contains("y") || response.toLowerCase().contains("yes"))
             {
                 RuntimeArguments defaultRuntimeArguments = new RuntimeArguments("", true);
-                controler = new ServerControl(defaultRuntimeArguments);
+                controler = new ServerController(defaultRuntimeArguments);
             }
             else
             {

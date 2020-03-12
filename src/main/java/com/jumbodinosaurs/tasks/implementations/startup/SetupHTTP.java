@@ -1,15 +1,21 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
+import com.jumbodinosaurs.devlib.task.Phase;
+import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.ChannelManager;
 import com.jumbodinosaurs.netty.handler.http.HTTPHandler;
 import com.jumbodinosaurs.netty.initializer.DefaultHTTPConnectListenerInitializer;
 import com.jumbodinosaurs.netty.initializer.SecureHTTPConnectListenerInitializer;
-import com.jumbodinosaurs.tasks.StartUpTask;
 
 public class SetupHTTP extends StartUpTask
 {
+    public SetupHTTP()
+    {
+        super(Phase.PostInitialization);
+    }
+    
     @Override
     public void run()
     {
@@ -39,9 +45,4 @@ public class SetupHTTP extends StartUpTask
         }
     }
     
-    @Override
-    public boolean isPreInitPhase()
-    {
-        return false;
-    }
 }

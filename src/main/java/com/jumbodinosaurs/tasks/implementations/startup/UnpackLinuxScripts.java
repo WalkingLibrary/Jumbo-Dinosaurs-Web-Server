@@ -1,14 +1,14 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
-import com.jumbodinosaurs.tasks.StartUpTask;
+import com.jumbodinosaurs.devlib.task.Phase;
+import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.util.LinuxUtil;
 
 public class UnpackLinuxScripts extends StartUpTask
 {
-    @Override
-    public boolean isPreInitPhase()
+    public UnpackLinuxScripts()
     {
-        return false;
+        super(Phase.PostInitialization);
     }
     
     @Override

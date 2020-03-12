@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.commands;
 
-import com.jumbodinosaurs.ServerControl;
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
@@ -32,9 +32,9 @@ public class StatisticsExtra extends Command
         outputMessage += "Time for The Server: " + LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + "\n";
         outputMessage += "Users: " + CredentialsManager.getUserCount() + "\n";
         outputMessage += "Amount of Posts: " + ServerUtil.getAllPostsList().size() + "\n";
-        if(ServerControl.getArguments() != null)
+        if(ServerController.getArguments() != null)
         {
-            RuntimeArguments args = ServerControl.getArguments();
+            RuntimeArguments args = ServerController.getArguments();
             
             outputMessage += "Server in Test Mode: " + args.isInTestMode() + "\n";
           

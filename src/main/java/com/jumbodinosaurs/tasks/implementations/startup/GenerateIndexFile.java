@@ -1,13 +1,19 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
+import com.jumbodinosaurs.devlib.task.Phase;
+import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.tasks.StartUpTask;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
 
 public class GenerateIndexFile extends StartUpTask
 {
+    public GenerateIndexFile()
+    {
+        super(Phase.PreInitialization);
+    }
+    
     public static String getIndexPage()
     {
         String indexHTML = "<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<style>\n" + "body\n" + "{\n" + "    " +
@@ -40,9 +46,5 @@ public class GenerateIndexFile extends StartUpTask
             GeneralUtil.writeContents(GeneralUtil.checkFor(ServerUtil.getDirectory, indexFileName), indexPage, false);
         }
     }
-    @Override
-    public boolean isPreInitPhase()
-    {
-        return false;
-    }
+    
 }
