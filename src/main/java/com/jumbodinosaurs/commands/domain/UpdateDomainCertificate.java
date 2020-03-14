@@ -7,29 +7,35 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.CertificateManager;
 
-public class MoveDomainCertificate extends DomainCommand
+import java.io.IOException;
+
+public class UpdateDomainCertificate extends DomainCommand
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         System.out.println("Enter Domain: ");
         String domain = OperatorConsole.getEnsuredAnswer();
-        SecureDomain secureDomain = DomainManager.getDomain(domain);
-        if(secureDomain == null)
+        SecureDomain domainObject = DomainManager.getDomain(domain);
+        if(domainObject == null)
         {
-        
-            return new MessageResponse("No Domain Found matching " + domain);
-            
+            return new MessageResponse("No Domain found matching " + domain);
         }
+        try
+        {
+            CertificateManager.renewCertificate(domainObject);
     
-        CertificateManager.moveCertificateFile(secureDomain);
-        return new MessageResponse("Moved Certificate for " + domain);
-      
+            return new MessageResponse("Done Renewing " + domain + "'s certificate");
+        }
+        catch(IOException e)
+        {
+            return new MessageResponse(e.getMessage());
+        }
     }
     
     @Override
     public String getHelpMessage()
     {
-        return "Moves a specified Domain's certificate files to the certificate Directory";
+        return "Updates the specified Domain's SSL Certificate";
     }
 }

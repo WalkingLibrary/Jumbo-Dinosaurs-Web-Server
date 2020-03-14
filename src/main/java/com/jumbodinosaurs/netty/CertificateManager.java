@@ -12,6 +12,10 @@ import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 
 public class CertificateManager
@@ -21,65 +25,89 @@ public class CertificateManager
     
     public static void updateDomainCertificates()
     {
-        renewCertificates();
-        for(SecureDomain domain: DomainManager.getDomains())
+        for(SecureDomain domain : DomainManager.getDomains())
         {
             if(domain.hasCertificateFile())
             {
-                convertPemToKS(domain);
-                moveCertificateFile(domain);
+                try
+                {
+                    
+                    
+                    renewCertificate(domain);
+                    convertPemToKS(domain);
+                    moveCertificateFile(domain);
+                }
+                catch(IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
-        
     }
     
     public static void setupSecureDomain(SecureDomain domain) throws NoSuchOptionException, NoSuchEmailException
     {
         String serversEmailsUsername = OptionUtil.getDefaultEmail();
         Email serversEmail = EmailManager.getEmail(serversEmailsUsername);
-        makeCertificate(domain, serversEmail);
-        convertPemToKS(domain);
-        moveCertificateFile(domain);
+        try
+        {
+            makeCertificate(domain, serversEmail);
+            convertPemToKS(domain);
+            moveCertificateFile(domain);
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
     }
     
     public static void moveCertificateFile(SecureDomain domain)
     {
-        String letsEncryptCertificatePath = String.format("/etc/letsencrypt/live/%s/%s.ks", domain.getDomain(),
-                                                          domain.getDomain());
-        String moveCertificateCommand = "sudo bash moveFile.sh";
-        ArrayList<String> arguments = new ArrayList<String >();
-        arguments.add(letsEncryptCertificatePath);
-        arguments.add(certificateDirectory.getAbsolutePath());
-        arguments.add(domain.getDomain() + ".ks");
-        String output = LinuxUtil.execute(moveCertificateCommand, arguments,LinuxUtil.unpackedScriptsDir);
-        System.out.println(output);
+        try
+        {
+            String letsEncryptCertificatePath = String.format("/etc/letsencrypt/live/%s/%s.ks", domain.getDomain(),
+                                                              domain.getDomain());
+            KeyStore key = KeyStore.getInstance("JKS");
+            File certificateFile = new File(letsEncryptCertificatePath);
+            key.load(new FileInputStream(certificateFile) , domain.getCertificatePassword().toCharArray());
+            File newCertificateFile = GeneralUtil.checkFor(certificateDirectory, domain.getDomain() + ".ks");
+            key.store(new FileOutputStream(newCertificateFile), domain.getCertificatePassword().toCharArray());
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
     }
     
-    private static void renewCertificates()
+    public static void renewCertificate(SecureDomain domain) throws IOException
     {
-        String renewCommand = "sudo bash renew_certificates.sh";
-        String output = LinuxUtil.execute(renewCommand, null,LinuxUtil.unpackedScriptsDir);
+        String renewCommand = "sudo bash renew_certificate.sh";
+        ArrayList<String> arguments = new ArrayList<String>();
+        arguments.add(domain.getDomain());
+        arguments.add(domain.getGetDir().getAbsolutePath());
+        String output = GeneralUtil.execute(renewCommand, arguments, LinuxUtil.unpackedScriptsDir);
         System.out.println(output);
     }
     
-    private static void makeCertificate(SecureDomain domain, Email email)
+    private static void makeCertificate(SecureDomain domain, Email email) throws IOException
     {
         String createCommand = "sudo bash create_certificate.sh";
-        ArrayList<String> arguments = new ArrayList<String >();
+        ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(domain.getGetDir().getAbsolutePath());
         arguments.add(domain.getDomain());
         arguments.add(email.getUsername());
-        String output = LinuxUtil.execute(createCommand, arguments,LinuxUtil.unpackedScriptsDir);
+        String output = GeneralUtil.execute(createCommand, arguments, LinuxUtil.unpackedScriptsDir);
         System.out.println(output);
     }
     
-    public static void convertPemToKS(SecureDomain domain)
+    public static void convertPemToKS(SecureDomain domain) throws IOException
     {
         String convertCommand = "sudo bash convert_pem_to_ks.sh";
-        ArrayList<String> arguments = new ArrayList<String >();
+        ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(domain.getDomain());
         arguments.add(domain.getCertificatePassword());
-        String output = LinuxUtil.execute(convertCommand,arguments ,LinuxUtil.unpackedScriptsDir);
+        String output = GeneralUtil.execute(convertCommand, arguments, LinuxUtil.unpackedScriptsDir);
         System.out.println(output);
     }
 }

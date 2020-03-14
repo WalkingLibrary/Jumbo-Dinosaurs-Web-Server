@@ -7,6 +7,8 @@ import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.CertificateManager;
 
+import java.io.IOException;
+
 public class ConvertDomainPEMToKS extends DomainCommand
 {
     @Override
@@ -19,8 +21,15 @@ public class ConvertDomainPEMToKS extends DomainCommand
         {
             return new MessageResponse("No Domain Found matching " + domain);
         }
-        CertificateManager.convertPemToKS(secureDomain);
-        return new MessageResponse("Converted Certificate for " + domain);
+        try
+        {
+            CertificateManager.convertPemToKS(secureDomain);
+            return new MessageResponse("Converted Certificate for " + domain);
+        }
+        catch(IOException e)
+        {
+            return new MessageResponse(e.getMessage());
+        }
     }
     
     @Override

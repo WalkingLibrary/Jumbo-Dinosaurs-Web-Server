@@ -6,16 +6,19 @@ import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class LinuxUtil
 {
     public static File scriptsDir = GeneralUtil.checkFor(ServerUtil.serverDataDir, "Linux Scripts");
     public static File unpackedScriptsDir = GeneralUtil.checkFor(scriptsDir, "scripts");
     
-    
     public static void unpackScripts()
     {
+        if(!isLinux())
+        {
+            System.out.println("Operating System is Not Linux -> Skipping Script unpacking");
+            return;
+        }
         ResourceLoaderUtil resourceLoaderUtil = new ResourceLoaderUtil();
         try
         {
@@ -39,7 +42,7 @@ public class LinuxUtil
             //run dos2unix command on all of them
             for(File file: unpackedScriptsDir.listFiles())
             {
-                String output = execute("sudo dos2unix " + file.getName(),null, unpackedScriptsDir);
+                String output = GeneralUtil.execute("sudo dos2unix " + file.getName(),null, unpackedScriptsDir);
             }
         }
         catch(IOException e)
@@ -49,40 +52,16 @@ public class LinuxUtil
         
     }
     
-    public static String execute(String command, ArrayList<String> arguments, File executionDir)
+    public static boolean isLinux()
     {
-        if(arguments != null && arguments.size() != 0)
+        String operatingSystem = System.getProperty("os.name");
+        if(operatingSystem.toLowerCase().contains("windows"))
         {
-            for(String argument: arguments)
-            {
-                command += " " + argument;
-            }
+            return false;
         }
-        
-        try
-        {
-            System.out.println("Executing Command: " + command);
-            Process process = Runtime.getRuntime().exec(command, null, executionDir);
-            process.waitFor();
-            Scanner processScanner = new Scanner(process.getInputStream());
-            String output = "";
-            while(processScanner.hasNext())
-            {
-                output += processScanner.nextLine();
-            }
-            return output;
-            
-        }
-        catch(IOException e)
-        {
-            return e.getMessage();
-        }
-        catch(InterruptedException e)
-        {
-            return e.getMessage();
-        }
-        
+        return true;
     }
+    
     
 }
 
