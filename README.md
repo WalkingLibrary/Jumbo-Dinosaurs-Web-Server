@@ -11,7 +11,6 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- automate certificate update process
 - add Time Stamps to output messages
 - fix/stream line logging system
 - add database systems

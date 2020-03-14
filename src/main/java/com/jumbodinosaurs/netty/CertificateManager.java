@@ -5,7 +5,6 @@ import com.jumbodinosaurs.devlib.email.EmailManager;
 import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.options.NoSuchOptionException;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.util.LinuxUtil;
 import com.jumbodinosaurs.util.OptionUtil;
@@ -23,27 +22,21 @@ public class CertificateManager
     
     public static File certificateDirectory = GeneralUtil.checkFor(ServerUtil.serverDataDir, "Certificates");
     
-    public static void updateDomainCertificates()
+    public static void updateDomainCertificate(SecureDomain domain)
     {
-        for(SecureDomain domain : DomainManager.getDomains())
+        try
         {
-            if(domain.hasCertificateFile())
-            {
-                try
-                {
-                    
-                    
-                    renewCertificate(domain);
-                    convertPemToKS(domain);
-                    moveCertificateFile(domain);
-                }
-                catch(IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
+            renewCertificate(domain);
+            convertPemToKS(domain);
+            moveCertificateFile(domain);
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
         }
     }
+    
+
     
     public static void setupSecureDomain(SecureDomain domain) throws NoSuchOptionException, NoSuchEmailException
     {
@@ -69,7 +62,7 @@ public class CertificateManager
                                                               domain.getDomain());
             KeyStore key = KeyStore.getInstance("JKS");
             File certificateFile = new File(letsEncryptCertificatePath);
-            key.load(new FileInputStream(certificateFile) , domain.getCertificatePassword().toCharArray());
+            key.load(new FileInputStream(certificateFile), domain.getCertificatePassword().toCharArray());
             File newCertificateFile = GeneralUtil.checkFor(certificateDirectory, domain.getDomain() + ".ks");
             key.store(new FileOutputStream(newCertificateFile), domain.getCertificatePassword().toCharArray());
         }
