@@ -6,6 +6,7 @@ import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.util.OptionUtil;
 
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class OperatorConsole implements Runnable
@@ -24,6 +25,10 @@ public class OperatorConsole implements Runnable
                                                          boolean debugMessage,
                                                          boolean exception)
     {
+        String timeStamp = "";
+        LocalDateTime now = LocalDateTime.now();
+        timeStamp += "[" + now.getHour() + ":" + now.getMinute() + "]";
+        message = timeStamp + message;
         if(debugMessage)
         {
             if(OptionUtil.isInDebugMode())

@@ -11,7 +11,6 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- add Time Stamps to output messages
 - fix/stream line logging system
 - add database systems
 - make auth lib and design auth system

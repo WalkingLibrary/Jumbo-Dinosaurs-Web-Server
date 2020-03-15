@@ -43,6 +43,7 @@ public class LinuxUtil
             for(File file: unpackedScriptsDir.listFiles())
             {
                 String output = GeneralUtil.execute("sudo dos2unix " + file.getName(),null, unpackedScriptsDir);
+                System.out.println(output);
             }
         }
         catch(IOException e)
