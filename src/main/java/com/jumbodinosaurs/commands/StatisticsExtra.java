@@ -29,7 +29,6 @@ public class StatisticsExtra extends Command
         outputMessage += "Debug Messages Will Be Shown: " + OptionUtil.isInDebugMode() + "\n";
         outputMessage += "Time for The Server: " + LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + "\n";
         outputMessage += "Users: " + CredentialsManager.getUserCount() + "\n";
-        outputMessage += "Amount of Posts: " + ServerUtil.getAllPostsList().size() + "\n";
         
         
         

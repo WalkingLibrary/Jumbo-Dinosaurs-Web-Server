@@ -26,7 +26,6 @@ public class Statistics extends Command
         outputMessage += "Time for The Server: " + LocalTime.now().getHour()  + ":" + LocalTime.now().getMinute() +
                                  "\n";
         outputMessage += "Users: " + CredentialsManager.getUserCount() + "\n";
-        outputMessage += "Amount of Posts: " + ServerUtil.getAllPostsList().size() + "\n";
         return new MessageResponse(outputMessage);
     }
     
