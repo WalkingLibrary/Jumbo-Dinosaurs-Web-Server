@@ -2,7 +2,7 @@ package com.jumbodinosaurs.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.objects.FloatUser;
 import com.jumbodinosaurs.objects.User;
@@ -97,8 +97,7 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error Reading User Info", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error Reading User Info", e);
         }
         return users;
     }
@@ -207,8 +206,7 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error writing to User List", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error writing to User List", e);
         }
     }
     
@@ -225,8 +223,8 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error Reading watchlist.json", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error Reading watchlist.json", e);
+      
         }
         return watchList;
     }
@@ -241,8 +239,8 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error Getting timoutFile", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error Getting timoutFile", e);
+            
         }
     }
     
@@ -310,14 +308,13 @@ public class CredentialsManager
             }
             else
             {
-                OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
+                ServerController.generalLogger.warn("Error setting User Info");
             }
             
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error getting Token", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error getting Token", e);
         }
         
         return token;
@@ -442,8 +439,7 @@ public class CredentialsManager
             }
             catch(Exception e)
             {
-                OperatorConsole.printMessageFiltered("Error Authenticating User Token", false, true);
-                e.printStackTrace();
+                ServerController.generalLogger.error("Error Authenticating User Token", e);
             }
         }
         
@@ -477,13 +473,12 @@ public class CredentialsManager
                 }
                 catch(PasswordStorage.CannotPerformOperationException e)
                 {
-                    OperatorConsole.printMessageFiltered("CannotPerformOperationException Error Authenticating User",
-                                                         false,
-                                                         true);
+                    ServerController.generalLogger.error("CannotPerformOperationException Error Authenticating User",
+                                                         e);
                 }
                 catch(PasswordStorage.InvalidHashException e)
                 {
-                    OperatorConsole.printMessageFiltered("InvalidHashException Error Authenticating User", false, true);
+                    ServerController.generalLogger.error("InvalidHashException Error Authenticating User", e);
                 }
             }
         }
@@ -524,14 +519,14 @@ public class CredentialsManager
                 }
                 else
                 {
-                    OperatorConsole.printMessageFiltered("Error setting User Info", false, true);
+                    ServerController.generalLogger.warn("Error setting User Info");
                 }
                 
             }
             catch(Exception e)
             {
-                OperatorConsole.printMessageFiltered("Error getting Token", false, true);
-                e.printStackTrace();
+                ServerController.generalLogger.error("Error getting Token", e);
+                
             }
             
             return token;

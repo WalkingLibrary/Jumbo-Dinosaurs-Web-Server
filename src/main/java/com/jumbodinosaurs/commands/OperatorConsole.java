@@ -1,12 +1,11 @@
 package com.jumbodinosaurs.commands;
 
 
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.util.OptionUtil;
 
-import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class OperatorConsole implements Runnable
@@ -17,30 +16,7 @@ public class OperatorConsole implements Runnable
     
     public OperatorConsole()
     {
-        System.out.println("Console Online");
-    }
-    
-    
-    public static synchronized void printMessageFiltered(String message,
-                                                         boolean debugMessage,
-                                                         boolean exception)
-    {
-        String timeStamp = "";
-        LocalDateTime now = LocalDateTime.now();
-        timeStamp += "[" + now.getHour() + ":" + now.getMinute() + "]";
-        message = timeStamp + message;
-        if(debugMessage)
-        {
-            if(OptionUtil.isInDebugMode())
-            {
-                System.out.println(message);
-            }
-        }
-        else
-        {
-            System.out.println(message);
-        }
-        
+        ServerController.generalLogger.info("Console Online");
     }
     
     public static String getEnsuredAnswer()

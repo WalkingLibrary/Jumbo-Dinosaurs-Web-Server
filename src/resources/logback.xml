@@ -1,0 +1,32 @@
+<configuration debug="false">
+    <property name="LOG_DIR" value="Server Data/Log/Console Log"/>
+    <property name="LOG_FILE" value="logFile"/>
+
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender" level="info">
+        <encoder>
+            <pattern> [%d{MM/dd/YYYY HH:mm:ss.SSS}] %-5level: %msg%n </pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/${LOG_DIR}/${LOG_FILE}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- keep 3 days' worth of history capped at 500MB total size -->
+            <maxHistory>3</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{MM/dd/YYYY HH:mm:ss.SSS}] [%thread] %-5level: %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <logger name="ConsoleLogger" level="ALL">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </logger>
+</configuration>

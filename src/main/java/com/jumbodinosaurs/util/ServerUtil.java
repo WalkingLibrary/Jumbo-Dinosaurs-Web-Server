@@ -3,7 +3,7 @@ package com.jumbodinosaurs.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
@@ -85,8 +85,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error Writing Post Data", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error Writing Post Data", e);
         }
     }
     
@@ -106,7 +105,7 @@ public class ServerUtil
             }
             catch(JsonParseException e)
             {
-                OperatorConsole.printMessageFiltered("A File in POST Dir is not a WritablePost[]", false, true);
+                ServerController.generalLogger.error("A File in POST Dir is not a WritablePost Array", e);
             }
         }
         return allPastPosts;
@@ -178,7 +177,7 @@ public class ServerUtil
         //DEBUG
         if(count > 1)
         {
-            OperatorConsole.printMessageFiltered(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath(), true, false);
+            ServerController.generalLogger.warn(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
         }
         return fileToGive;
     }
@@ -196,8 +195,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error getting logs.json", false, true);
+            ServerController.generalLogger.error("Error getting logs.json", e);
         }
         
         return null;
@@ -464,7 +462,7 @@ public class ServerUtil
         }
         catch(IOException e)
         {
-            OperatorConsole.printMessageFiltered("MC Ping Failed", true, false);
+            ServerController.generalLogger.warn("MC Ping Failed");
         }
         return response;
     }
@@ -483,7 +481,7 @@ public class ServerUtil
             }
             catch(NumberFormatException e)
             {
-                OperatorConsole.printMessageFiltered("Port Wasn't a Number for MC Ping", true, false);
+                ServerController.generalLogger.warn("Port Wasn't a Number for MC Ping");
                 return false;
             }
         }
@@ -543,7 +541,7 @@ public class ServerUtil
             }
             else
             {
-                OperatorConsole.printMessageFiltered("MC ping was neither good nor Bad", false, true);
+                ServerController.generalLogger.warn("MC ping was neither good nor Bad");
                 thisPing = new PastPing(ip, now, null);
             }
         }
@@ -588,8 +586,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Reading Photo", false, true);
+            ServerController.generalLogger.error("Error Reading Photo", e);
             
         }
         return null;
@@ -631,8 +628,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error Hashing Password", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error Hashing Password", e);
         }
         return "";
     }
@@ -648,13 +644,12 @@ public class ServerUtil
             HttpURLConnection connection = (HttpURLConnection) address.openConnection();
             HttpResponse ipResponse = WebUtil.getResponse(connection);
             host = ipResponse.getResponse();
-            OperatorConsole.printMessageFiltered("Public IP: " + host, false, false);
-            
+            ServerController.generalLogger.info("Public IP: " + host);
+    
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Setting Host", false, true);
+            ServerController.generalLogger.error("Error Setting Host", e);
         }
     }
     

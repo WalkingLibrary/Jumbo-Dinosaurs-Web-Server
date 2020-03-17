@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.netty.initializer;
 
-import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.netty.exceptions.MissingCertificateException;
@@ -94,8 +94,7 @@ public class SecureHTTPConnectListenerInitializer extends ConnectionListenerInit
         }
         catch(Exception e)
         {
-            OperatorConsole.printMessageFiltered("Error Creating SSL Context", false, true);
-            e.printStackTrace();
+            ServerController.generalLogger.error("Error Creating SSL Context", e);
         }
     }
     

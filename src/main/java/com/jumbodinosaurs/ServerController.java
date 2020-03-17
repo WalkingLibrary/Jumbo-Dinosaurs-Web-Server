@@ -5,6 +5,8 @@ import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.tasks.implementations.startup.SetupServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -16,6 +18,7 @@ public class ServerController
     private static String version;
     private static ScheduledThreadPoolExecutor threadScheduler = new ScheduledThreadPoolExecutor(4);
     private static ArrayList<ScheduledTask> scheduledServerTasks = new ArrayList<ScheduledTask>();
+    public static Logger generalLogger = LoggerFactory.getLogger("ConsoleLogger");
     
     
     
@@ -30,7 +33,7 @@ public class ServerController
         {
             version = "Development Environment";
         }
-        System.out.println("Starting Jumbo Dinosaurs " + version);//G
+        generalLogger.info("Starting Jumbo Dinosaurs " + version);//G
         SetupServer task = new SetupServer();
         task.run();
     }

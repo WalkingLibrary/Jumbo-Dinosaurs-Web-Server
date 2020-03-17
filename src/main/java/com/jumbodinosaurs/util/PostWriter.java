@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.util;
 
 
-import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.objects.WritablePost;
 
 import java.util.ArrayList;
@@ -31,8 +31,7 @@ public class PostWriter implements Runnable
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Logging Session", false, true);
+            ServerController.generalLogger.error("Error Logging Session", e);
         }
     }
     

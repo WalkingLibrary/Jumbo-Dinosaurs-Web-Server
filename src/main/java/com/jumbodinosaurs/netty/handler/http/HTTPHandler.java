@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.netty.handler.http;
 
-import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.log.Session;
 import com.jumbodinosaurs.netty.handler.IHandlerHolder;
@@ -54,22 +54,21 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 
                 //Send Response
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                
-                
-                OperatorConsole.printMessageFiltered(msg.toString(), true, false);
+    
+    
+                ServerController.generalLogger.debug(msg.toString());
                 
                 LogManager.log(msg);
             }
             catch(MalformedHTTPMessage e)
             {
-                OperatorConsole.printMessageFiltered(e.getMessage(), true, false);
+                ServerController.generalLogger.error(e.getMessage(), e);
             }
             
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Uncaught Exception in HTTP Handler", false, true);
+            ServerController.generalLogger.error("Uncaught Exception in HTTP Handler", e);
         }
         
     }

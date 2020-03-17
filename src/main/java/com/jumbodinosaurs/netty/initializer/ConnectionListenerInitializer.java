@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.netty.initializer;
 
 
-import com.jumbodinosaurs.commands.OperatorConsole;
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.netty.handler.IHandlerHolder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -37,8 +37,7 @@ public abstract class ConnectionListenerInitializer extends ChannelInitializer<S
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            OperatorConsole.printMessageFiltered("Error Setting up Listener on port " + this.port, false, true);
+            ServerController.generalLogger.error("Error Setting up Listener on port " + this.port, e);
         }
         finally
         {
