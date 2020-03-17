@@ -60,19 +60,18 @@ public class OperatorConsole implements Runnable
                         }
                         else
                         {
-                            System.out.println(response.getMessage());
+                            LogManager.consoleLogger.info(response.getMessage());
                         }
                     }
                     catch(WaveringParametersException e)
                     {
-                        e.printStackTrace();
+                        LogManager.consoleLogger.warn(e.getMessage());
                     }
                 }
             }
             catch(Exception e)
             {
-                System.out.println("Un-caught Exception in Operator Console");
-                e.printStackTrace();
+                LogManager.consoleLogger.error("Un-caught Exception in Operator Console", e);
             }
         }
     }

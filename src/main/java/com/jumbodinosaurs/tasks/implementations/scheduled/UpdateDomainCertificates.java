@@ -125,7 +125,7 @@ public class UpdateDomainCertificates extends ScheduledTask
                 }
                 catch(Exception e)
                 {
-                    e.printStackTrace();
+                    LogManager.consoleLogger.error(e.getMessage(), e);
                 }
             }
         }

@@ -85,7 +85,6 @@ public class DomainManager
         }
         catch(JsonParseException e)
         {
-            e.printStackTrace();
             throw new IllegalStateException("Domain Data is Not Loadable");
         }
         

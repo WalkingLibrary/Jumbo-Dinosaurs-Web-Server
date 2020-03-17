@@ -79,7 +79,7 @@ public class UpdateDNS extends ScheduledTask
                     }
                     catch(IOException e)
                     {
-                        e.printStackTrace();
+                        LogManager.consoleLogger.error(e.getMessage(), e);
                     }
                     
                     if(!wasGoodUpdate)
@@ -89,7 +89,7 @@ public class UpdateDNS extends ScheduledTask
                 }
                 catch(IOException e)
                 {
-                    e.printStackTrace();
+                    LogManager.consoleLogger.error(e.getMessage(), e);
                 }
             }
         }

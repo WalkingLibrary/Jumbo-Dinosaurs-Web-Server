@@ -49,7 +49,7 @@ public class LinuxUtil
         }
         catch(IOException e)
         {
-            e.printStackTrace();
+            LogManager.consoleLogger.error(e.getMessage(), e);
         }
         
     }

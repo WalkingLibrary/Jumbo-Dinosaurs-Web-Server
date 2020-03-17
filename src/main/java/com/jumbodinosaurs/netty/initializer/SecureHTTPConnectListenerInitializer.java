@@ -84,7 +84,7 @@ public class SecureHTTPConnectListenerInitializer extends ConnectionListenerInit
                     }
                     catch(MissingCertificateException e)
                     {
-                        e.printStackTrace();
+                        LogManager.consoleLogger.error(e.getMessage(), e);
                     }
                 }
                 

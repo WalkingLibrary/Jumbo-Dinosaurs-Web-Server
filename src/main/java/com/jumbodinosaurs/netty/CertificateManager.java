@@ -6,6 +6,7 @@ import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.options.NoSuchOptionException;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.SecureDomain;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.util.LinuxUtil;
 import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.ServerUtil;
@@ -32,7 +33,7 @@ public class CertificateManager
         }
         catch(IOException e)
         {
-            e.printStackTrace();
+            LogManager.consoleLogger.error(e.getMessage(), e);
         }
     }
     
@@ -65,10 +66,11 @@ public class CertificateManager
             key.load(new FileInputStream(certificateFile), domain.getCertificatePassword().toCharArray());
             File newCertificateFile = GeneralUtil.checkFor(certificateDirectory, domain.getDomain() + ".ks");
             key.store(new FileOutputStream(newCertificateFile), domain.getCertificatePassword().toCharArray());
+            LogManager.consoleLogger.debug("Moved " + domain.getDomain() + "'s certificate File");
         }
         catch(Exception e)
         {
-            e.printStackTrace();
+            LogManager.consoleLogger.error(e.getMessage(), e);
         }
         
     }
@@ -80,7 +82,7 @@ public class CertificateManager
         arguments.add(domain.getDomain());
         arguments.add(domain.getGetDir().getAbsolutePath());
         String output = GeneralUtil.execute(renewCommand, arguments, LinuxUtil.unpackedScriptsDir);
-        System.out.println(output);
+        LogManager.consoleLogger.debug(output);
     }
     
     private static void makeCertificate(SecureDomain domain, Email email) throws IOException
@@ -91,7 +93,7 @@ public class CertificateManager
         arguments.add(domain.getDomain());
         arguments.add(email.getUsername());
         String output = GeneralUtil.execute(createCommand, arguments, LinuxUtil.unpackedScriptsDir);
-        System.out.println(output);
+        LogManager.consoleLogger.debug(output);
     }
     
     public static void convertPemToKS(SecureDomain domain) throws IOException
@@ -101,6 +103,6 @@ public class CertificateManager
         arguments.add(domain.getDomain());
         arguments.add(domain.getCertificatePassword());
         String output = GeneralUtil.execute(convertCommand, arguments, LinuxUtil.unpackedScriptsDir);
-        System.out.println(output);
+        LogManager.consoleLogger.debug(output);
     }
 }

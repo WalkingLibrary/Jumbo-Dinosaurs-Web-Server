@@ -214,7 +214,7 @@ public class ServerUtil
         }
         catch(IOException e)
         {
-            e.printStackTrace();
+            LogManager.consoleLogger.error(e.getMessage(), e);
         }
         return fileContents;
     }
