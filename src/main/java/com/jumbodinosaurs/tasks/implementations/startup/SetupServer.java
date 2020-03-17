@@ -2,6 +2,7 @@ package com.jumbodinosaurs.tasks.implementations.startup;
 
 import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.task.*;
+import com.jumbodinosaurs.log.LogManager;
 
 import java.util.ArrayList;
 
@@ -27,33 +28,33 @@ public class SetupServer extends Task
          * Initialize DNSUpdater
          * Initialize CertificateRenewer
          */
-        ServerController.consoleLogger.info("Running SetUp Server Task");
+        LogManager.consoleLogger.info("Running SetUp Server Task");
         ArrayList<StartUpTask> startUpTasks = TaskUtil.getStartUpTasks();
-        ServerController.consoleLogger.info("Starting Pre-Initialization Phase");
+        LogManager.consoleLogger.info("Starting Pre-Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
             if(task.getPhase().equals(Phase.PreInitialization))
             {
-                ServerController.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
+                LogManager.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
     
-        ServerController.consoleLogger.info("Starting Initialization Phase");
+        LogManager.consoleLogger.info("Starting Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
             if(task.getPhase().equals(Phase.Initialization))
             {
-                ServerController.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
+                LogManager.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
-        ServerController.consoleLogger.info("Starting Post Initialization Phase");
+        LogManager.consoleLogger.info("Starting Post Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
             if(task.getPhase().equals(Phase.PostInitialization))
             {
-                ServerController.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
+                LogManager.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
@@ -62,6 +63,6 @@ public class SetupServer extends Task
         ArrayList<ScheduledTask> scheduledServerTasks = TaskUtil.getScheduledTasks(ServerController.getThreadScheduler());
         
         ServerController.setScheduledServerTasks(scheduledServerTasks);
-        ServerController.consoleLogger.info("Server Setup Task Complete");
+        LogManager.consoleLogger.info("Server Setup Task Complete");
     }
 }

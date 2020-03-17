@@ -6,8 +6,8 @@ import ch.qos.logback.classic.LoggerContext;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.tasks.implementations.startup.SetupServer;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -20,8 +20,6 @@ public class ServerController
     private static String version;
     private static ScheduledThreadPoolExecutor threadScheduler = new ScheduledThreadPoolExecutor(4);
     private static ArrayList<ScheduledTask> scheduledServerTasks = new ArrayList<ScheduledTask>();
-    public static Logger consoleLogger = LoggerFactory.getLogger("ConsoleLogger");
-    
     
     
     public ServerController()
@@ -35,7 +33,7 @@ public class ServerController
         {
             version = "Development Environment";
         }
-        consoleLogger.info("Starting Jumbo Dinosaurs " + version);//G
+        LogManager.consoleLogger.info("Starting Jumbo Dinosaurs " + version);//G
         SetupServer task = new SetupServer();
         task.run();
     }

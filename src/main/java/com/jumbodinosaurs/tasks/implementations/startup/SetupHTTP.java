@@ -1,10 +1,10 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
-import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.task.Phase;
 import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.ChannelManager;
 import com.jumbodinosaurs.netty.handler.http.HTTPHandler;
 import com.jumbodinosaurs.netty.initializer.DefaultHTTPConnectListenerInitializer;
@@ -42,7 +42,7 @@ public class SetupHTTP extends StartUpTask
         }
         else
         {
-            ServerController.consoleLogger.info("Skipping Secure Listener Creation");
+            LogManager.consoleLogger.info("Skipping Secure Listener Creation");
         }
     }
     

@@ -1,10 +1,10 @@
 package com.jumbodinosaurs.commands;
 
 
-import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.log.LogManager;
 
 import java.util.Scanner;
 
@@ -16,7 +16,7 @@ public class OperatorConsole implements Runnable
     
     public OperatorConsole()
     {
-        ServerController.consoleLogger.info("Console Online");
+        LogManager.consoleLogger.info("Console Online");
     }
     
     public static String getEnsuredAnswer()

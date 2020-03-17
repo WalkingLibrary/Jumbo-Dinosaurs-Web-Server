@@ -1,9 +1,9 @@
 package com.jumbodinosaurs.tasks.implementations.scheduled;
 
-import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.CertificateManager;
 import com.jumbodinosaurs.netty.ChannelManager;
 import com.jumbodinosaurs.netty.handler.http.HTTPHandler;
@@ -57,7 +57,7 @@ public class UpdateDomainCertificates extends ScheduledTask
          * Restart HTTPS Channels with new context if need
          */
     
-        ServerController.consoleLogger.debug("Checking Domain Certificates");
+        LogManager.consoleLogger.debug("Checking Domain Certificates");
         boolean channelNeedsRestart = false;
         
         //Go through domains and update certificates if need

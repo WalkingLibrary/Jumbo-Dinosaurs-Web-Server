@@ -1,12 +1,12 @@
 package com.jumbodinosaurs.tasks.implementations.scheduled;
 
-import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.domain.util.UpdatableDomain;
+import com.jumbodinosaurs.log.LogManager;
 import sun.misc.BASE64Encoder;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -50,7 +50,7 @@ public class UpdateDNS extends ScheduledTask
     @Override
     public void run()
     {
-        ServerController.consoleLogger.debug("Updating Domains");
+        LogManager.consoleLogger.debug("Updating Domains");
         for(Domain domain: DomainManager.getDomains())
         {
             if(domain instanceof UpdatableDomain)
@@ -84,7 +84,7 @@ public class UpdateDNS extends ScheduledTask
                     
                     if(!wasGoodUpdate)
                     {
-                        ServerController.consoleLogger.warn("Domain Failed To Update\n Domain: " + domain.getDomain());
+                        LogManager.consoleLogger.warn("Domain Failed To Update\n Domain: " + domain.getDomain());
                     }
                 }
                 catch(IOException e)

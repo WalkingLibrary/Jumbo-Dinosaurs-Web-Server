@@ -3,10 +3,10 @@ package com.jumbodinosaurs.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.objects.MinecraftSign;
 import com.jumbodinosaurs.objects.MinecraftWrittenBook;
 import com.jumbodinosaurs.objects.PastPing;
@@ -36,16 +36,16 @@ public class ServerUtil
     
     static
     {
-        ServerController.consoleLogger.debug("Setting up Server Util Files");
+        LogManager.consoleLogger.debug("Setting up Server Util Files");
         codeExecutionDir = new File(System.getProperty("user.dir"));
-        ServerController.consoleLogger.debug("USER DIR: " + codeExecutionDir.getAbsolutePath());
+        LogManager.consoleLogger.debug("USER DIR: " + codeExecutionDir.getAbsolutePath());
         getDirectory = GeneralUtil.checkFor(codeExecutionDir, "GET", true);
         postDirectory = GeneralUtil.checkFor(codeExecutionDir, "POST", true);
         serverDataDir = GeneralUtil.checkFor(codeExecutionDir, "Server Data", true);
         timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper", true);
         userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo", true);
         logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log", true);
-        ServerController.consoleLogger.debug("Finished Creating Server Util Files");
+        LogManager.consoleLogger.debug("Finished Creating Server Util Files");
     }
     
     
@@ -85,7 +85,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error Writing Post Data", e);
+            LogManager.consoleLogger.error("Error Writing Post Data", e);
         }
     }
     
@@ -105,7 +105,7 @@ public class ServerUtil
             }
             catch(JsonParseException e)
             {
-                ServerController.consoleLogger.error("A File in POST Dir is not a WritablePost Array", e);
+                LogManager.consoleLogger.error("A File in POST Dir is not a WritablePost Array", e);
             }
         }
         return allPastPosts;
@@ -177,7 +177,7 @@ public class ServerUtil
         //DEBUG
         if(count > 1)
         {
-            ServerController.consoleLogger.warn(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
+            LogManager.consoleLogger.warn(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
         }
         return fileToGive;
     }
@@ -195,7 +195,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error getting logs.json", e);
+            LogManager.consoleLogger.error("Error getting logs.json", e);
         }
         
         return null;
@@ -462,7 +462,7 @@ public class ServerUtil
         }
         catch(IOException e)
         {
-            ServerController.consoleLogger.warn("MC Ping Failed");
+            LogManager.consoleLogger.warn("MC Ping Failed");
         }
         return response;
     }
@@ -481,7 +481,7 @@ public class ServerUtil
             }
             catch(NumberFormatException e)
             {
-                ServerController.consoleLogger.warn("Port Wasn't a Number for MC Ping");
+                LogManager.consoleLogger.warn("Port Wasn't a Number for MC Ping");
                 return false;
             }
         }
@@ -541,7 +541,7 @@ public class ServerUtil
             }
             else
             {
-                ServerController.consoleLogger.warn("MC ping was neither good nor Bad");
+                LogManager.consoleLogger.warn("MC ping was neither good nor Bad");
                 thisPing = new PastPing(ip, now, null);
             }
         }
@@ -586,7 +586,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error Reading Photo", e);
+            LogManager.consoleLogger.error("Error Reading Photo", e);
             
         }
         return null;
@@ -628,7 +628,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error Hashing Password", e);
+            LogManager.consoleLogger.error("Error Hashing Password", e);
         }
         return "";
     }
@@ -646,12 +646,12 @@ public class ServerUtil
             host = ipResponse.getResponse();
             host = host.replace("\n","" );
             host =  host.replace("\r","" );
-            ServerController.consoleLogger.info("Public IP: " + host);
+            LogManager.consoleLogger.info("Public IP: " + host);
     
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error Setting Host", e);
+            LogManager.consoleLogger.error("Error Setting Host", e);
         }
     }
     

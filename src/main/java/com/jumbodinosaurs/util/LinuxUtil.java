@@ -1,8 +1,8 @@
 package com.jumbodinosaurs.util;
 
-import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.reflection.ResourceLoaderUtil;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.log.LogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class LinuxUtil
     {
         if(!isLinux())
         {
-            ServerController.consoleLogger.info("Operating System is Not Linux -> Skipping Script unpacking");
+            LogManager.consoleLogger.info("Operating System is Not Linux -> Skipping Script unpacking");
             return;
         }
         ResourceLoaderUtil resourceLoaderUtil = new ResourceLoaderUtil();
@@ -34,7 +34,7 @@ public class LinuxUtil
             ArrayList<String> scripts = resourceLoaderUtil.listResources("scripts");
             for(String scriptName: scripts)
             {
-                ServerController.consoleLogger.info("Unpacking: " + scriptName);
+                LogManager.consoleLogger.info("Unpacking: " + scriptName);
                 String scriptContents = resourceLoaderUtil.scanResource(scriptName);
                 File unpackedFile = GeneralUtil.checkForLocalPath(scriptsDir, scriptName);
                 GeneralUtil.writeContents(unpackedFile, scriptContents, false);
@@ -44,7 +44,7 @@ public class LinuxUtil
             for(File file: unpackedScriptsDir.listFiles())
             {
                 String output = GeneralUtil.execute("sudo dos2unix " + file.getName(),null, unpackedScriptsDir);
-                ServerController.consoleLogger.debug(output);
+                LogManager.consoleLogger.debug(output);
             }
         }
         catch(IOException e)

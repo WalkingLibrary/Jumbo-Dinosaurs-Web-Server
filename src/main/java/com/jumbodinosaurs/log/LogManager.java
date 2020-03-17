@@ -1,19 +1,18 @@
 package com.jumbodinosaurs.log;
 
+import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class LogManager
 {
-    private static SessionLogger logger;
+    public static Logger consoleLogger = LoggerFactory.getLogger("ConsoleLogger");
+    private static Logger sessionLogger  = LoggerFactory.getLogger("SessionLogger");
     
-    public static void initializeLogger()
-    {
-        //For logging sessions thread
-        logger = new SessionLogger();
-        Thread loggerThread = new Thread(logger);
-        loggerThread.start();
-    }
     
     public static void log(Session session)
     {
-        logger.addSession(session);
+        String sessionSaveData = new Gson().toJson(session) + ",";
+        sessionLogger.info(sessionSaveData);
     }
 }

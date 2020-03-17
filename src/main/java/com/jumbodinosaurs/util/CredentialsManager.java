@@ -2,8 +2,8 @@ package com.jumbodinosaurs.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.objects.FloatUser;
 import com.jumbodinosaurs.objects.User;
 
@@ -97,7 +97,7 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error Reading User Info", e);
+            LogManager.consoleLogger.error("Error Reading User Info", e);
         }
         return users;
     }
@@ -206,7 +206,7 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error writing to User List", e);
+            LogManager.consoleLogger.error("Error writing to User List", e);
         }
     }
     
@@ -223,7 +223,7 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error Reading watchlist.json", e);
+            LogManager.consoleLogger.error("Error Reading watchlist.json", e);
       
         }
         return watchList;
@@ -239,7 +239,7 @@ public class CredentialsManager
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error Getting timoutFile", e);
+            LogManager.consoleLogger.error("Error Getting timoutFile", e);
             
         }
     }
@@ -308,13 +308,13 @@ public class CredentialsManager
             }
             else
             {
-                ServerController.consoleLogger.warn("Error setting User Info");
+                LogManager.consoleLogger.warn("Error setting User Info");
             }
             
         }
         catch(Exception e)
         {
-            ServerController.consoleLogger.error("Error getting Token", e);
+            LogManager.consoleLogger.error("Error getting Token", e);
         }
         
         return token;
@@ -439,7 +439,7 @@ public class CredentialsManager
             }
             catch(Exception e)
             {
-                ServerController.consoleLogger.error("Error Authenticating User Token", e);
+                LogManager.consoleLogger.error("Error Authenticating User Token", e);
             }
         }
         
@@ -473,12 +473,12 @@ public class CredentialsManager
                 }
                 catch(PasswordStorage.CannotPerformOperationException e)
                 {
-                    ServerController.consoleLogger.error("CannotPerformOperationException Error Authenticating User",
-                                                         e);
+                    LogManager.consoleLogger.error("CannotPerformOperationException Error Authenticating User",
+                                                   e);
                 }
                 catch(PasswordStorage.InvalidHashException e)
                 {
-                    ServerController.consoleLogger.error("InvalidHashException Error Authenticating User", e);
+                    LogManager.consoleLogger.error("InvalidHashException Error Authenticating User", e);
                 }
             }
         }
@@ -519,13 +519,13 @@ public class CredentialsManager
                 }
                 else
                 {
-                    ServerController.consoleLogger.warn("Error setting User Info");
+                    LogManager.consoleLogger.warn("Error setting User Info");
                 }
                 
             }
             catch(Exception e)
             {
-                ServerController.consoleLogger.error("Error getting Token", e);
+                LogManager.consoleLogger.error("Error getting Token", e);
                 
             }
             
