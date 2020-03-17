@@ -50,7 +50,7 @@ public class UpdateDNS extends ScheduledTask
     @Override
     public void run()
     {
-        ServerController.generalLogger.debug("Updating Domains");
+        ServerController.consoleLogger.debug("Updating Domains");
         for(Domain domain: DomainManager.getDomains())
         {
             if(domain instanceof UpdatableDomain)
@@ -84,7 +84,7 @@ public class UpdateDNS extends ScheduledTask
                     
                     if(!wasGoodUpdate)
                     {
-                        ServerController.generalLogger.warn("Domain Failed To Update\n Domain: " + domain.getDomain());
+                        ServerController.consoleLogger.warn("Domain Failed To Update\n Domain: " + domain.getDomain());
                     }
                 }
                 catch(IOException e)

@@ -27,33 +27,33 @@ public class SetupServer extends Task
          * Initialize DNSUpdater
          * Initialize CertificateRenewer
          */
-        ServerController.generalLogger.info("Running SetUp Server Task");
+        ServerController.consoleLogger.info("Running SetUp Server Task");
         ArrayList<StartUpTask> startUpTasks = TaskUtil.getStartUpTasks();
-        ServerController.generalLogger.info("Starting Pre-Initialization Phase");
+        ServerController.consoleLogger.info("Starting Pre-Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
             if(task.getPhase().equals(Phase.PreInitialization))
             {
-                ServerController.generalLogger.info("Starting Task: " + task.getClass().getSimpleName());
+                ServerController.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
     
-        ServerController.generalLogger.info("Starting Initialization Phase");
+        ServerController.consoleLogger.info("Starting Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
             if(task.getPhase().equals(Phase.Initialization))
             {
-                ServerController.generalLogger.info("Starting Task: " + task.getClass().getSimpleName());
+                ServerController.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
-        ServerController.generalLogger.info("Starting Post Initialization Phase");
+        ServerController.consoleLogger.info("Starting Post Initialization Phase");
         for(StartUpTask task : startUpTasks)
         {
             if(task.getPhase().equals(Phase.PostInitialization))
             {
-                ServerController.generalLogger.info("Starting Task: " + task.getClass().getSimpleName());
+                ServerController.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
                 task.run();
             }
         }
@@ -62,6 +62,6 @@ public class SetupServer extends Task
         ArrayList<ScheduledTask> scheduledServerTasks = TaskUtil.getScheduledTasks(ServerController.getThreadScheduler());
         
         ServerController.setScheduledServerTasks(scheduledServerTasks);
-        ServerController.generalLogger.info("Server Setup Task Complete");
+        ServerController.consoleLogger.info("Server Setup Task Complete");
     }
 }

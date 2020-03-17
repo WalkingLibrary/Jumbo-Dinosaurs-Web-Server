@@ -36,16 +36,16 @@ public class ServerUtil
     
     static
     {
-        System.out.println("Setting up Server Util Files");
+        ServerController.consoleLogger.debug("Setting up Server Util Files");
         codeExecutionDir = new File(System.getProperty("user.dir"));
-        System.out.println("USER DIR: " + codeExecutionDir.getAbsolutePath());
+        ServerController.consoleLogger.debug("USER DIR: " + codeExecutionDir.getAbsolutePath());
         getDirectory = GeneralUtil.checkFor(codeExecutionDir, "GET", true);
         postDirectory = GeneralUtil.checkFor(codeExecutionDir, "POST", true);
         serverDataDir = GeneralUtil.checkFor(codeExecutionDir, "Server Data", true);
         timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper", true);
         userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo", true);
         logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log", true);
-        System.out.println("Finished Creating Server Util Files");
+        ServerController.consoleLogger.debug("Finished Creating Server Util Files");
     }
     
     
@@ -85,7 +85,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Error Writing Post Data", e);
+            ServerController.consoleLogger.error("Error Writing Post Data", e);
         }
     }
     
@@ -105,7 +105,7 @@ public class ServerUtil
             }
             catch(JsonParseException e)
             {
-                ServerController.generalLogger.error("A File in POST Dir is not a WritablePost Array", e);
+                ServerController.consoleLogger.error("A File in POST Dir is not a WritablePost Array", e);
             }
         }
         return allPastPosts;
@@ -177,7 +177,7 @@ public class ServerUtil
         //DEBUG
         if(count > 1)
         {
-            ServerController.generalLogger.warn(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
+            ServerController.consoleLogger.warn(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
         }
         return fileToGive;
     }
@@ -195,7 +195,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Error getting logs.json", e);
+            ServerController.consoleLogger.error("Error getting logs.json", e);
         }
         
         return null;
@@ -462,7 +462,7 @@ public class ServerUtil
         }
         catch(IOException e)
         {
-            ServerController.generalLogger.warn("MC Ping Failed");
+            ServerController.consoleLogger.warn("MC Ping Failed");
         }
         return response;
     }
@@ -481,7 +481,7 @@ public class ServerUtil
             }
             catch(NumberFormatException e)
             {
-                ServerController.generalLogger.warn("Port Wasn't a Number for MC Ping");
+                ServerController.consoleLogger.warn("Port Wasn't a Number for MC Ping");
                 return false;
             }
         }
@@ -541,7 +541,7 @@ public class ServerUtil
             }
             else
             {
-                ServerController.generalLogger.warn("MC ping was neither good nor Bad");
+                ServerController.consoleLogger.warn("MC ping was neither good nor Bad");
                 thisPing = new PastPing(ip, now, null);
             }
         }
@@ -586,7 +586,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Error Reading Photo", e);
+            ServerController.consoleLogger.error("Error Reading Photo", e);
             
         }
         return null;
@@ -628,7 +628,7 @@ public class ServerUtil
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Error Hashing Password", e);
+            ServerController.consoleLogger.error("Error Hashing Password", e);
         }
         return "";
     }
@@ -644,12 +644,14 @@ public class ServerUtil
             HttpURLConnection connection = (HttpURLConnection) address.openConnection();
             HttpResponse ipResponse = WebUtil.getResponse(connection);
             host = ipResponse.getResponse();
-            ServerController.generalLogger.info("Public IP: " + host);
+            host = host.replace("\n","" );
+            host =  host.replace("\r","" );
+            ServerController.consoleLogger.info("Public IP: " + host);
     
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Error Setting Host", e);
+            ServerController.consoleLogger.error("Error Setting Host", e);
         }
     }
     

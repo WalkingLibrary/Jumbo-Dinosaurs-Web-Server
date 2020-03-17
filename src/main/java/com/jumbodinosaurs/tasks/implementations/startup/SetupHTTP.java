@@ -1,5 +1,6 @@
 package com.jumbodinosaurs.tasks.implementations.startup;
 
+import com.jumbodinosaurs.ServerController;
 import com.jumbodinosaurs.devlib.task.Phase;
 import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.domain.DomainManager;
@@ -41,7 +42,7 @@ public class SetupHTTP extends StartUpTask
         }
         else
         {
-            System.out.println("Skipping Secure Listener Creation");
+            ServerController.consoleLogger.info("Skipping Secure Listener Creation");
         }
     }
     

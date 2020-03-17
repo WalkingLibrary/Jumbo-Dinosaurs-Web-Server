@@ -31,7 +31,7 @@ public class PostWriter implements Runnable
         }
         catch (Exception e)
         {
-            ServerController.generalLogger.error("Error Logging Session", e);
+            ServerController.consoleLogger.error("Error Logging Session", e);
         }
     }
     

@@ -16,7 +16,7 @@ public class OperatorConsole implements Runnable
     
     public OperatorConsole()
     {
-        ServerController.generalLogger.info("Console Online");
+        ServerController.consoleLogger.info("Console Online");
     }
     
     public static String getEnsuredAnswer()

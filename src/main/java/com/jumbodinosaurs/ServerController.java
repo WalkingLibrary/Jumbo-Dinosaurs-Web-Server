@@ -1,6 +1,8 @@
 package com.jumbodinosaurs;
 
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
@@ -18,7 +20,7 @@ public class ServerController
     private static String version;
     private static ScheduledThreadPoolExecutor threadScheduler = new ScheduledThreadPoolExecutor(4);
     private static ArrayList<ScheduledTask> scheduledServerTasks = new ArrayList<ScheduledTask>();
-    public static Logger generalLogger = LoggerFactory.getLogger("ConsoleLogger");
+    public static Logger consoleLogger = LoggerFactory.getLogger("ConsoleLogger");
     
     
     
@@ -33,7 +35,7 @@ public class ServerController
         {
             version = "Development Environment";
         }
-        generalLogger.info("Starting Jumbo Dinosaurs " + version);//G
+        consoleLogger.info("Starting Jumbo Dinosaurs " + version);//G
         SetupServer task = new SetupServer();
         task.run();
     }
@@ -56,7 +58,18 @@ public class ServerController
         ServerController.scheduledServerTasks = scheduledServerTasks;
     }
     
-   
+    
+    
+    private static void setLogLevel(String logLevel, String packageName)
+    {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        
+        ch.qos.logback.classic.Logger logger = loggerContext.getLogger(packageName);
+        System.out.println(packageName + " current logger level: " + logger.getLevel());
+        System.out.println(" You entered: " + logLevel);
+        
+        logger.setLevel(Level.toLevel(logLevel));
+    }
     
    
 }

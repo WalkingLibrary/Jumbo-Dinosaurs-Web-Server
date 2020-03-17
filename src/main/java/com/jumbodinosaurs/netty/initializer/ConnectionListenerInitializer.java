@@ -37,7 +37,7 @@ public abstract class ConnectionListenerInitializer extends ChannelInitializer<S
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Error Setting up Listener on port " + this.port, e);
+            ServerController.consoleLogger.error("Error Setting up Listener on port " + this.port, e);
         }
         finally
         {

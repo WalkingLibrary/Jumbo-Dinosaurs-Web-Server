@@ -57,7 +57,7 @@ public class UpdateDomainCertificates extends ScheduledTask
          * Restart HTTPS Channels with new context if need
          */
     
-        ServerController.generalLogger.debug("Checking Domain Certificates");
+        ServerController.consoleLogger.debug("Checking Domain Certificates");
         boolean channelNeedsRestart = false;
         
         //Go through domains and update certificates if need

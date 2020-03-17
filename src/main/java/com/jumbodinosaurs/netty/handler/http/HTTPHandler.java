@@ -56,19 +56,19 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     
     
-                ServerController.generalLogger.debug(msg.toString());
+                ServerController.consoleLogger.debug(msg.toString());
                 
                 LogManager.log(msg);
             }
             catch(MalformedHTTPMessage e)
             {
-                ServerController.generalLogger.error(e.getMessage(), e);
+                ServerController.consoleLogger.error(e.getMessage(), e);
             }
             
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Uncaught Exception in HTTP Handler", e);
+            ServerController.consoleLogger.error("Uncaught Exception in HTTP Handler", e);
         }
         
     }

@@ -94,7 +94,7 @@ public class SecureHTTPConnectListenerInitializer extends ConnectionListenerInit
         }
         catch(Exception e)
         {
-            ServerController.generalLogger.error("Error Creating SSL Context", e);
+            ServerController.consoleLogger.error("Error Creating SSL Context", e);
         }
     }
     
