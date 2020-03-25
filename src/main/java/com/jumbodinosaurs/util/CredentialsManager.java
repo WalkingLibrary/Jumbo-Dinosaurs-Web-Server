@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.log.LogManager;
-import com.jumbodinosaurs.objects.FloatUser;
-import com.jumbodinosaurs.objects.User;
+import com.jumbodinosaurs.post.objects.FloatUser;
+import com.jumbodinosaurs.post.objects.User;
 
 import java.io.File;
 import java.lang.reflect.Type;

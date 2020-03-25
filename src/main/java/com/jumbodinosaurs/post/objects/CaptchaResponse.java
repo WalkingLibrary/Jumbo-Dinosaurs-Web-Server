@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.objects;
+package com.jumbodinosaurs.post.objects;
 
 public class CaptchaResponse
 {

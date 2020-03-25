@@ -3,7 +3,7 @@ package com.jumbodinosaurs.commands;
 import com.jumbodinosaurs.devlib.commands.CommandWithParameters;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.objects.User;
+import com.jumbodinosaurs.post.objects.User;
 import com.jumbodinosaurs.util.CredentialsManager;
 
 public class ToggleUserLock extends CommandWithParameters

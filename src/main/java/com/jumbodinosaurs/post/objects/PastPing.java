@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.objects;
+package com.jumbodinosaurs.post.objects;
 
 import java.time.LocalDateTime;
 

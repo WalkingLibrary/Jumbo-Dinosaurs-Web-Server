@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.objects;
+package com.jumbodinosaurs.post.objects;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
