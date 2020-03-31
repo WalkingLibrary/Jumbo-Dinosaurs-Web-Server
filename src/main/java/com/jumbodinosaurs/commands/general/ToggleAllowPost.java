@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.commands;
+package com.jumbodinosaurs.commands.general;
 
 
 import com.jumbodinosaurs.devlib.commands.Command;
@@ -35,6 +35,6 @@ public class ToggleAllowPost extends Command
     @Override
     public String getHelpMessage()
     {
-        return "Toggles the Servers ability to accept post requests";
+        return "Toggles the Servers ability to accept database requests";
     }
 }

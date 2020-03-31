@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.commands;
+package com.jumbodinosaurs.commands.general;
 
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
@@ -7,25 +7,22 @@ import com.jumbodinosaurs.devlib.options.Option;
 import com.jumbodinosaurs.util.OptionIdentifier;
 import com.jumbodinosaurs.util.OptionUtil;
 
-public class ToggleWhiteList extends Command
+public class ToggleDebugMode extends Command
 {
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         
-        boolean isWhiteListOnCurrentValue = OptionUtil.isWhiteListOn();
-        Option<Boolean> updatedIsWhiteListOn = new Option<Boolean>(!isWhiteListOnCurrentValue,
-                                                                   OptionIdentifier.isWhiteListOn.getIdentifier());
-        OptionUtil.setOption(updatedIsWhiteListOn);
+        Option<Boolean> debugMode = new Option<Boolean>(!OptionUtil.isInDebugMode(), OptionIdentifier.debugMode.getIdentifier());
+        OptionUtil.setOption(debugMode);
         String outputMessage = "";
-        
-        if(OptionUtil.isWhiteListOn())
+        if(OptionUtil.isInDebugMode())
         {
-            outputMessage += "White list is now on"+ "\n";
+            outputMessage += "The server is now in debugMode"+ "\n";
         }
         else
         {
-            outputMessage += "White list is now off" + "\n";
+            outputMessage += "The server is no longer in debugMode"+ "\n";
         }
         return new MessageResponse(outputMessage);
     }
@@ -33,6 +30,6 @@ public class ToggleWhiteList extends Command
     @Override
     public String getHelpMessage()
     {
-        return "Toggles the servers whitelist";
+        return "Toggles the servers ability to send debug messages";
     }
 }

@@ -1,5 +1,6 @@
-package com.jumbodinosaurs.commands;
+package com.jumbodinosaurs.commands.general;
 
+import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
