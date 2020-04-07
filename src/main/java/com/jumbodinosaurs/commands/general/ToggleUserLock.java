@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.commands.general;
 
-import com.jumbodinosaurs.database.objects.User;
+import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.devlib.commands.CommandWithParameters;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;

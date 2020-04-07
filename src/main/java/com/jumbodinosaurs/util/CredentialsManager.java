@@ -2,8 +2,8 @@ package com.jumbodinosaurs.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.database.objects.FloatUser;
-import com.jumbodinosaurs.database.objects.User;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.log.LogManager;
 

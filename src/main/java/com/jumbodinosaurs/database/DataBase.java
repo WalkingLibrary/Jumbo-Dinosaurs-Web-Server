@@ -5,6 +5,7 @@ package com.jumbodinosaurs.database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class DataBase
 {
@@ -32,5 +33,30 @@ public class DataBase
     public String getURL()
     {
         return baseInfo + ip + ":" + port + "/" + dataBaseName;
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o)
+        {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+        DataBase dataBase = (DataBase) o;
+        return Objects.equals(dataBaseName, dataBase.dataBaseName) &&
+                       Objects.equals(ip, dataBase.ip) &&
+                       Objects.equals(port, dataBase.port) &&
+                       Objects.equals(baseInfo, dataBase.baseInfo) &&
+                       Objects.equals(user, dataBase.user);
+    }
+    
+    
+    public String getDataBaseName()
+    {
+        return dataBaseName;
     }
 }
