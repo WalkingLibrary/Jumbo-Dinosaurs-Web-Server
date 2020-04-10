@@ -7,7 +7,6 @@ import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.devlib.email.EmailManager;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.Domain;
-import com.jumbodinosaurs.util.CredentialsManager;
 import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.ServerUtil;
 
@@ -28,7 +27,6 @@ public class StatisticsExtra extends Command
         // outputMessage += "Exceptions: " + OperatorConsole.exceptions + "\n";
         outputMessage += "Debug Messages Will Be Shown: " + OptionUtil.isInDebugMode() + "\n";
         outputMessage += "Time for The Server: " + LocalTime.now().getHour() + ":" + LocalTime.now().getMinute() + "\n";
-        outputMessage += "Users: " + CredentialsManager.getUserCount() + "\n";
         
         
         
