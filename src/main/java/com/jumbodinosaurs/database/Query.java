@@ -6,6 +6,7 @@ public class Query
 {
     private String query;
     private ResultSet resultSet;
+    private int responseCode;
     
     public Query(String query)
     {
@@ -30,5 +31,15 @@ public class Query
     public void setResultSet(ResultSet resultSet)
     {
         this.resultSet = resultSet;
+    }
+    
+    public int getResponseCode()
+    {
+        return responseCode;
+    }
+    
+    public void setResponseCode(int responseCode)
+    {
+        this.responseCode = responseCode;
     }
 }

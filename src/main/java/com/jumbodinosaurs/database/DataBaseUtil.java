@@ -22,6 +22,13 @@ public class DataBaseUtil
         query.setResultSet(statement.executeQuery(query.getQuery()));
     }
     
+    public static void manipulateDataBase(Query query, DataBase dataBase) throws SQLException
+    {
+        Connection dataBaseConnection = dataBase.getConnection();
+        Statement statement = dataBaseConnection.createStatement();
+        query.setResponseCode(statement.executeUpdate(query.getQuery()));
+    }
+    
     public static <E> ArrayList<E> getObjectsDataBase(Query query,
                                                       DataBase dataBase,
                                                       TypeToken<E> typeToken) throws SQLException,
@@ -43,5 +50,23 @@ public class DataBaseUtil
             }
         }
         return objects;
+    }
+    
+    public static <E> Query getUpdateObjectQuery(String table, E objectOld, E objectNew)
+    {
+        String oldObjectJson = new Gson().toJson(objectOld);
+        String newObjectJson = new Gson().toJson(objectNew);
+        String statement = "UPDATE " + table;
+        statement += " SET " + objectColumnName + " = \'" + newObjectJson + "\'";
+        statement += " WHERE " + objectColumnName + " = CAST(\'" + oldObjectJson + "\' AS JSON);";
+        return new Query(statement);
+    }
+    
+    public static <E> Query getInsertQuery(String table, E object)
+    {
+        String objectJson = new Gson().toJson(object);
+        String statement = "INSERT INTO " + table + "(" + objectColumnName + ") VALUES(\'" + objectJson + "\');";
+        System.out.println(statement);
+        return new Query(statement);
     }
 }
