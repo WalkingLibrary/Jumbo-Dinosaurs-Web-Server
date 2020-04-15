@@ -3,6 +3,7 @@ package com.jumbodinosaurs.auth.server;
 import com.jumbodinosaurs.util.PasswordStorage;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class AuthToken
 {
@@ -41,13 +42,43 @@ public class AuthToken
         {
             return false;
         }
-        
-        
+    
+    
         if(!PasswordStorage.verifyPassword(getHashString(token), hash))
         {
             return false;
         }
-        
+    
         return true;
+    }
+    
+    public String getUse()
+    {
+        return use;
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o)
+        {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+        AuthToken authToken = (AuthToken) o;
+        return Objects.equals(use, authToken.use) &&
+                       Objects.equals(mintDate, authToken.mintDate) &&
+                       Objects.equals(expirationDate, authToken.expirationDate) &&
+                       Objects.equals(ip, authToken.ip) &&
+                       Objects.equals(hash, authToken.hash);
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(use, mintDate, expirationDate, ip, hash);
     }
 }
