@@ -1,5 +1,8 @@
 package com.jumbodinosaurs.auth.server;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -55,19 +58,25 @@ public class User
         return joinDate;
     }
     
-    
-    public boolean addToken(AuthToken token)
+    public User clone()
     {
-        for(AuthToken authToken : tokens)
+        return new Gson().fromJson(new Gson().toJson(this), new TypeToken<User>() {}.getType());
+    }
+    
+    public void setToken(AuthToken token)
+    {
+        for(int i = 0; i < tokens.size(); i++)
         {
+            AuthToken authToken = tokens.get(i);
             if(token.getUse().equals(authToken.getUse()))
             {
-                return false;
+                tokens.remove(i);
+                i--;
             }
         }
         tokens.add(token);
-        return false;
     }
+    
     
     public AuthToken getToken(String use)
     {

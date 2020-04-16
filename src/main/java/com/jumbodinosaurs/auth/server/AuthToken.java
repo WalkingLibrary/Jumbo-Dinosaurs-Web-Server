@@ -52,6 +52,12 @@ public class AuthToken
         return true;
     }
     
+    public boolean hasExpired()
+    {
+        LocalDateTime now = LocalDateTime.now();
+        return now.isBefore(this.expirationDate);
+    }
+    
     public String getUse()
     {
         return use;

@@ -35,12 +35,19 @@ public class OptionUtil
     
     public static ArrayList<String> getWhiteList()
     {
-        return optionsManager.getOption(OptionIdentifier.whiteList.getIdentifier(), new ArrayList<String>()).getOption();
+        return optionsManager.getOption(OptionIdentifier.whiteList.getIdentifier(), new ArrayList<String>())
+                             .getOption();
     }
     
     public static boolean shouldUpgradeInsecureConnections()
     {
-        return optionsManager.getOption(OptionIdentifier.shouldUpgradeInsecureConnections.getIdentifier(), false).getOption();
+        return optionsManager.getOption(OptionIdentifier.shouldUpgradeInsecureConnections.getIdentifier(), false)
+                             .getOption();
+    }
+    
+    public static String getUserDataBaseName()
+    {
+        return optionsManager.getOption(OptionIdentifier.userDataBaseName.getIdentifier(), "userdatabase").getOption();
     }
     
     

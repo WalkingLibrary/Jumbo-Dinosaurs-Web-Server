@@ -7,7 +7,8 @@ public enum OptionIdentifier
     isWhiteListOn("isWhiteListOn"),
     whiteList("whiteList"),
     email("email"),
-    shouldUpgradeInsecureConnections("shouldUpgradeInsecureConnections");
+    shouldUpgradeInsecureConnections("shouldUpgradeInsecureConnections"),
+    userDataBaseName("userDataBaseName");
     private String identifier;
     
     OptionIdentifier(String identifier)

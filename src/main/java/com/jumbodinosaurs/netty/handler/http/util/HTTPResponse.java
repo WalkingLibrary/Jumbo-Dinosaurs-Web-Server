@@ -16,6 +16,7 @@ public class HTTPResponse
     private final String sC401 = "HTTP/1.1 401 Unauthorized";
     private final String sC403 = "HTTP/1.1 403 Forbidden";
     private final String sC404 = "HTTP/1.1 404 Not Found";
+    private final String sC500 = "HTTP/1.1 500 Internal Server Error";
     private final String sC501 = "HTTP/1.1 501 Not Implemented";
     //headers
     private final String locationHeader = "\r\nLocation:";
@@ -101,6 +102,12 @@ public class HTTPResponse
         this.messageOut += payload;
     }
     
+    public void setMessage403()
+    {
+        this.messageOut = this.sC403;
+        this.messageOut += this.closeHeader;
+    }
+    
     //Sets the message to send as 404
     public void setMessage404()
     {
@@ -109,6 +116,12 @@ public class HTTPResponse
         this.messageOut += GeneralUtil.scanFileContents(ServerUtil.safeSearchDir(ServerUtil.getDirectory,
                                                                                  "/404.html",
                                                                                  true));
+    }
+    
+    public void setMessage500()
+    {
+        this.messageOut = this.sC500;
+        this.messageOut += this.closeHeader;
     }
     
     public void setMessage501()
