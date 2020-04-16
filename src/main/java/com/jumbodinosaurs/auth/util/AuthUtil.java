@@ -68,36 +68,23 @@ public class AuthUtil
         return null;
     }
     
-    public static AuthSession authenticateUser(PostRequest request, boolean passwordAuth, String use)
+    public static AuthSession authenticateUser(PostRequest request)
     {
+        /* Process for Authenticating a user
+         * Get the user Database
+         * Check/Verify Post Request Attributes
+         * Get User From DataBase
+         * Check given credentials with stored credentials
+         *
+         *
+         */
+    
+    
         AuthSession authSession = new AuthSession();
         authSession.setSuccess(false);
-        
-        if(request.getUsername() == null)
-        {
-            authSession.setFailureCode(FailureReasons.MISSING_ATTRIBUTES);
-            return authSession;
-        }
-        
-        if(passwordAuth)
-        {
-            if(request.getPassword() == null)
-            {
-                authSession.setFailureCode(FailureReasons.MISSING_ATTRIBUTES);
-                return authSession;
-            }
-        }
-        else
-        {
-            if(request.getToken() == null)
-            {
-                authSession.setFailureCode(FailureReasons.MISSING_ATTRIBUTES);
-                return authSession;
-            }
-        }
-        
-        
-        DataBase dataBase = null;
+    
+        //Get the user Database
+        DataBase dataBase;
         try
         {
             dataBase = AuthUtil.getUserDataBase();
@@ -107,27 +94,54 @@ public class AuthUtil
             authSession.setFailureCode(FailureReasons.NO_DATABASE);
             return authSession;
         }
-        
+    
         if(dataBase == null)
         {
             authSession.setFailureCode(FailureReasons.NO_DATABASE);
             return authSession;
         }
-        
-        
+    
+    
+        //Check/Verify Post Request Attributes
+        if(request.getUsername() == null)
+        {
+            authSession.setFailureCode(FailureReasons.MISSING_ATTRIBUTES);
+            return authSession;
+        }
+    
+    
+        boolean passwordAuth = true;
+        String use = null;
+    
+        if(request.getPassword() == null && (request.getToken() == null || request.getContent() == null))
+        {
+            authSession.setFailureCode(FailureReasons.MISSING_ATTRIBUTES);
+            return authSession;
+        }
+    
+        if(request.getPassword() == null)
+        {
+            passwordAuth = false;
+            use = request.getContent();
+        }
+    
+    
         try
         {
+            //Get User From DataBase
             User currentUser = AuthUtil.getUser(dataBase, request.getUsername());
             if(currentUser == null)
             {
                 authSession.setFailureCode(FailureReasons.MISSING_USER);
                 return authSession;
             }
-            
+        
+        
+            //Check given credentials with stored credentials
             boolean correctPassword, correctToken;
             correctPassword = false;
             correctToken = false;
-            
+        
             if(passwordAuth)
             {
                 correctPassword = AuthUtil.authenticateUser(currentUser, request.getPassword());

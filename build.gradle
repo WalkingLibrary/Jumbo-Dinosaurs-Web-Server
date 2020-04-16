@@ -46,7 +46,7 @@ repositories {
 dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.github.WalkingLibrary:Dev-Lib:-SNAPSHOT'
+    compile 'com.github.WalkingLibrary:Java-Dev-Lib:-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.8.5'
     // https://mvnrepository.com/artifact/io.netty/netty-all
     compile 'io.netty:netty-all:4.1.33.Final'
