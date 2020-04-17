@@ -22,13 +22,4 @@ public abstract class PostCommand
     
     public abstract HTTPResponse getResponse(PostRequest request, AuthSession authSession);
     
-    public Session getSession()
-    {
-        return session;
-    }
-    
-    public void setSession(Session session)
-    {
-        this.session = session;
-    }
 }

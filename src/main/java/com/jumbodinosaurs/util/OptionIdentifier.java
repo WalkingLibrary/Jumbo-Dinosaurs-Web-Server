@@ -8,7 +8,8 @@ public enum OptionIdentifier
     whiteList("whiteList"),
     email("email"),
     shouldUpgradeInsecureConnections("shouldUpgradeInsecureConnections"),
-    userDataBaseName("userDataBaseName");
+    userDataBaseName("userDataBaseName"),
+    captchaKey("captchaKey");
     private String identifier;
     
     OptionIdentifier(String identifier)

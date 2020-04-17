@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 public class GetAuthToken extends PostCommand
 {
-    public static final String authUseName = "auth";
+    
     
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
@@ -33,7 +33,7 @@ public class GetAuthToken extends PostCommand
             
             String token = AuthUtil.generateRandomString(100);
             LocalDateTime now = LocalDateTime.now();
-            AuthToken authToken = new AuthToken(authUseName, this.session.getWho(), token, now.plusDays(30));
+            AuthToken authToken = new AuthToken(AuthUtil.authUseName, this.session.getWho(), token, now.plusDays(30));
             currentUser.setToken(authToken);
             if(AuthUtil.updateUser(authSession, currentUser))
             {

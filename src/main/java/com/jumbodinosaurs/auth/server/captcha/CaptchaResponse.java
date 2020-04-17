@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.auth.server;
+package com.jumbodinosaurs.auth.server.captcha;
 
 public class CaptchaResponse
 {

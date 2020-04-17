@@ -16,6 +16,7 @@ public class HTTPResponse
     private final String sC401 = "HTTP/1.1 401 Unauthorized";
     private final String sC403 = "HTTP/1.1 403 Forbidden";
     private final String sC404 = "HTTP/1.1 404 Not Found";
+    private final String sC409 = "HTTP/1.1 409 Conflict";
     private final String sC500 = "HTTP/1.1 500 Internal Server Error";
     private final String sC501 = "HTTP/1.1 501 Not Implemented";
     //headers
@@ -118,6 +119,12 @@ public class HTTPResponse
                                                                                  true));
     }
     
+    public void setMessage409()
+    {
+        this.messageOut = this.sC409;
+        this.messageOut += this.closeHeader;
+    }
+    
     public void setMessage500()
     {
         this.messageOut = this.sC500;
@@ -128,6 +135,11 @@ public class HTTPResponse
     {
         this.messageOut = this.sC501;
         this.messageOut += this.closeHeader;
+    }
+    
+    public void addPayload(String payload)
+    {
+        messageOut += payload;
     }
     
     public String getMessageToLog()

@@ -1,5 +1,6 @@
 package com.jumbodinosaurs.util;
 
+import com.jumbodinosaurs.auth.server.captcha.CaptchaKey;
 import com.jumbodinosaurs.devlib.options.Option;
 import com.jumbodinosaurs.devlib.options.OptionsManager;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
@@ -48,6 +49,11 @@ public class OptionUtil
     public static String getUserDataBaseName()
     {
         return optionsManager.getOption(OptionIdentifier.userDataBaseName.getIdentifier(), "userdatabase").getOption();
+    }
+    
+    public static CaptchaKey getCaptchaKey()
+    {
+        return optionsManager.getOption(OptionIdentifier.captchaKey.getIdentifier(), new CaptchaKey()).getOption();
     }
     
     

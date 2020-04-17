@@ -10,6 +10,7 @@ public class User
 {
     private String username;
     private String hashedPassword;
+    private boolean isActive;
     private String email;
     private LocalDateTime joinDate;
     private ArrayList<AuthToken> tokens;
@@ -105,4 +106,13 @@ public class User
     }
     
     
+    public boolean isActive()
+    {
+        return isActive;
+    }
+    
+    public void setActive(boolean active)
+    {
+        isActive = active;
+    }
 }

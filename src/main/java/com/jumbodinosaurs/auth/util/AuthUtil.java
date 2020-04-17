@@ -1,33 +1,77 @@
 package com.jumbodinosaurs.auth.util;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
+import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.devlib.database.DataBase;
 import com.jumbodinosaurs.devlib.database.DataBaseManager;
 import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
+import com.jumbodinosaurs.devlib.util.WebUtil;
+import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.PasswordStorage;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class AuthUtil
 {
-    private static final String userTableName = "users";
+    public static final String userTableName = "users";
+    public static final String emailUseName = "email";
+    public static final String authUseName = "auth";
+    private static final String generalWhiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+    
+    public static boolean verifyUsername(String username)
+    {
+        char[] usernameArray = username.toCharArray();
+        for(int i = 0; i < usernameArray.length; i++)
+        {
+            if(!generalWhiteListedCharacters.contains("" + usernameArray[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static CaptchaResponse getCaptchaResponse(String captchaToken) throws MalformedURLException, IOException
+    {
+        String captchaSecret = OptionUtil.getCaptchaKey().getSecretKey();
+        if(captchaSecret == null)
+        {
+            return new CaptchaResponse(false, "", .0, "null");
+        }
+        String urlString = "https://www.google.com/recaptcha/api/siteverify?secret=";
+        urlString += captchaSecret;
+        urlString += "&response=";
+        urlString += captchaToken;
+        
+        URL url = new URL(urlString);
+        HttpURLConnection connection;
+        connection = (HttpsURLConnection) url.openConnection();
+        HttpResponse response = WebUtil.getResponse(connection);
+        
+        return new Gson().fromJson(response.getResponse(), CaptchaResponse.class);
+    }
     
     public static String generateRandomString(int size)
     {
-        String whiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
         String random = "";
         while(random.length() <= size)
         {
-            int randomNumber = (int) (Math.random() * whiteListedCharacters.length());
-            random += whiteListedCharacters.toCharArray()[randomNumber];
+            int randomNumber = (int) (Math.random() * generalWhiteListedCharacters.length());
+            random += generalWhiteListedCharacters.toCharArray()[randomNumber];
         }
         return random;
     }
@@ -135,13 +179,18 @@ public class AuthUtil
                 authSession.setFailureCode(FailureReasons.MISSING_USER);
                 return authSession;
             }
-        
-        
+    
+            if(!currentUser.isActive())
+            {
+                authSession.setFailureCode(FailureReasons.ACCOUNT_NOT_ACTIVATED);
+                return authSession;
+            }
+    
             //Check given credentials with stored credentials
             boolean correctPassword, correctToken;
             correctPassword = false;
             correctToken = false;
-        
+    
             if(passwordAuth)
             {
                 correctPassword = AuthUtil.authenticateUser(currentUser, request.getPassword());
@@ -183,9 +232,9 @@ public class AuthUtil
         }
     }
     
-    public static boolean authenticateUser(User user,
-                                           String token,
-                                           String use) throws PasswordStorage.CannotPerformOperationException, PasswordStorage.InvalidHashException
+    private static boolean authenticateUser(User user,
+                                            String token,
+                                            String use) throws PasswordStorage.CannotPerformOperationException, PasswordStorage.InvalidHashException
     {
         AuthToken authToken = user.getToken(use);
         if(authToken == null)
@@ -195,8 +244,8 @@ public class AuthUtil
         return authToken.isValidToken(token);
     }
     
-    public static boolean authenticateUser(User user,
-                                           String password) throws PasswordStorage.CannotPerformOperationException, PasswordStorage.InvalidHashException
+    private static boolean authenticateUser(User user,
+                                            String password) throws PasswordStorage.CannotPerformOperationException, PasswordStorage.InvalidHashException
     {
         return PasswordStorage.verifyPassword(password, user.getHashedPassword());
     }
