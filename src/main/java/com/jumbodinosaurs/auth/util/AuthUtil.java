@@ -27,13 +27,20 @@ import java.util.ArrayList;
 
 public class AuthUtil
 {
-    public static final String userTableName = "users";
+    public static final boolean testMode = true;
+    public static final String userTableName = testMode ? "testUsers" : "users";
     public static final String emailUseName = "email";
     public static final String authUseName = "auth";
+    
     private static final String generalWhiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
     
-    public static boolean verifyUsername(String username)
+    public static boolean isValidUsername(String username)
     {
+        if(username.length() > 15)
+        {
+            return false;
+        }
+        
         char[] usernameArray = username.toCharArray();
         for(int i = 0; i < usernameArray.length; i++)
         {
@@ -47,6 +54,11 @@ public class AuthUtil
     
     public static CaptchaResponse getCaptchaResponse(String captchaToken) throws MalformedURLException, IOException
     {
+        if(testMode)
+        {
+            return new CaptchaResponse(true, "TESTMODE", .9, "TESTMODE");
+        }
+    
         String captchaSecret = OptionUtil.getCaptchaKey().getSecretKey();
         if(captchaSecret == null)
         {
@@ -78,16 +90,24 @@ public class AuthUtil
     
     public static DataBase getUserDataBase() throws NoSuchDataBaseException
     {
-        return DataBaseManager.getDataBase(OptionUtil.getUserDataBaseName());
+        if(testMode)
+        {
+            return DataBaseManager.getDataBase(OptionUtil.getUserDataBaseName());
+        }
+        else
+        {
+            return DataBaseManager.getDataBase(OptionUtil.getUserDataBaseName() + "TEST");
+        }
     }
     
     public static User getUser(DataBase dataBase, String username) throws SQLException, WrongStorageFormatException
     {
         String statement = "SELECT * FROM " + userTableName;
-        statement += " WHERE JSON_EXTRACT(username, \"$.username\") = \"" + username + "\";";
+        statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", \"$.username\") = \"" + username +
+                             "\";";
         Query query = new Query(statement);
         ArrayList<User> resultUsers = DataBaseUtil.getObjectsDataBase(query, dataBase, new TypeToken<User>() {});
-        
+    
         int count = 0;
         for(User user : resultUsers)
         {

@@ -1,6 +1,7 @@
 package com.jumbodinosaurs;
 
 
+import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
@@ -31,8 +32,13 @@ public class ServerController
             version = "Development Environment";
         }
         LogManager.consoleLogger.info("Starting Jumbo Dinosaurs " + version);//G
+    
         SetupServer task = new SetupServer();
         task.run();
+        if(AuthUtil.testMode == true)
+        {
+            LogManager.consoleLogger.warn("AuthUtil is in Test Mode");
+        }
     }
     
     public static ScheduledThreadPoolExecutor getThreadScheduler()

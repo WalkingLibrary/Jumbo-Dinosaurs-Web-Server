@@ -2,7 +2,9 @@ package com.jumbodinosaurs.auth.server;
 
 import com.jumbodinosaurs.util.PasswordStorage;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Objects;
 
 public class AuthToken
@@ -11,7 +13,7 @@ public class AuthToken
     private LocalDateTime mintDate;
     private LocalDateTime expirationDate;
     private String ip;
-    private String hash;
+    private String base64HashedToken;
     
     public AuthToken(String use,
                      String ip,
@@ -22,7 +24,8 @@ public class AuthToken
         this.ip = ip;
         this.mintDate = LocalDateTime.now();
         this.expirationDate = expirationDate;
-        this.hash = PasswordStorage.createHash(getHashString(token));
+        this.base64HashedToken = Base64.getEncoder()
+                                       .encodeToString(PasswordStorage.createHash(getHashString(token)).getBytes());
     }
     
     public String getHashString(String token)
@@ -43,8 +46,10 @@ public class AuthToken
             return false;
         }
     
+        String hashedToken = new String(Base64.getDecoder().decode(base64HashedToken.getBytes()),
+                                        StandardCharsets.UTF_8);
     
-        if(!PasswordStorage.verifyPassword(getHashString(token), hash))
+        if(!PasswordStorage.verifyPassword(getHashString(token), hashedToken))
         {
             return false;
         }
@@ -79,12 +84,12 @@ public class AuthToken
                        Objects.equals(mintDate, authToken.mintDate) &&
                        Objects.equals(expirationDate, authToken.expirationDate) &&
                        Objects.equals(ip, authToken.ip) &&
-                       Objects.equals(hash, authToken.hash);
+                       Objects.equals(base64HashedToken, authToken.base64HashedToken);
     }
     
     @Override
     public int hashCode()
     {
-        return Objects.hash(use, mintDate, expirationDate, ip, hash);
+        return Objects.hash(use, mintDate, expirationDate, ip, base64HashedToken);
     }
 }

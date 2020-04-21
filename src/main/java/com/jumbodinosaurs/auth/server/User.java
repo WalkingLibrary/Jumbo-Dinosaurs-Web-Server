@@ -3,24 +3,26 @@ package com.jumbodinosaurs.auth.server;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class User
 {
     private String username;
-    private String hashedPassword;
+    private String base64HashedPassword;
     private boolean isActive;
-    private String email;
+    private String base64Email;
     private LocalDateTime joinDate;
-    private ArrayList<AuthToken> tokens;
+    private ArrayList<AuthToken> tokens = new ArrayList<AuthToken>();
     
     
-    public User(String username, String hashedPassword, String email)
+    public User(String username, String base64HashedPassword, String base64Email)
     {
         this.username = username;
-        this.hashedPassword = hashedPassword;
-        this.email = email;
+        this.base64HashedPassword = base64HashedPassword;
+        this.base64Email = base64Email;
         this.joinDate = LocalDateTime.now();
     }
     
@@ -36,22 +38,27 @@ public class User
     
     public String getHashedPassword()
     {
-        return hashedPassword;
+        return new String(Base64.getDecoder().decode(base64HashedPassword.getBytes()), StandardCharsets.UTF_8);
     }
     
-    public void setHashedPassword(String hashedPassword)
+    public String getBase64HashedPassword()
     {
-        this.hashedPassword = hashedPassword;
+        return base64HashedPassword;
     }
     
-    public String getEmail()
+    public void setBase64HashedPassword(String base64HashedPassword)
     {
-        return email;
+        this.base64HashedPassword = base64HashedPassword;
     }
     
-    public void setEmail(String email)
+    public String getBase64Email()
     {
-        this.email = email;
+        return base64Email;
+    }
+    
+    public void setBase64Email(String base64Email)
+    {
+        this.base64Email = base64Email;
     }
     
     public LocalDateTime getJoinDate()
@@ -114,5 +121,11 @@ public class User
     public void setActive(boolean active)
     {
         isActive = active;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return new Gson().toJson(this);
     }
 }

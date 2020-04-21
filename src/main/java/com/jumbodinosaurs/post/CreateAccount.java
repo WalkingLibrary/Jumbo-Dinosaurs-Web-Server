@@ -24,6 +24,7 @@ import javax.mail.MessagingException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 public class CreateAccount extends PostCommand
 {
@@ -72,6 +73,7 @@ public class CreateAccount extends PostCommand
         }
         catch(NoSuchDataBaseException e)
         {
+            System.out.println(e.getMessage());
             response.setMessage501();
             return response;
         }
@@ -97,12 +99,13 @@ public class CreateAccount extends PostCommand
         }
         catch(SQLException | WrongStorageFormatException e)
         {
+            System.out.println(e.getMessage());
             response.setMessage500();
             return response;
         }
         
         //sanitize username
-        if(!AuthUtil.verifyUsername(request.getUsername()))
+        if(!AuthUtil.isValidUsername(request.getUsername()))
         {
             response.setMessage409();
             JsonObject reason = new JsonObject();
@@ -125,6 +128,7 @@ public class CreateAccount extends PostCommand
         }
         catch(IOException e)
         {
+            System.out.println(e.getMessage());
             response.setMessage500();
             return response;
         }
@@ -132,59 +136,72 @@ public class CreateAccount extends PostCommand
         //Send Activation Email
         try
         {
+            AuthToken emailToken = null;
             Email defaultEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
             String emailCode = AuthUtil.generateRandomString(100);
             LocalDateTime now = LocalDateTime.now();
             int accountGracePeriod = 30;
-            AuthToken emailToken = new AuthToken(AuthUtil.emailUseName,
-                                                 this.session.getWho(),
-                                                 emailCode,
-                                                 now.plusDays(accountGracePeriod));
+            emailToken = new AuthToken(AuthUtil.emailUseName,
+                                       this.session.getWho(),
+                                       emailCode,
+                                       now.plusDays(accountGracePeriod));
+    
+            //TODO Make this a link??
             String topic = "Account Activation";
             String message = "Here is your code to activate you account \n\n";
             message += emailCode;
             message += "\n\n after ";
             message += accountGracePeriod + " days if your account is not activated it will be deleted.";
-            
-            WebUtil.sendEmail(defaultEmail, request.getEmail(), topic, message);
+    
+            //Wait to send the email until the account is in the data base
+    
+            //Add the new User to the User DataBase
+            String base64HashedPassword = Base64.getEncoder()
+                                                .encodeToString(PasswordStorage.createHash(request.getPassword())
+                                                                               .getBytes());
+            String base64Email = Base64.getEncoder().encodeToString(request.getEmail().getBytes());
+    
+            User newUser = new User(request.getUsername(),
+                                    base64HashedPassword,
+                                    base64Email);
+            newUser.setToken(emailToken);
+            Query insertQuery = DataBaseUtil.getInsertQuery(AuthUtil.userTableName, newUser);
+            DataBaseUtil.manipulateDataBase(insertQuery, userDataBase);
+    
+            if(insertQuery.getResponseCode() != 1)
+            {
+                response.setMessage500();
+                return response;
+            }
+    
+            if(!AuthUtil.testMode)
+            {
+                WebUtil.sendEmail(defaultEmail, request.getEmail(), topic, message);
+            }
+    
+            //Send 200 okay
+            response.setMessage200();
+            return response;
+    
         }
-        catch(PasswordStorage.CannotPerformOperationException | MessagingException e)
+        catch(MessagingException e)
         {
+            //Send 200 okay
+            response.setMessage200();
+            return response;
+        }
+        catch(PasswordStorage.CannotPerformOperationException | SQLException e)
+        {
+            System.out.println(e.getMessage());
             response.setMessage500();
             return response;
         }
         catch(NoSuchEmailException e)
         {
+            System.out.println(e.getMessage());
             response.setMessage501();
             return response;
         }
         
-        
-        //Add the new User to the User DataBase
-        try
-        {
-            String hashedPassword = PasswordStorage.createHash(request.getPassword());
-            
-            //TODO store email and hashed password in base 64
-            Query insertQuery = DataBaseUtil.getInsertQuery(AuthUtil.userTableName,
-                                                            new User(request.getUsername(),
-                                                                     hashedPassword,
-                                                                     request.getEmail()));
-            DataBaseUtil.queryDataBase(insertQuery, userDataBase);
-            if(insertQuery.getResponseCode() == 1)
-            {
-                //Send 200 okay
-                response.setMessage200();
-                return response;
-            }
-        }
-        catch(PasswordStorage.CannotPerformOperationException | SQLException e)
-        {
-            response.setMessage500();
-            return response;
-        }
-        
-        response.setMessage500();
-        return response;
     }
 }

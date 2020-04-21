@@ -10,7 +10,7 @@ public class Stop extends Command
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
         System.out.println("Shutting Down");
-        System.exit(3);
+        System.exit(0);
         return new MessageResponse("If you see this something is wrong");
     }
     

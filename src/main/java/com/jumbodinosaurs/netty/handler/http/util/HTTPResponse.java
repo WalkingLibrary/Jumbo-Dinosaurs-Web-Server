@@ -148,4 +148,11 @@ public class HTTPResponse
     }
     
     
+    @Override
+    public String toString()
+    {
+        return "HTTPResponse{" +
+                       "messageOut='" + messageOut + '\'' +
+                       '}';
+    }
 }
