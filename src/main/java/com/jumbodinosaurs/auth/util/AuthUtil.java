@@ -2,6 +2,7 @@ package com.jumbodinosaurs.auth.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jumbodinosaurs.auth.exceptions.NoSuchUserException;
 import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
@@ -100,14 +101,20 @@ public class AuthUtil
         }
     }
     
-    public static User getUser(DataBase dataBase, String username) throws SQLException, WrongStorageFormatException
+    public static User getUser(DataBase dataBase,
+                               String username) throws SQLException, WrongStorageFormatException, NoSuchUserException
     {
+        if(!isValidUsername(username))
+        {
+            throw new NoSuchUserException(username + " is not a Valid Username");
+        }
+        
         String statement = "SELECT * FROM " + userTableName;
         statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", \"$.username\") = \"" + username +
                              "\";";
         Query query = new Query(statement);
         ArrayList<User> resultUsers = DataBaseUtil.getObjectsDataBase(query, dataBase, new TypeToken<User>() {});
-    
+        
         int count = 0;
         for(User user : resultUsers)
         {
@@ -129,7 +136,7 @@ public class AuthUtil
                 return user;
             }
         }
-        return null;
+        throw new NoSuchUserException("No user named " + username + " found in " + dataBase.getDataBaseName());
     }
     
     public static AuthSession authenticateUser(PostRequest request)
@@ -193,8 +200,12 @@ public class AuthUtil
         try
         {
             //Get User From DataBase
-            User currentUser = AuthUtil.getUser(dataBase, request.getUsername());
-            if(currentUser == null)
+            User currentUser;
+            try
+            {
+                currentUser = AuthUtil.getUser(dataBase, request.getUsername());
+            }
+            catch(NoSuchUserException e)
             {
                 authSession.setFailureCode(FailureReasons.MISSING_USER);
                 return authSession;
@@ -208,21 +219,16 @@ public class AuthUtil
     
             //Check given credentials with stored credentials
             boolean correctPassword, correctToken;
-            correctPassword = false;
-            correctToken = false;
-    
             if(passwordAuth)
             {
                 correctPassword = AuthUtil.authenticateUser(currentUser, request.getPassword());
                 if(!correctPassword)
                 {
                     authSession.setFailureCode(FailureReasons.INCORRECT_PASSWORD);
+                    return authSession;
                 }
-                else
-                {
-                    authSession.setPasswordAuth(true);
-                }
-                
+    
+                authSession.setPasswordAuth(true);
             }
             else
             {
@@ -230,20 +236,18 @@ public class AuthUtil
                 if(!correctToken)
                 {
                     authSession.setFailureCode(FailureReasons.INCORRECT_TOKEN);
+                    return authSession;
                 }
-                
+    
+                authSession.setTokenUsed(currentUser.getToken(use));
             }
-            
-            if(correctPassword || correctToken)
-            {
-                authSession.setUser(currentUser);
-                authSession.setSuccess(true);
-                return authSession;
-            }
-            
-            authSession.setSuccess(false);
+    
+    
+            authSession.setUser(currentUser);
+            authSession.setSuccess(true);
             return authSession;
-            
+    
+    
         }
         catch(SQLException | PasswordStorage.InvalidHashException | PasswordStorage.CannotPerformOperationException | WrongStorageFormatException e)
         {

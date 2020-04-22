@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.post;
 
 import com.google.gson.JsonObject;
+import com.jumbodinosaurs.auth.exceptions.NoSuchUserException;
 import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
@@ -88,14 +89,14 @@ public class CreateAccount extends PostCommand
         try
         {
             User userCheck = AuthUtil.getUser(userDataBase, request.getUsername());
-            if(userCheck != null)
-            {
-                response.setMessage409();
-                JsonObject reason = new JsonObject();
-                reason.addProperty("failureReason", "Username Taken");
-                response.addPayload(reason.toString());
-                return response;
-            }
+        }
+        catch(NoSuchUserException e)
+        {
+            response.setMessage409();
+            JsonObject reason = new JsonObject();
+            reason.addProperty("failureReason", "Username Taken");
+            response.addPayload(reason.toString());
+            return response;
         }
         catch(SQLException | WrongStorageFormatException e)
         {
@@ -136,7 +137,7 @@ public class CreateAccount extends PostCommand
         //Send Activation Email
         try
         {
-            AuthToken emailToken = null;
+            AuthToken emailToken;
             Email defaultEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
             String emailCode = AuthUtil.generateRandomString(100);
             LocalDateTime now = LocalDateTime.now();

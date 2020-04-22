@@ -41,6 +41,11 @@ public class User
         return new String(Base64.getDecoder().decode(base64HashedPassword.getBytes()), StandardCharsets.UTF_8);
     }
     
+    public String getEmail()
+    {
+        return new String(Base64.getDecoder().decode(base64Email.getBytes()), StandardCharsets.UTF_8);
+    }
+    
     public String getBase64HashedPassword()
     {
         return base64HashedPassword;

@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.post;
 
 import com.google.gson.JsonObject;
+import com.jumbodinosaurs.auth.exceptions.NoSuchUserException;
 import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
@@ -46,22 +47,26 @@ public class CheckUsername extends PostCommand
         
         
         //Check to see if a user exists with the given username
+        boolean isUserNameTaken;
         try
         {
             User userCheck = AuthUtil.getUser(userDataBase, request.getUsername());
-            boolean isUserNameTaken = userCheck != null;
-            
-            response.setMessage200();
-            JsonObject reason = new JsonObject();
-            reason.addProperty("isUserNameTaken", isUserNameTaken);
-            response.addPayload(reason.toString());
-            return response;
-            
+            isUserNameTaken = true;
+        }
+        catch(NoSuchUserException e)
+        {
+            isUserNameTaken = false;
         }
         catch(SQLException | WrongStorageFormatException e)
         {
             response.setMessage500();
             return response;
         }
+    
+        response.setMessage200();
+        JsonObject reason = new JsonObject();
+        reason.addProperty("isUserNameTaken", isUserNameTaken);
+        response.addPayload(reason.toString());
+        return response;
     }
 }

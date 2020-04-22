@@ -1,5 +1,6 @@
 package com.jumbodinosaurs.auth.util;
 
+import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
 
 public class AuthSession
@@ -7,6 +8,7 @@ public class AuthSession
     private boolean success;
     private User user;
     private boolean passwordAuth;
+    private AuthToken tokenUsed;
     private FailureReasons failureCode;
     
     public AuthSession()
@@ -51,5 +53,15 @@ public class AuthSession
     public void setPasswordAuth(boolean passwordAuth)
     {
         this.passwordAuth = passwordAuth;
+    }
+    
+    public AuthToken getTokenUsed()
+    {
+        return tokenUsed;
+    }
+    
+    public void setTokenUsed(AuthToken tokenUsed)
+    {
+        this.tokenUsed = tokenUsed;
     }
 }
