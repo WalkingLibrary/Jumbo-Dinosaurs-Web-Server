@@ -178,7 +178,7 @@ public class AuthUtil
          * response generator
          *
          */
-    
+        
         AuthSession authSession;
         authSession = new AuthSession(null);
         authSession.setSuccess(false);
@@ -201,8 +201,8 @@ public class AuthUtil
             authSession.setFailureCode(FailureReasons.MISSING_USERNAME);
             return authSession;
         }
-    
-    
+        
+        
         //Get the user Database
         DataBase dataBase;
         try
@@ -214,21 +214,21 @@ public class AuthUtil
             authSession.setFailureCode(FailureReasons.NO_DATABASE);
             return authSession;
         }
-    
-    
+        
+        
         //Sanitize UserName
         if(!isValidUsername(request.getUsername()))
         {
             authSession.setFailureCode(FailureReasons.INVALID_USERNAME);
             return authSession;
         }
-    
+        
         //Get User From DataBase
         User currentUser;
         try
         {
             currentUser = AuthUtil.getUser(dataBase, request.getUsername());
-           
+            
         }
         catch(NoSuchUserException e)
         {
@@ -245,7 +245,6 @@ public class AuthUtil
         authSession.setSuccess(false);
         
         
-    
         //Check/Verify Post Request Attributes (Password, Token, and Token Use)
         boolean passwordAuth = true;
         String use = null;
@@ -256,16 +255,13 @@ public class AuthUtil
             authSession.setFailureCode(FailureReasons.MISSING_ATTRIBUTES);
             return authSession;
         }
-    
+        
         //Determine if it's a Token or Password Auth
         if(request.getPassword() == null)
         {
             passwordAuth = false;
             use = request.getContent();
         }
-        
-        
-        
         
         
         try
@@ -355,24 +351,26 @@ public class AuthUtil
     }
     
     public static boolean addUser(User user)
-            throws NoSuchDataBaseException, SQLException
     {
         Query insertQuery = DataBaseUtil.getInsertQuery(AuthUtil.userTableName, user);
-        DataBaseUtil.manipulateDataBase(insertQuery, getUserDataBase());
-        
-        if(insertQuery.getResponseCode() != 1)
+        try
         {
-           return false;
+            DataBaseUtil.manipulateDataBase(insertQuery, getUserDataBase());
         }
-        return true;
+        catch(SQLException | NoSuchDataBaseException e)
+        {
+            return false;
+        }
+        
+        return insertQuery.getResponseCode() == 1;
     }
     
     public static ArrayList<User> getAllUsers()
             throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
     {
         return DataBaseUtil.getObjectsDataBase(new Query("SELECT * FROM testUsers"),
-                                        getUserDataBase(),
-                                        new TypeToken<User>() {});
+                                               getUserDataBase(),
+                                               new TypeToken<User>() {});
     }
     
     

@@ -36,18 +36,20 @@ public class CreateAccount extends PostCommand
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
         /* Process for creating a new account
+         *
          * Check/Verify PostRequest Attributes
-         *
-         * Verify DataBase Config
-         *
          * Verify safe account creation
-         *  - Make sure there are no duplicate usernames
+         *  - Make sure the username is not taken
          *  - sanitize username
          *  - Verify Captcha code
          *
-         * Send Activation Email
+         * Prepare Activation Email
+         *
+         * Create new User from PostRequest Attributes
          *
          * Add the new User to the User DataBase
+         *
+         * Send Activation Email
          *
          * Send 200 okay
          *
@@ -57,24 +59,21 @@ public class CreateAccount extends PostCommand
         
         
         //Check/Verify PostRequest Attributes
-        if(request.getUsername() == null ||
-                   request.getPassword() == null ||
-                   request.getEmail() == null ||
-                   request.getCaptchaCode() == null)
+        if(request.getPassword() == null || request.getEmail() == null || request.getCaptchaCode() == null)
         {
             response.setMessage400();
             return response;
         }
         
         
-       
+        
         
         /* Verify safe account creation
-         *  - Make sure there are no duplicate usernames
+         *  - Make sure the username is not taken
          *  - Verify Captcha code
          */
         
-        //Make sure there are no duplicate usernames
+        //Make sure the username is not taken
         if(!authSession.getFailureCode().equals(FailureReasons.MISSING_USER))
         {
             response.setMessage409();
@@ -114,75 +113,132 @@ public class CreateAccount extends PostCommand
             return response;
         }
         
-        //Send Activation Email
+        /* Send Activation Email
+         *
+         * Get Servers Email from Server Settings
+         *
+         * Form email with activation code
+         *
+         * Create Auth Token
+         *
+         *
+         */
+        
+        //Get Servers Email from Server Settings
+        Email serversEmail;
         try
         {
-            AuthToken emailToken;
-            Email defaultEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
-            String emailCode = AuthUtil.generateRandomString(100);
-            LocalDateTime now = LocalDateTime.now();
-            int accountGracePeriod = 30;
-            emailToken = new AuthToken(AuthUtil.emailUseName,
-                                       this.ip,
-                                       emailCode,
-                                       now.plusDays(accountGracePeriod));
-    
-            //TODO Make this a link??
-            String topic = "Account Activation";
-            String message = "Here is your code to activate you account \n\n";
-            message += emailCode;
-            message += "\n\n after ";
-            message += accountGracePeriod + " days if your account is not activated it will be deleted.";
-    
-            //Wait to send the email until the account is in the data base
-    
-            //Add the new User to the User DataBase
-            String base64HashedPassword = Base64.getEncoder()
-                                                .encodeToString(PasswordStorage.createHash(request.getPassword())
-                                                                               .getBytes());
-            String base64Email = Base64.getEncoder().encodeToString(request.getEmail().getBytes());
-    
-            User newUser = new User(request.getUsername(),
-                                    base64HashedPassword,
-                                    base64Email);
-            newUser.setToken(emailToken);
-           
-    
-            AuthUtil.addUser(newUser);
-    
-            if(!AuthUtil.testMode)
-            {
-                WebUtil.sendEmail(defaultEmail, request.getEmail(), topic, message);
-            }
-    
-            //Send 200 okay
-            response.setMessage200();
-            return response;
-    
-        }
-        catch(MessagingException e)
-        {
-            //Send 200 okay
-            response.setMessage200();
-            return response;
-        }
-        catch(PasswordStorage.CannotPerformOperationException | SQLException e)
-        {
-            System.out.println(e.getMessage());
-            response.setMessage500();
-            return response;
+            serversEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
         }
         catch(NoSuchEmailException e)
         {
-            System.out.println(e.getMessage());
             response.setMessage501();
             return response;
         }
-        catch(NoSuchDataBaseException e)
+        
+        //Form email with activation code
+        int accountGracePeriod = 30;
+        
+        String emailActivationCode = AuthUtil.generateRandomString(100);
+        
+        
+        //TODO Make this a link??
+        String topic = "Account Activation";
+        String message = "Here is your code to activate you account \n\n";
+        message += emailActivationCode;
+        message += "\n\n after ";
+        message += accountGracePeriod + " days if your account is not activated it will be deleted.";
+        
+        
+        //Create Auth Token
+        LocalDateTime now = LocalDateTime.now();
+        AuthToken emailToken;
+        try
         {
-            e.printStackTrace();
+            emailToken = new AuthToken(AuthUtil.emailUseName,
+                                       this.ip,
+                                       emailActivationCode,
+                                       now.plusDays(accountGracePeriod));
+        }
+        catch(PasswordStorage.CannotPerformOperationException e)
+        {
+            response.setMessage500();
+            return response;
+        }
+        
+        
+        
+        /* Create new User from PostRequest Attributes
+         *
+         * Hash Password
+         * Convert Hashed Password to Base64
+         *
+         * Convert Email to base64
+         *
+         * Create User Object
+         *
+         * Set users Email activation AuthToken
+         */
+        
+        //Hash Password
+        String hashedPassword = null;
+        try
+        {
+            hashedPassword = PasswordStorage.createHash(request.getPassword());
+        }
+        catch(PasswordStorage.CannotPerformOperationException e)
+        {
+            response.setMessage500();
+            return response;
         }
     
+        //Convert hashed Password to Base64
+        String base64HashedPassword = Base64.getEncoder().encodeToString(hashedPassword.getBytes());
+        
+        //Convert Email to base64
+        String base64Email = Base64.getEncoder().encodeToString(request.getEmail().getBytes());
+        
+        
+        //Create User Object
+        User newUser = new User(request.getUsername(), base64HashedPassword, base64Email);
+        
+        
+        //Set users Email activation AuthToken
+        newUser.setToken(emailToken);
+        
+        
+        //Add the new User to the User DataBase
+        //Note: We check to make sure the was added
+        if(!AuthUtil.addUser(newUser))
+        {
+            response.setMessage500();
+            return response;
+        }
+        
+        
+        //Send Activation Email
+        //Note: For testing purposes to avoid spamming my own email we check to see if the server is in test mode
+        if(!AuthUtil.testMode)
+        {
+            
+            try
+            {
+                WebUtil.sendEmail(serversEmail, request.getEmail(), topic, message);
+            }
+            catch(MessagingException e)
+            {
+                /*
+                 * If we fail to send the code to the user's email then they can request it again
+                 * so we will send 200 okay.
+                 */
+            }
+        }
+        
+        //Send 200 okay
+        response.setMessage200();
+        return response;
+        
+        
     }
     
     @Override

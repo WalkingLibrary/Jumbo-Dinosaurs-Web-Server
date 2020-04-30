@@ -101,7 +101,8 @@ public class HTTPResponseGenerator
              * Generate Auth Session from Post Request
              * Filter Auth Session failure Codes for shortcut responses
              * Filter AuthSessions and Auth tries via success and IP (Make it so you can't brute force)
-             * Get the Post Commands
+             * Note: Filter Should allow following post commands to assume a user from auth session
+             * Get the command to execute
              * Filter for the Post Requests Command
              * Execute/Return That Commands getResponse Method
              *
@@ -178,6 +179,7 @@ public class HTTPResponseGenerator
             
             commandToExecute.setIp(message.getIp());
             
+            //Note: Filter Should allow following post commands to assume a user from auth session
             //If the post command requires a user then shortcut the response to 400
             if(authSession.getUser() == null && commandToExecute.requiresUser())
             {
