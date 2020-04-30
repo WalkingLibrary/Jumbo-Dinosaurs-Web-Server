@@ -4,6 +4,9 @@ import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.auth.util.FailureReasons;
 import com.jumbodinosaurs.auth.util.WatchListUtil;
+import com.jumbodinosaurs.devlib.email.Email;
+import com.jumbodinosaurs.devlib.email.EmailManager;
+import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.domain.util.Domain;
@@ -97,6 +100,8 @@ public class HTTPResponseGenerator
         {
             /* Process for dealing with POST requests
              * Check for server's settings for post
+             *  - Check Allow Post
+             *  - Check Server's Email Settings
              * Verify Post requests integrity
              * Generate Auth Session from Post Request
              * Filter Auth Session failure Codes for shortcut responses
@@ -115,6 +120,20 @@ public class HTTPResponseGenerator
                 response.setMessage501();
                 return response;
             }
+    
+            //Check Server's Email Settings
+            Email defaultEmail;
+            try
+            {
+                defaultEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
+            }
+            catch(NoSuchEmailException e)
+            {
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage501();
+                return response;
+            }
+            
             
             //Verify Post requests integrity
             PostRequest request = message.getPostRequest();
@@ -178,6 +197,7 @@ public class HTTPResponseGenerator
             }
             
             commandToExecute.setIp(message.getIp());
+            commandToExecute.setServersEmail(defaultEmail);
             
             //Note: Filter Should allow following post commands to assume a user from auth session
             //If the post command requires a user then shortcut the response to 400

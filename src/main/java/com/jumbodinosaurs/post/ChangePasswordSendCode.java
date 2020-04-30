@@ -36,24 +36,26 @@ public class ChangePasswordSendCode extends PostCommand
          *
          * Check/Verify PostRequest Attributes
          *
-         * Get UserDataBase
-         * Get the user from the data base
+         * Get the User From the AuthSession
          * Check the given email with the email on record to reduce spam possibilities
          * Check if we need to make a new changePassword AuthToken
          *
-         *  no -> return 200 okay
+         * no ->
+         * return 200 okay
          *
-         *  yes -> Make changePassword AuthToken
-         *  set changePassword Token on the user
-         *  Update the user in the data base
-         *  Send email with change password instructions
-         *  Send 200 okay
+         * yes ->
+         * Make changePassword AuthToken
+         * Set changePassword Token on the user
+         * Update the user in the DataBase
+         * Prepare Email with Instructions
+         * Send Change Password Email
+         * Send 200 okay
          *
          *  */
         
         //Check/Verify PostRequest Attributes
         HTTPResponse response = new HTTPResponse();
-        if(request.getEmail() == null || request.getUsername() == null)
+        if(request.getEmail() == null)
         {
             response.setMessage400();
             return response;
@@ -61,7 +63,7 @@ public class ChangePasswordSendCode extends PostCommand
         
        
         
-        //Get the user from the data base
+        //Get the User From the AuthSession
         User user = authSession.getUser();
         
         
@@ -84,68 +86,73 @@ public class ChangePasswordSendCode extends PostCommand
         }
         
         /*
-         *  yes -> Make changePassword AuthToken
-         *  set changePassword Token on the user
-         *  Update the user in the data base
-         *  Send email with change password instructions
-         *  Send 200 okay
+         *
+         * Make changePassword AuthToken
+         * Set changePassword Token on the user
+         * Update the user in the DataBase
+         * Prepare Email with Instructions
+         * Send Change Password Email
+         * Send 200 okay
          */
-        
-        //yes -> Make changePassword AuthToken
+    
+    
+       
+        // Make changePassword AuthToken
+        String token = AuthUtil.generateRandomString(100);
+        LocalDateTime expirationDate = LocalDateTime.now();
+        expirationDate = expirationDate.plusHours(2);
+        AuthToken changePasswordToken;
         try
         {
-            String token = AuthUtil.generateRandomString(100);
-            LocalDateTime expirationDate = LocalDateTime.now();
-            expirationDate = expirationDate.plusHours(2);
-            AuthToken changePasswordToken = new AuthToken(changePasswordUseName,
-                                                          this.ip,
-                                                          token,
-                                                          expirationDate);
-            
-            
-            //set changePassword Token on the user
-            User updatedUser = user.clone();
-            updatedUser.setToken(changePasswordToken);
-            
-            //We check to make sure the server has a way to send the email before updating the user
-            Email defaultEmail;
-            try
-            {
-                defaultEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
-            }
-            catch(NoSuchEmailException e)
-            {
-                response.setMessage501();
-                return response;
-            }
-            
-            
-            //This code is specific for jumbodinosaurs.com
-            String topic = "Change Password";
-            String message = "Here is the code needed to change your password on your Jumbo Dinosaurs Account\n";
-            message += "Code: " + token + "\n";
-            message += "Enter it at the link below to change your password\n";
-            message += "https://jumbodinosaurs.com/changePassword.html";
-            
-            
-            //Update the user in the data base
-            AuthUtil.updateUser(authSession, updatedUser);
-            
-            //Send email with change password instructions
-            WebUtil.sendEmail(defaultEmail, user.getEmail(), topic, message);
-            
-            //Send 200 okay
-            response.setMessage200();
-            return response;
-            
-            
+            changePasswordToken = new AuthToken(changePasswordUseName,
+                                                this.ip,
+                                                token,
+                                                expirationDate);
         }
-        catch(MessagingException | PasswordStorage.CannotPerformOperationException e)
+        catch(PasswordStorage.CannotPerformOperationException e)
+        {
+            response.setMessage500();
+            return response;
+        }
+    
+        //Set changePassword Token on the user
+        User updatedUser = user.clone();
+        updatedUser.setToken(changePasswordToken);
+        
+        //Update the user in the DataBase
+        if(AuthUtil.updateUser(authSession, updatedUser))
         {
             response.setMessage500();
             return response;
         }
         
+    
+        //Prepare Email with Instructions
+        
+        //This code is specific for jumbodinosaurs.com
+        String topic = "Change Password";
+        String message = "Here is the code needed to change your password on your Jumbo Dinosaurs Account\n";
+        message += "Code: " + token + "\n";
+        message += "Enter it at the link below to change your password\n";
+        message += "https://jumbodinosaurs.com/changePassword.html";
+        
+        
+        
+        
+        //Send Change Password Email
+        try
+        {
+            WebUtil.sendEmail(getServersEmail(), user.getEmail(), topic, message);
+        }
+        catch(MessagingException e)
+        {
+            response.setMessage500();
+            return response;
+        }
+    
+        //Send 200 okay
+        response.setMessage200();
+        return response;
         
     }
     

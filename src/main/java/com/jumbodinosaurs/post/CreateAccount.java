@@ -115,7 +115,6 @@ public class CreateAccount extends PostCommand
         
         /* Send Activation Email
          *
-         * Get Servers Email from Server Settings
          *
          * Form email with activation code
          *
@@ -124,17 +123,7 @@ public class CreateAccount extends PostCommand
          *
          */
         
-        //Get Servers Email from Server Settings
-        Email serversEmail;
-        try
-        {
-            serversEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
-        }
-        catch(NoSuchEmailException e)
-        {
-            response.setMessage501();
-            return response;
-        }
+        
         
         //Form email with activation code
         int accountGracePeriod = 30;
@@ -223,7 +212,7 @@ public class CreateAccount extends PostCommand
             
             try
             {
-                WebUtil.sendEmail(serversEmail, request.getEmail(), topic, message);
+                WebUtil.sendEmail(getServersEmail(), request.getEmail(), topic, message);
             }
             catch(MessagingException e)
             {

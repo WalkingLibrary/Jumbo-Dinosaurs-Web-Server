@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.post;
 
 import com.jumbodinosaurs.auth.util.AuthSession;
+import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.log.Session;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
@@ -9,6 +10,7 @@ public abstract class PostCommand
 {
     protected String ip;
     private String command;
+    private Email serversEmail;
     
     public PostCommand()
     {
@@ -33,4 +35,14 @@ public abstract class PostCommand
     }
     
     public abstract boolean requiresUser();
+    
+    public void setServersEmail(Email serversEmail)
+    {
+        this.serversEmail = serversEmail;
+    }
+    
+    public Email getServersEmail()
+    {
+        return serversEmail;
+    }
 }
