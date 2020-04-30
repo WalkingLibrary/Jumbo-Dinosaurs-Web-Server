@@ -59,29 +59,10 @@ public class ChangePasswordSendCode extends PostCommand
             return response;
         }
         
-        //Get UserDataBase
-        DataBase userDataBase = null;
-        try
-        {
-            userDataBase = AuthUtil.getUserDataBase();
-        }
-        catch(NoSuchDataBaseException e)
-        {
-            response.setMessage501();
-            return response;
-        }
+       
         
         //Get the user from the data base
-        User user;
-        try
-        {
-            user = AuthUtil.getUser(userDataBase, request.getUsername());
-        }
-        catch(SQLException | WrongStorageFormatException | NoSuchUserException e)
-        {
-            response.setMessage500();
-            return response;
-        }
+        User user = authSession.getUser();
         
         
         //Check the given email with the email on record to reduce spam possibilities
@@ -117,7 +98,7 @@ public class ChangePasswordSendCode extends PostCommand
             LocalDateTime expirationDate = LocalDateTime.now();
             expirationDate = expirationDate.plusHours(2);
             AuthToken changePasswordToken = new AuthToken(changePasswordUseName,
-                                                          session.getWho(),
+                                                          this.ip,
                                                           token,
                                                           expirationDate);
             
@@ -148,8 +129,7 @@ public class ChangePasswordSendCode extends PostCommand
             
             
             //Update the user in the data base
-            Query updateQuery = DataBaseUtil.getUpdateObjectQuery(AuthUtil.userTableName, user, updatedUser);
-            DataBaseUtil.manipulateDataBase(updateQuery, userDataBase);
+            AuthUtil.updateUser(authSession, updatedUser);
             
             //Send email with change password instructions
             WebUtil.sendEmail(defaultEmail, user.getEmail(), topic, message);
@@ -160,12 +140,18 @@ public class ChangePasswordSendCode extends PostCommand
             
             
         }
-        catch(SQLException | MessagingException | PasswordStorage.CannotPerformOperationException e)
+        catch(MessagingException | PasswordStorage.CannotPerformOperationException e)
         {
             response.setMessage500();
             return response;
         }
         
         
+    }
+    
+    @Override
+    public boolean requiresUser()
+    {
+        return true;
     }
 }

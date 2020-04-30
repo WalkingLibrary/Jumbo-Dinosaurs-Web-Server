@@ -19,54 +19,25 @@ public class CheckUsername extends PostCommand
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
         /* Process for Checking username availability
-         * Check/Verify PostRequest Attributes
-         * Verify DataBase Config
-         * Check to see if a user exists with the given username
+         * Check the given Auth Sessions user variable
+         * return 200 okay with boolean
          *  */
         
         HTTPResponse response = new HTTPResponse();
         
-        //Check/Verify PostRequest Attributes
-        if(request.getUsername() == null)
-        {
-            response.setMessage400();
-            return response;
-        }
+        //Check the given Auth Sessions user variable
+        boolean isUserNameTaken = authSession.getUser() != null;
         
-        //Verify DataBase Config (Make/Get DataBase)
-        DataBase userDataBase = null;
-        try
-        {
-            userDataBase = AuthUtil.getUserDataBase();
-        }
-        catch(NoSuchDataBaseException e)
-        {
-            response.setMessage501();
-            return response;
-        }
-        
-        
-        //Check to see if a user exists with the given username
-        boolean isUserNameTaken;
-        try
-        {
-            User userCheck = AuthUtil.getUser(userDataBase, request.getUsername());
-            isUserNameTaken = true;
-        }
-        catch(NoSuchUserException e)
-        {
-            isUserNameTaken = false;
-        }
-        catch(SQLException | WrongStorageFormatException e)
-        {
-            response.setMessage500();
-            return response;
-        }
-    
         response.setMessage200();
         JsonObject reason = new JsonObject();
         reason.addProperty("isUserNameTaken", isUserNameTaken);
         response.addPayload(reason.toString());
         return response;
+    }
+    
+    @Override
+    public boolean requiresUser()
+    {
+        return false;
     }
 }

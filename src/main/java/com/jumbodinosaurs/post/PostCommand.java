@@ -7,7 +7,7 @@ import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 
 public abstract class PostCommand
 {
-    protected Session session;
+    protected String ip;
     private String command;
     
     public PostCommand()
@@ -15,15 +15,22 @@ public abstract class PostCommand
         this.command = this.getClass().getSimpleName();
     }
     
-    public String getCommand()
+    public String getNameCommand()
     {
         return command;
     }
     
     public abstract HTTPResponse getResponse(PostRequest request, AuthSession authSession);
     
-    public void setSession(Session session)
+    public String getIp()
     {
-        this.session = session;
+        return ip;
     }
+    
+    public void setIp(String ip)
+    {
+        this.ip = ip;
+    }
+    
+    public abstract boolean requiresUser();
 }

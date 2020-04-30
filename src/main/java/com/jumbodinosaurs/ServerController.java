@@ -6,6 +6,7 @@ import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.log.LogManager;
+import com.jumbodinosaurs.post.PostCommandUtil;
 import com.jumbodinosaurs.tasks.implementations.startup.SetupServer;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class ServerController
         {
             LogManager.consoleLogger.warn("AuthUtil is in Test Mode");
         }
+        PostCommandUtil.getPostCommands();
     }
     
     public static ScheduledThreadPoolExecutor getThreadScheduler()

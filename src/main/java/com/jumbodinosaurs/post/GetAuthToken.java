@@ -33,7 +33,7 @@ public class GetAuthToken extends PostCommand
             
             String token = AuthUtil.generateRandomString(100);
             LocalDateTime now = LocalDateTime.now();
-            AuthToken authToken = new AuthToken(AuthUtil.authUseName, this.session.getWho(), token, now.plusDays(30));
+            AuthToken authToken = new AuthToken(AuthUtil.authUseName, this.ip, token, now.plusDays(30));
             currentUser.setToken(authToken);
             if(AuthUtil.updateUser(authSession, currentUser))
             {
@@ -50,5 +50,11 @@ public class GetAuthToken extends PostCommand
             response.setMessage500();
             return response;
         }
+    }
+    
+    @Override
+    public boolean requiresUser()
+    {
+        return true;
     }
 }

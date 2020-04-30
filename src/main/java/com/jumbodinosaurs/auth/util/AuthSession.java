@@ -11,8 +11,9 @@ public class AuthSession
     private AuthToken tokenUsed;
     private FailureReasons failureCode;
     
-    public AuthSession()
+    public AuthSession(User user)
     {
+        this.user = user;
     }
     
     public boolean isSuccess()
@@ -30,10 +31,6 @@ public class AuthSession
         return user.clone();
     }
     
-    protected void setUser(User user)
-    {
-        this.user = user;
-    }
     
     public FailureReasons getFailureCode()
     {
@@ -64,4 +61,5 @@ public class AuthSession
     {
         this.tokenUsed = tokenUsed;
     }
+    
 }

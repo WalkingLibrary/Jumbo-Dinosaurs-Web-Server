@@ -7,6 +7,7 @@ import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
+import com.jumbodinosaurs.auth.util.FailureReasons;
 import com.jumbodinosaurs.devlib.database.DataBase;
 import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
@@ -66,19 +67,7 @@ public class CreateAccount extends PostCommand
         }
         
         
-        //Verify DataBase Config (Make/Get DataBase)
-        DataBase userDataBase = null;
-        try
-        {
-            userDataBase = AuthUtil.getUserDataBase();
-        }
-        catch(NoSuchDataBaseException e)
-        {
-            System.out.println(e.getMessage());
-            response.setMessage501();
-            return response;
-        }
-        
+       
         
         /* Verify safe account creation
          *  - Make sure there are no duplicate usernames
@@ -86,11 +75,7 @@ public class CreateAccount extends PostCommand
          */
         
         //Make sure there are no duplicate usernames
-        try
-        {
-            User userCheck = AuthUtil.getUser(userDataBase, request.getUsername());
-        }
-        catch(NoSuchUserException e)
+        if(!authSession.getFailureCode().equals(FailureReasons.MISSING_USER))
         {
             response.setMessage409();
             JsonObject reason = new JsonObject();
@@ -98,12 +83,7 @@ public class CreateAccount extends PostCommand
             response.addPayload(reason.toString());
             return response;
         }
-        catch(SQLException | WrongStorageFormatException e)
-        {
-            System.out.println(e.getMessage());
-            response.setMessage500();
-            return response;
-        }
+        
         
         //sanitize username
         if(!AuthUtil.isValidUsername(request.getUsername()))
@@ -143,7 +123,7 @@ public class CreateAccount extends PostCommand
             LocalDateTime now = LocalDateTime.now();
             int accountGracePeriod = 30;
             emailToken = new AuthToken(AuthUtil.emailUseName,
-                                       this.session.getWho(),
+                                       this.ip,
                                        emailCode,
                                        now.plusDays(accountGracePeriod));
     
@@ -166,14 +146,9 @@ public class CreateAccount extends PostCommand
                                     base64HashedPassword,
                                     base64Email);
             newUser.setToken(emailToken);
-            Query insertQuery = DataBaseUtil.getInsertQuery(AuthUtil.userTableName, newUser);
-            DataBaseUtil.manipulateDataBase(insertQuery, userDataBase);
+           
     
-            if(insertQuery.getResponseCode() != 1)
-            {
-                response.setMessage500();
-                return response;
-            }
+            AuthUtil.addUser(newUser);
     
             if(!AuthUtil.testMode)
             {
@@ -203,6 +178,16 @@ public class CreateAccount extends PostCommand
             response.setMessage501();
             return response;
         }
-        
+        catch(NoSuchDataBaseException e)
+        {
+            e.printStackTrace();
+        }
+    
+    }
+    
+    @Override
+    public boolean requiresUser()
+    {
+        return false;
     }
 }
