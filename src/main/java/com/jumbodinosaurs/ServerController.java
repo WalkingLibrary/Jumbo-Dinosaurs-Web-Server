@@ -36,11 +36,11 @@ public class ServerController
     
         SetupServer task = new SetupServer();
         task.run();
+        
         if(AuthUtil.testMode == true)
         {
             LogManager.consoleLogger.warn("AuthUtil is in Test Mode");
         }
-        PostCommandUtil.getPostCommands();
     }
     
     public static ScheduledThreadPoolExecutor getThreadScheduler()

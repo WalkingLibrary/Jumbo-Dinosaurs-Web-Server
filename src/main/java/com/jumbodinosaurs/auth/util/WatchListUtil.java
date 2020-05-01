@@ -19,21 +19,24 @@ public class WatchListUtil
     
     public static FloatUser getUser(String ip)
     {
-        FloatUser user;
+        
         if(watchList.containsKey(ip))
         {
-            user = watchList.get(ip);
+            return watchList.get(ip);
         }
-        else
-        {
-            user = new FloatUser(0);
-        }
-        return user;
+        
+        return new FloatUser(0);
+        
     }
     
    
     public static boolean shouldAcceptRequest(String ip)
     {
+        if(!watchList.containsKey(ip))
+        {
+            return true;
+        }
+        System.out.println("Added " + ip);
         FloatUser user = getUser(ip);
         LocalDateTime now = LocalDateTime.now();
         

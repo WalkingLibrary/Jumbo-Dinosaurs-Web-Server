@@ -27,6 +27,18 @@ public class ChangePasswordAction extends PostCommand
     }
     
     @Override
+    public boolean requiresSuccessfulAuth()
+    {
+        return true;
+    }
+    
+    @Override
+    public boolean requiresPasswordAuth()
+    {
+        return false;
+    }
+    
+    @Override
     public boolean requiresUser()
     {
         return true;

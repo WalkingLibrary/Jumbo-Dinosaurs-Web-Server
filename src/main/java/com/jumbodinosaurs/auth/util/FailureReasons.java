@@ -8,4 +8,11 @@ public enum FailureReasons
     FailureReasons()
     {
     }
+    
+    
+    @Override
+    public String toString()
+    {
+        return "FailureReasons{" + this.name() +"}";
+    }
 }

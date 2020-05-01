@@ -34,6 +34,10 @@ public abstract class PostCommand
         this.ip = ip;
     }
     
+    public abstract boolean requiresSuccessfulAuth();
+    
+    public abstract boolean requiresPasswordAuth();
+    
     public abstract boolean requiresUser();
     
     public void setServersEmail(Email serversEmail)

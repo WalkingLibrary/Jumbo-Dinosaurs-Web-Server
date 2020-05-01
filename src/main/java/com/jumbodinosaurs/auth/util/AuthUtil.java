@@ -53,6 +53,12 @@ public class AuthUtil
         return true;
     }
     
+    //https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
+    public static boolean isValidEmail(String emailAddress)
+    {
+        return emailAddress.length() <= 254;
+    }
+    
     public static CaptchaResponse getCaptchaResponse(String captchaToken)
             throws IOException
     {
@@ -77,6 +83,16 @@ public class AuthUtil
         HttpResponse response = WebUtil.getResponse(connection);
         
         return new Gson().fromJson(response.getResponse(), CaptchaResponse.class);
+    }
+    
+    public static String generateCharacters(int amount)
+    {
+        String characters = "";
+        for(int i = 0; i < amount; i ++)
+        {
+            characters += (char) i;
+        }
+        return characters;
     }
     
     public static String generateRandomString(int size)
@@ -156,6 +172,23 @@ public class AuthUtil
         }
         
         throw new NoSuchUserException("No user named " + username + " found in " + dataBase.getDataBaseName());
+    }
+    
+    public static boolean isUserNameTaken(String username)
+    {
+        try
+        {
+            getUser(getUserDataBase(), username);
+            return true;
+        }
+        catch(WrongStorageFormatException | NoSuchDataBaseException | SQLException e)
+        {
+            return true;
+        }
+        catch(NoSuchUserException e)
+        {
+            return false;
+        }
     }
     
     public static AuthSession authenticateUser(PostRequest request)

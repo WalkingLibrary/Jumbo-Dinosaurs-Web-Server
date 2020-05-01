@@ -128,9 +128,10 @@ public class User
         isActive = active;
     }
     
+    
     @Override
     public String toString()
     {
-        return new Gson().toJson(this);
+        return "User{" + "username='" + username + '\'' + ", base64HashedPassword='" + base64HashedPassword + '\'' + ", isActive=" + isActive + ", base64Email='" + base64Email + '\'' + ", joinDate=" + joinDate + ", tokens=" + tokens + '}';
     }
 }

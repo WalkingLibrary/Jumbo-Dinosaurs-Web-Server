@@ -148,4 +148,9 @@ public class HTTPMessage
         throw new NoSuchHeaderException("No header matching the pattern: " + pattern );
     }
     
+    @Override
+    public String toString()
+    {
+        return "HTTPMessage{" + "encryptedConnection=" + encryptedConnection + ", postRequest=" + postRequest + ", ip='" + ip + '\'' + ", method=" + method + ", path='" + path + '\'' + ", headers=" + headers + '}';
+    }
 }

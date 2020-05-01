@@ -19,50 +19,25 @@ public class CheckUsername extends PostCommand
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
-        /* Process for Checking username availability
-         *
-         * Check to see if the AuthSession's user is null
-         *
-         * Check the AuthSession's Failure Reason
-         *
-         *
-         *  */
-        
         HTTPResponse response = new HTTPResponse();
-    
-        //Check to see if the AuthSession's user is null
-        if(authSession.getUser() != null)
-        {
-            //Return True
-            response.setMessage200();
-            JsonObject reason = new JsonObject();
-            reason.addProperty("isUserNameTaken", true);
-            response.addPayload(reason.toString());
-            return response;
-        }
-        
-        
-        //Check the AuthSession's Failure Reason
-        
-        if(authSession.getFailureCode().equals(FailureReasons.MISSING_USERNAME) ||
-                   authSession.getFailureCode().equals(FailureReasons.INVALID_USERNAME))
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        if(authSession.getFailureCode().equals(FailureReasons.SERVER_ERROR))
-        {
-            response.setMessage500();
-            return response;
-        }
-        
-        //Return false
         response.setMessage200();
         JsonObject reason = new JsonObject();
-        reason.addProperty("isUserNameTaken", false);
+        reason.addProperty("isUserNameTaken", AuthUtil.isUserNameTaken(request.getUsername()));
         response.addPayload(reason.toString());
         return response;
+        
+    }
+    
+    @Override
+    public boolean requiresSuccessfulAuth()
+    {
+        return false;
+    }
+    
+    @Override
+    public boolean requiresPasswordAuth()
+    {
+        return false;
     }
     
     @Override

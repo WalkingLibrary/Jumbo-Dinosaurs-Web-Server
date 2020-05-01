@@ -39,8 +39,10 @@ public class CreateAccount extends PostCommand
          *
          * Check/Verify PostRequest Attributes
          * Verify safe account creation
+         *  - validate password length
+         *  - validate email address
          *  - Make sure the username is not taken
-         *  - sanitize username
+         *  - validate username
          *  - Verify Captcha code
          *
          * Prepare Activation Email
@@ -68,13 +70,34 @@ public class CreateAccount extends PostCommand
         
         
         
-        /* Verify safe account creation
+        /*  * Verify safe account creation
+         *  - validate password length
+         *  - validate email address
          *  - Make sure the username is not taken
+         *  - validate username
          *  - Verify Captcha code
          */
         
+        
+        if(request.getPassword().length() > 255)
+        {
+            response.setMessage400();
+            return response;
+        }
+        
+        
+        //validate email address
+        if(!AuthUtil.isValidEmail(request.getEmail()))
+        {
+            response.setMessage409();
+            JsonObject reason = new JsonObject();
+            reason.addProperty("failureReason", "Invalid Email");
+            response.addPayload(reason.toString());
+            return response;
+        }
+        
         //Make sure the username is not taken
-        if(!authSession.getFailureCode().equals(FailureReasons.MISSING_USER))
+        if(AuthUtil.isUserNameTaken(request.getUsername()))
         {
             response.setMessage409();
             JsonObject reason = new JsonObject();
@@ -84,33 +107,37 @@ public class CreateAccount extends PostCommand
         }
         
         
-        //sanitize username
+        //validate username
         if(!AuthUtil.isValidUsername(request.getUsername()))
         {
             response.setMessage409();
             JsonObject reason = new JsonObject();
             reason.addProperty("failureReason", "Username given was not valid");
+            response.addPayload(reason.toString());
             return response;
         }
         
         
         //Verify Captcha code
-        try
+        if(!AuthUtil.testMode)
         {
-            CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode());
-            double captchaScore = captchaResponse.getScore();
-            boolean captchaSuccess = captchaResponse.isSuccess();
-            if(!(captchaSuccess && captchaScore > .7))
+            try
             {
-                response.setMessage409();
+                CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode());
+                double captchaScore = captchaResponse.getScore();
+                boolean captchaSuccess = captchaResponse.isSuccess();
+                if(!(captchaSuccess && captchaScore > .7))
+                {
+                    response.setMessage409();
+                    return response;
+                }
+            }
+            catch(IOException e)
+            {
+                System.out.println(e.getMessage());
+                response.setMessage500();
                 return response;
             }
-        }
-        catch(IOException e)
-        {
-            System.out.println(e.getMessage());
-            response.setMessage500();
-            return response;
         }
         
         /* Send Activation Email
@@ -228,6 +255,18 @@ public class CreateAccount extends PostCommand
         return response;
         
         
+    }
+    
+    @Override
+    public boolean requiresSuccessfulAuth()
+    {
+        return false;
+    }
+    
+    @Override
+    public boolean requiresPasswordAuth()
+    {
+        return false;
     }
     
     @Override

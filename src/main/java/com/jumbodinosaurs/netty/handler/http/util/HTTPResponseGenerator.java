@@ -109,6 +109,9 @@ public class HTTPResponseGenerator
              * Note: Filter Should allow following post commands to assume a user from auth session
              * Get the command to execute
              * Filter for the Post Requests Command
+             * Filter by Command and AuthSession
+             *  - Return 403 for fail Auths on commands that need auth
+             *  - Return 403 for token Auths on commands that need password auth
              * Execute/Return That Commands getResponse Method
              *
              * */
@@ -205,6 +208,28 @@ public class HTTPResponseGenerator
             {
                 HTTPResponse response = new HTTPResponse();
                 response.setMessage400();
+                return response;
+            }
+            
+            /*Filter by Command and AuthSession
+             *
+             * - Return 403 for fail Auths on commands that need auth
+             * - Return 403 for token Auths on commands that need password auth
+             */
+            
+            //- Return 403 for fail Auths on commands that need auth
+            if(!authSession.isSuccess() && commandToExecute.requiresSuccessfulAuth())
+            {
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage403();
+                return response;
+            }
+            
+            //- Return 403 for token Auths on commands that need password auth
+            if(!authSession.isPasswordAuth() && commandToExecute.requiresPasswordAuth())
+            {
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage403();
                 return response;
             }
             

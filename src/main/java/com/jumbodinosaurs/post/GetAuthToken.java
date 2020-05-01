@@ -78,6 +78,18 @@ public class GetAuthToken extends PostCommand
     }
     
     @Override
+    public boolean requiresSuccessfulAuth()
+    {
+        return true;
+    }
+    
+    @Override
+    public boolean requiresPasswordAuth()
+    {
+        return true;
+    }
+    
+    @Override
     public boolean requiresUser()
     {
         return true;

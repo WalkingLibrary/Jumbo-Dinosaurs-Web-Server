@@ -4,6 +4,8 @@ import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.util.ServerUtil;
 
+import java.util.Objects;
+
 public class HTTPResponse
 {
     //Status Codes
@@ -149,10 +151,31 @@ public class HTTPResponse
     
     
     @Override
+    public boolean equals(Object o)
+    {
+        if(this == o)
+        {
+            return true;
+        }
+        if(o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+        HTTPResponse response = (HTTPResponse) o;
+        return Objects.equals(messageOut, response.messageOut);
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(messageOut);
+    }
+    
+    
+    
+    @Override
     public String toString()
     {
-        return "HTTPResponse{" +
-                       "messageOut='" + messageOut + '\'' +
-                       '}';
+        return "HTTPResponse{" + "messageOut='" + messageOut + '\'' + '}';
     }
 }

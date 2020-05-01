@@ -28,7 +28,11 @@ public class AuthSession
     
     public User getUser()
     {
-        return user.clone();
+        if(user != null)
+        {
+            return user.clone();
+        }
+        return null;
     }
     
     
@@ -62,4 +66,9 @@ public class AuthSession
         this.tokenUsed = tokenUsed;
     }
     
+    @Override
+    public String toString()
+    {
+        return "AuthSession{" + "success=" + success + ", user=" + user + ", passwordAuth=" + passwordAuth + ", tokenUsed=" + tokenUsed + ", failureCode=" + failureCode + '}';
+    }
 }

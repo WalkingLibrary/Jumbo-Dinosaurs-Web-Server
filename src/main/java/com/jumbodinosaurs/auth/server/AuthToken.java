@@ -92,4 +92,10 @@ public class AuthToken
     {
         return Objects.hash(use, mintDate, expirationDate, ip, base64HashedToken);
     }
+    
+    @Override
+    public String toString()
+    {
+        return "AuthToken{" + "use='" + use + '\'' + ", mintDate=" + mintDate + ", expirationDate=" + expirationDate + ", ip='" + ip + '\'' + ", base64HashedToken='" + base64HashedToken + '\'' + '}';
+    }
 }

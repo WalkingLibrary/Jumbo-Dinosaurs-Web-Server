@@ -157,6 +157,18 @@ public class ChangePasswordSendCode extends PostCommand
     }
     
     @Override
+    public boolean requiresSuccessfulAuth()
+    {
+        return false;
+    }
+    
+    @Override
+    public boolean requiresPasswordAuth()
+    {
+        return false;
+    }
+    
+    @Override
     public boolean requiresUser()
     {
         return true;

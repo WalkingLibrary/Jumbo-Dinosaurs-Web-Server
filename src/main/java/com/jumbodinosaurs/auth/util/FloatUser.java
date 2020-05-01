@@ -10,6 +10,7 @@ public class FloatUser
     public FloatUser(int strikes)
     {
         this.strikes = strikes;
+        lastUpdateTime = LocalDateTime.now();
     }
    
     public void addStrike()
