@@ -103,12 +103,12 @@ public class User
         return null;
     }
     
-    public boolean removeToken(AuthToken token)
+    public boolean removeToken(String tokenUse)
     {
         for(int i = 0; i < tokens.size(); i++)
         {
             AuthToken authToken = tokens.get(i);
-            if(authToken.equals(token))
+            if(authToken.getUse().equals(tokenUse))
             {
                 tokens.remove(i);
                 return true;
