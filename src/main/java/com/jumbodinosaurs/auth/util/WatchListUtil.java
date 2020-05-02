@@ -1,7 +1,6 @@
 package com.jumbodinosaurs.auth.util;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WatchListUtil
@@ -45,6 +44,10 @@ public class WatchListUtil
         {
             user.removeStrike();
             watchList.put(ip, user);
+            if(user.getStrikes() == 0)
+            {
+                watchList.remove(ip);
+            }
             return shouldAcceptRequest(ip);
         }
         
