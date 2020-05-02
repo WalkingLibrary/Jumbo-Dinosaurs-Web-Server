@@ -21,7 +21,6 @@ import com.jumbodinosaurs.util.PasswordStorage;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -58,6 +57,11 @@ public class AuthUtil
     public static boolean isValidEmail(String emailAddress)
     {
         return emailAddress.length() <= 254;
+    }
+    
+    public static boolean isValidPassword(String password)
+    {
+        return password.length() <= 255;
     }
     
     public static CaptchaResponse getCaptchaResponse(String captchaToken)

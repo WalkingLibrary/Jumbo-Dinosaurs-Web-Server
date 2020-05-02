@@ -67,7 +67,7 @@ public class CreateAccount extends PostCommand
          */
         
         
-        if(request.getPassword().length() > 255)
+        if(!AuthUtil.isValidPassword(request.getPassword()))
         {
             response.setMessage400();
             return response;

@@ -9,53 +9,47 @@ import com.jumbodinosaurs.util.PasswordStorage;
 
 import java.util.Base64;
 
-public class ChangePasswordForgot extends PostCommand
+public class ChangePassword extends PostCommand
 {
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
-        /*Process for changing password
-         * Check/Verify PostRequest Attributes
-         * Ensure it was a password token authentication
-         * Validate New Password
-         * Hash Password
-         * Encode Password (Base64)
-         * Update Users Password
-         * Revoke/Remove Password Token from User
-         * Update user in the database
+        /* Process for Changing a Users Password
          *
-         * */
+         * Check/Verify PostRequest Attributes
+         * Note: The New Password Should be in the Content Attribute of the PostRequest
+         * Validate New Password
+         * Hash The New Password
+         * Encode The New Password (Base64)
+         * Update the Users Password
+         * Update the User in the DataBase
+         *
+         *  */
+        
         HTTPResponse response = new HTTPResponse();
         
         //Check/Verify PostRequest Attributes
-        //The new password should be stored in the Content Attribute
+        //Note: The New Password Should be in the Content Attribute of the PostRequest
         if(request.getContent() == null)
         {
             response.setMessage400();
             return response;
         }
         
-        //Ensure it was a password token authentication
-        if(!request.getTokenUse().equals(AuthUtil.changePasswordUseName))
-        {
-            response.setMessage403();
-            return response;
-        }
-        
-        //Update Users Password
-        //Note: The new password should be stored in the Content Attribute
-        String newPassword = request.getContent();
-        
         
         //Validate New Password
+        String newPassword = request.getContent();
+        //Note: The New Password Should be in the Content Attribute of the PostRequest
         if(!AuthUtil.isValidPassword(newPassword))
         {
             response.setMessage400();
             return response;
         }
-    
-        //Hash Password
+        
+        
+        //Hash The New Password
         String hashedPassword;
+        
         try
         {
             hashedPassword = PasswordStorage.createHash(newPassword);
@@ -66,24 +60,15 @@ public class ChangePasswordForgot extends PostCommand
             return response;
         }
         
-        //Encode Password
+        //Encode The New Password (Base64)
         String base64HashedPassword = Base64.getEncoder().encodeToString(hashedPassword.getBytes());
-    
-        //Update users password
+        
+        
+        //Update the Users Password
         User updatedUser = authSession.getUser();
         updatedUser.setBase64HashedPassword(base64HashedPassword);
-    
-    
-        //Revoke/Remove Password Token from User
-        if(!updatedUser.removeToken(AuthUtil.changePasswordUseName))
-        {
-            response.setMessage500();
-            return response;
-        }
         
-        
-        
-        //Update user in the database
+        //Update the User in the DataBase
         if(!AuthUtil.updateUser(authSession, updatedUser))
         {
             response.setMessage500();
@@ -103,7 +88,7 @@ public class ChangePasswordForgot extends PostCommand
     @Override
     public boolean requiresPasswordAuth()
     {
-        return false;
+        return true;
     }
     
     @Override
