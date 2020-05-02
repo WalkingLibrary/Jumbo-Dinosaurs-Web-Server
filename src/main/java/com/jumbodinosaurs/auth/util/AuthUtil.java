@@ -30,8 +30,9 @@ public class AuthUtil
 {
     public static final boolean testMode = true;
     public static final String userTableName = testMode ? "testUsers" : "users";
-    public static final String emailUseName = "email";
+    public static final String emailActivationUseName = "email";
     public static final String authUseName = "auth";
+    public static final String changePasswordUseName = "changePassword";
     
     private static final String generalWhiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
     

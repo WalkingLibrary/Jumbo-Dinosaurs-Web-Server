@@ -36,7 +36,7 @@ public class ChangePasswordForgot extends PostCommand
         }
         
         //Ensure it was a password token authentication
-        if(!request.getTokenUse().equals(ChangePasswordSendCode.changePasswordUseName))
+        if(!request.getTokenUse().equals(AuthUtil.changePasswordUseName))
         {
             response.setMessage403();
             return response;
@@ -75,7 +75,7 @@ public class ChangePasswordForgot extends PostCommand
     
     
         //Revoke/Remove Password Token from User
-        if(!updatedUser.removeToken(ChangePasswordSendCode.changePasswordUseName))
+        if(!updatedUser.removeToken(AuthUtil.changePasswordUseName))
         {
             response.setMessage500();
             return response;

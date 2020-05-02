@@ -1,30 +1,18 @@
 package com.jumbodinosaurs.post;
 
 import com.google.gson.JsonObject;
-import com.jumbodinosaurs.auth.exceptions.NoSuchUserException;
 import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
-import com.jumbodinosaurs.auth.util.FailureReasons;
-import com.jumbodinosaurs.devlib.database.DataBase;
-import com.jumbodinosaurs.devlib.database.DataBaseUtil;
-import com.jumbodinosaurs.devlib.database.Query;
-import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
-import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
-import com.jumbodinosaurs.devlib.email.Email;
-import com.jumbodinosaurs.devlib.email.EmailManager;
-import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.PasswordStorage;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
@@ -171,7 +159,7 @@ public class CreateAccount extends PostCommand
         AuthToken emailToken;
         try
         {
-            emailToken = new AuthToken(AuthUtil.emailUseName,
+            emailToken = new AuthToken(AuthUtil.emailActivationUseName,
                                        this.ip,
                                        emailActivationCode,
                                        now.plusDays(accountGracePeriod));

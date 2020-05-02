@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 public class ChangePasswordSendCode extends PostCommand
 {
     
-    public static final String changePasswordUseName = "changePassword";
+    
     
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
@@ -76,7 +76,7 @@ public class ChangePasswordSendCode extends PostCommand
         }
         
         //Check if we need to make a new changePassword AuthToken
-        AuthToken authTokenToCheck = user.getToken(changePasswordUseName);
+        AuthToken authTokenToCheck = user.getToken(AuthUtil.changePasswordUseName);
         
         //no -> return 200 okay
         if(authTokenToCheck != null && !authTokenToCheck.hasExpired())
@@ -104,7 +104,7 @@ public class ChangePasswordSendCode extends PostCommand
         AuthToken changePasswordToken;
         try
         {
-            changePasswordToken = new AuthToken(changePasswordUseName,
+            changePasswordToken = new AuthToken(AuthUtil.changePasswordUseName,
                                                 this.ip,
                                                 token,
                                                 expirationDate);
