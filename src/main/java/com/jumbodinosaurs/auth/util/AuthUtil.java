@@ -298,7 +298,7 @@ public class AuthUtil
         if(request.getPassword() == null)
         {
             passwordAuth = false;
-            use = request.getContent();
+            use = request.getTokenUse();
         }
         
         
@@ -379,11 +379,12 @@ public class AuthUtil
         {
             Query updateQuery = DataBaseUtil.getUpdateObjectQuery(userTableName, authSession.getUser(), newUserInfo);
             DataBase userDataBase = getUserDataBase();
-            DataBaseUtil.queryDataBase(updateQuery, userDataBase);
+            DataBaseUtil.manipulateDataBase(updateQuery, userDataBase);
             return true;
         }
         catch(NoSuchDataBaseException | SQLException e)
         {
+            e.printStackTrace();
             return false;
         }
     }

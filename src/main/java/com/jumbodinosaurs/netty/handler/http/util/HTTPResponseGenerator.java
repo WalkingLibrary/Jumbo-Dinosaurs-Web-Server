@@ -146,24 +146,30 @@ public class HTTPResponseGenerator
                 response.setMessage400();
                 return response;
             }
-            
+    
             //Generate Auth Session from Post Request
             AuthSession authSession = AuthUtil.authenticateUser(request);
-            
-            
-            
-            //Filter Auth Session failure Codes for shortcut responses
-            //Note: Filter Should allow following post commands to assume a user from auth session
-            if(authSession.getFailureCode().equals(FailureReasons.NO_DATABASE))
+    
+            if(AuthUtil.testMode)
             {
-                HTTPResponse response = new HTTPResponse();
-                response.setMessage501();
-                return response;
+                System.out.println(authSession.toString());
             }
     
-            //Filter AuthSessions and Auth tries via success and IP (Make it so you can't easily brute force)
+    
             if(!authSession.isSuccess())
             {
+        
+                //Filter Auth Session failure Codes for shortcut responses
+                //Note: Filter Should allow following post commands to assume a user from auth session
+                if(authSession.getFailureCode().equals(FailureReasons.NO_DATABASE))
+                {
+                    HTTPResponse response = new HTTPResponse();
+                    response.setMessage501();
+                    return response;
+                }
+        
+        
+                //Filter AuthSessions and Auth tries via success and IP (Make it so you can't easily brute force)
                 if(authSession.getFailureCode()
                               .equals(FailureReasons.INCORRECT_PASSWORD) || authSession.getFailureCode()
                                                                                        .equals(FailureReasons.INCORRECT_TOKEN))
@@ -181,9 +187,6 @@ public class HTTPResponseGenerator
                 response.setMessage403();
                 return response;
             }
-            
-            
-            
             
             
             PostCommand commandToExecute;

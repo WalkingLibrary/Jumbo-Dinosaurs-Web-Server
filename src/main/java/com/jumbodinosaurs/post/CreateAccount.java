@@ -201,16 +201,21 @@ public class CreateAccount extends PostCommand
         
         //Convert Email to base64
         String base64Email = Base64.getEncoder().encodeToString(request.getEmail().getBytes());
-        
-        
+    
+    
         //Create User Object
         User newUser = new User(request.getUsername(), base64HashedPassword, base64Email);
-        
-        
+    
+    
         //Set users Email activation AuthToken
         newUser.setToken(emailToken);
-        
-        
+    
+        //
+        if(AuthUtil.testMode)
+        {
+            newUser.setActive(true);
+        }
+    
         //Add the new User to the User DataBase
         //Note: We check to make sure the was added
         if(!AuthUtil.addUser(newUser))
@@ -218,8 +223,8 @@ public class CreateAccount extends PostCommand
             response.setMessage500();
             return response;
         }
-        
-        
+    
+    
         //Send Activation Email
         //Note: For testing purposes to avoid spamming my own email we check to see if the server is in test mode
         if(!AuthUtil.testMode)
