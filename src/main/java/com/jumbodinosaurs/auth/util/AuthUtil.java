@@ -93,7 +93,7 @@ public class AuthUtil
     public static String generateCharacters(int amount)
     {
         String characters = "";
-        for(int i = 0; i < amount; i ++)
+        for(int i = 0; i < amount; i++)
         {
             characters += (char) i;
         }

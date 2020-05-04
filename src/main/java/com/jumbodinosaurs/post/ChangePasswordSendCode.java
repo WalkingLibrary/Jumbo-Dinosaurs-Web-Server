@@ -1,31 +1,21 @@
 package com.jumbodinosaurs.post;
 
-import com.jumbodinosaurs.auth.exceptions.NoSuchUserException;
 import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
+import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
-import com.jumbodinosaurs.devlib.database.DataBase;
-import com.jumbodinosaurs.devlib.database.DataBaseUtil;
-import com.jumbodinosaurs.devlib.database.Query;
-import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
-import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
-import com.jumbodinosaurs.devlib.email.Email;
-import com.jumbodinosaurs.devlib.email.EmailManager;
-import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.PasswordStorage;
 
 import javax.mail.MessagingException;
-import java.sql.SQLException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class ChangePasswordSendCode extends PostCommand
 {
-    
     
     
     @Override
@@ -36,6 +26,7 @@ public class ChangePasswordSendCode extends PostCommand
          *
          * Check/Verify PostRequest Attributes
          *
+         * Check the Captcha Code Given
          * Get the User From the AuthSession
          * Check the given email with the email on record to reduce spam possibilities
          * Check if we need to make a new changePassword AuthToken
@@ -52,21 +43,41 @@ public class ChangePasswordSendCode extends PostCommand
          * Send 200 okay
          *
          *  */
-        
+    
         //Check/Verify PostRequest Attributes
         HTTPResponse response = new HTTPResponse();
-        if(request.getEmail() == null)
+        if(request.getEmail() == null || request.getCaptchaCode() == null)
         {
             response.setMessage400();
             return response;
         }
-        
-       
-        
+    
+        //Verify Captcha code
+        if(!AuthUtil.testMode)
+        {
+            try
+            {
+                CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode());
+                double captchaScore = captchaResponse.getScore();
+                boolean captchaSuccess = captchaResponse.isSuccess();
+                if(!(captchaSuccess && captchaScore > .7))
+                {
+                    response.setMessage409();
+                    return response;
+                }
+            }
+            catch(IOException e)
+            {
+                System.out.println(e.getMessage());
+                response.setMessage500();
+                return response;
+            }
+        }
+    
         //Get the User From the AuthSession
         User user = authSession.getUser();
-        
-        
+    
+    
         //Check the given email with the email on record to reduce spam possibilities
         if(!request.getEmail().equals(user.getEmail()))
         {
@@ -96,7 +107,6 @@ public class ChangePasswordSendCode extends PostCommand
          */
     
     
-       
         // Make changePassword AuthToken
         String token = AuthUtil.generateRandomString(100);
         LocalDateTime expirationDate = LocalDateTime.now();
@@ -104,10 +114,7 @@ public class ChangePasswordSendCode extends PostCommand
         AuthToken changePasswordToken;
         try
         {
-            changePasswordToken = new AuthToken(AuthUtil.changePasswordUseName,
-                                                this.ip,
-                                                token,
-                                                expirationDate);
+            changePasswordToken = new AuthToken(AuthUtil.changePasswordUseName, this.ip, token, expirationDate);
         }
         catch(PasswordStorage.CannotPerformOperationException e)
         {
@@ -125,7 +132,7 @@ public class ChangePasswordSendCode extends PostCommand
             response.setMessage500();
             return response;
         }
-        
+    
     
         //Prepare Email with Instructions
         
@@ -135,8 +142,6 @@ public class ChangePasswordSendCode extends PostCommand
         message += "Code: " + token + "\n";
         message += "Enter it at the link below to change your password\n";
         message += "https://jumbodinosaurs.com/changePassword.html";
-        
-        
         
         
         //Send Change Password Email

@@ -103,6 +103,7 @@ public class HTTPResponseGenerator
              *  - Check Allow Post
              *  - Check Server's Email Settings
              * Verify Post requests integrity
+             * Check with watch list to see if we should accept the request
              * Generate Auth Session from Post Request
              * Filter Auth Session failure Codes for shortcut responses
              * Filter AuthSessions and Auth tries via success and IP (Make it so you can't brute force)
@@ -136,14 +137,22 @@ public class HTTPResponseGenerator
                 response.setMessage501();
                 return response;
             }
-            
-            
+    
+    
             //Verify Post requests integrity
             PostRequest request = message.getPostRequest();
             if(request == null || request.getCommand() == null)
             {
                 HTTPResponse response = new HTTPResponse();
                 response.setMessage400();
+                return response;
+            }
+    
+            //Check with watch list to see if we should accept the request
+            if(!WatchListUtil.shouldAcceptRequest(message.getIp()))
+            {
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage403();
                 return response;
             }
     
@@ -158,7 +167,7 @@ public class HTTPResponseGenerator
     
             if(!authSession.isSuccess())
             {
-        
+    
                 //Filter Auth Session failure Codes for shortcut responses
                 //Note: Filter Should allow following post commands to assume a user from auth session
                 if(authSession.getFailureCode().equals(FailureReasons.NO_DATABASE))
@@ -167,25 +176,17 @@ public class HTTPResponseGenerator
                     response.setMessage501();
                     return response;
                 }
-        
-        
+    
+    
                 //Filter AuthSessions and Auth tries via success and IP (Make it so you can't easily brute force)
-                if(authSession.getFailureCode()
-                              .equals(FailureReasons.INCORRECT_PASSWORD) || authSession.getFailureCode()
-                                                                                       .equals(FailureReasons.INCORRECT_TOKEN))
+                if(authSession.getFailureCode().equals(FailureReasons.INCORRECT_PASSWORD) ||
+                   authSession.getFailureCode().equals(FailureReasons.INCORRECT_TOKEN))
                 {
                     WatchListUtil.strikeUser(message.getIp());
                     HTTPResponse response = new HTTPResponse();
                     response.setMessage403();
                     return response;
                 }
-            }
-            
-            if(!WatchListUtil.shouldAcceptRequest(message.getIp()))
-            {
-                HTTPResponse response = new HTTPResponse();
-                response.setMessage403();
-                return response;
             }
             
             
@@ -213,10 +214,10 @@ public class HTTPResponseGenerator
                 response.setMessage400();
                 return response;
             }
-            
+    
             /*Filter by Command and AuthSession
              *
-             * - Return 403 for fail Auths on commands that need auth
+             * - Return 403 for failed Auths on commands that need auth
              * - Return 403 for token Auths on commands that need password auth
              */
             

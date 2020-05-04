@@ -21,7 +21,6 @@ public class GetAuthToken extends PostCommand
     {
         /* Process for Getting an auth Token
          *
-         * Check Auth Success
          * Get the User From the AuthSession
          * Create a New AuthToken
          * Set the Users AuthToken and Update the User in the DataBase
@@ -31,15 +30,8 @@ public class GetAuthToken extends PostCommand
         
         
         HTTPResponse response = new HTTPResponse();
-        
-        //Check Auth Success
-        if(!authSession.isSuccess())
-        {
-            response.setMessage403();
-            return response;
-        }
-        
-        
+    
+    
         // Get the User From the AuthSession
         User currentUser = authSession.getUser();
         
