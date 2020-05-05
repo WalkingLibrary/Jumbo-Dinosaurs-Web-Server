@@ -1,10 +1,11 @@
-package com.jumbodinosaurs.post;
+package com.jumbodinosaurs.post.auth;
 
 import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.post.PostCommand;
 
 public class ActivateAccount extends PostCommand
 {

@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.post;
+package com.jumbodinosaurs.post.auth;
 
 
 import com.google.gson.JsonObject;
@@ -8,6 +8,7 @@ import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
 
 import java.time.LocalDateTime;
