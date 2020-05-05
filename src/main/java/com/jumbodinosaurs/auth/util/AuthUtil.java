@@ -127,14 +127,7 @@ public class AuthUtil
     private static DataBase getUserDataBase()
             throws NoSuchDataBaseException
     {
-        if(testMode)
-        {
-            return DataBaseManager.getDataBase(OptionUtil.getUserDataBaseName());
-        }
-        else
-        {
-            return DataBaseManager.getDataBase(OptionUtil.getUserDataBaseName() + "TEST");
-        }
+        return DataBaseManager.getDataBase(OptionUtil.getUserDataBaseName());
     }
     
     private static User getUser(DataBase dataBase, String username)
