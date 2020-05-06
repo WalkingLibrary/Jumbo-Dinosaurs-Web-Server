@@ -46,9 +46,10 @@ public class OptionUtil
                              .getOption();
     }
     
-    public static String getUserDataBaseName()
+    public static String getServersDataBaseName()
     {
-        return optionsManager.getOption(OptionIdentifier.userDataBaseName.getIdentifier(), "userdatabase").getOption();
+        return optionsManager.getOption(OptionIdentifier.userDataBaseName.getIdentifier(), "serversDataBaseName")
+                             .getOption();
     }
     
     public static CaptchaKey getCaptchaKey()

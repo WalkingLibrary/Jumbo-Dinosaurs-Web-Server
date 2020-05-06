@@ -33,7 +33,7 @@ public class AuthUtil
     public static final String authUseName = "auth";
     public static final String changePasswordUseName = "changePassword";
     
-    private static final String generalWhiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+    public static final String generalWhiteListedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
     
     public static boolean isValidUsername(String username)
     {
@@ -127,7 +127,7 @@ public class AuthUtil
     private static DataBase getUserDataBase()
             throws NoSuchDataBaseException
     {
-        return DataBaseManager.getDataBase(OptionUtil.getUserDataBaseName());
+        return DataBaseManager.getDataBase(OptionUtil.getServersDataBaseName());
     }
     
     private static User getUser(DataBase dataBase, String username)
@@ -137,39 +137,28 @@ public class AuthUtil
         {
             throw new NoSuchUserException(username + " is not a Valid Username");
         }
-        
+    
         String statement = "SELECT * FROM " + userTableName;
         statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", \"$.username\") =?;";
         Query query = new Query(statement);
         ArrayList<String> parameters = new ArrayList<String>();
         parameters.add(username);
         query.setParameters(parameters);
-        
+    
         ArrayList<User> resultUsers = DataBaseUtil.getObjectsDataBase(query, dataBase, new TypeToken<User>() {});
-        
-        int count = 0;
-        for(User user : resultUsers)
+    
+        if(resultUsers.size() > 1)
         {
-            if(user.getUsername().equals(username))
-            {
-                count++;
-            }
-            
-            if(count >= 2)
-            {
-                throw new IllegalStateException("More Than one User named " + username);
-            }
+            throw new IllegalStateException("More Than one User named " + username);
         }
-        
-        for(User user : resultUsers)
+    
+        if(resultUsers.size() == 0)
         {
-            if(user.getUsername().equals(username))
-            {
-                return user;
-            }
+            throw new NoSuchUserException("No user named " + username + " found in " + dataBase.getDataBaseName());
         }
-        
-        throw new NoSuchUserException("No user named " + username + " found in " + dataBase.getDataBaseName());
+    
+        return resultUsers.get(0);
+    
     }
     
     public static boolean isUserNameTaken(String username)

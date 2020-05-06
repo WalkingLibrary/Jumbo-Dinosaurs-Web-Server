@@ -11,7 +11,7 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- make auth lib and design auth system
+- design object posting system
 - prep for Trom-Bone Integration
 
 License
