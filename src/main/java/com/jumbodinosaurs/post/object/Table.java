@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.post.object;
 
 import com.google.gson.reflect.TypeToken;
+import com.jumbodinosaurs.auth.server.User;
 
 import java.util.HashMap;
 
@@ -19,6 +20,22 @@ public class Table<E>
         this.creator = creator;
         this.objectType = objectType;
         this.permissions = new HashMap<String, Permission>();
+    }
+    
+    
+    public void addUser(User user, Permission permission)
+    {
+        permissions.put(user.getUsername(), permission);
+    }
+    
+    public void updateUser(User user, Permission updatedPermissions)
+    {
+        permissions.replace(user.getUsername(), updatedPermissions);
+    }
+    
+    public void removeUser(User user)
+    {
+        permissions.remove(user.getUsername());
     }
     
     public String getName()
@@ -41,16 +58,6 @@ public class Table<E>
         this.objectType = objectType;
     }
     
-    public HashMap<String, Permission> getPermissions()
-    {
-        return permissions;
-    }
-    
-    public void setPermissions(HashMap<String, Permission> permissions)
-    {
-        this.permissions = permissions;
-    }
-    
     public String getCreator()
     {
         return creator;
@@ -66,8 +73,8 @@ public class Table<E>
         return isPublic;
     }
     
-    public void setPublic(boolean aPublic)
+    public void setPublic(boolean isPublic)
     {
-        isPublic = aPublic;
+        this.isPublic = isPublic;
     }
 }

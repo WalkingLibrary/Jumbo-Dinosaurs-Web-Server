@@ -6,6 +6,13 @@ public class Permission
     private boolean canRemove;
     private boolean canSearch;
     
+    public Permission(boolean canAdd, boolean canRemove, boolean canSearch)
+    {
+        this.canAdd = canAdd;
+        this.canRemove = canRemove;
+        this.canSearch = canSearch;
+    }
+    
     public boolean isCanAdd()
     {
         return canAdd;

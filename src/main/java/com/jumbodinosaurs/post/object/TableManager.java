@@ -107,6 +107,16 @@ public class TableManager
     public static boolean updateTable(Table oldTable, Table newTable)
     {
         Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableTablesName, oldTable, newTable);
+    
+        try
+        {
+            DataBaseUtil.manipulateDataBase(updateQuery, getTableDataBase());
+        }
+        catch(SQLException | NoSuchDataBaseException e)
+        {
+            return false;
+        }
+    
         int status = updateQuery.getResponseCode();
         if(status > 1)
         {

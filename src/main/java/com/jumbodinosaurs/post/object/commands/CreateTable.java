@@ -3,15 +3,15 @@ package com.jumbodinosaurs.post.object.commands;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.ContentObject;
-import com.jumbodinosaurs.post.object.Table;
-import com.jumbodinosaurs.post.object.TableManager;
+import com.jumbodinosaurs.post.object.*;
+import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
 
 import java.io.IOException;
 
@@ -111,31 +111,54 @@ public class CreateTable extends PostCommand
             response.addPayload(reason.toString());
             return response;
         }
-        
-        
+    
+    
         //validate objectName
-        
-        
+        TypeToken typeToken;
+        try
+        {
+            typeToken = ObjectManager.getTypeToken(contentObject.getObjectName());
+        }
+        catch(NoSuchPostObject noSuchPostObject)
+        {
+            response.setMessage400();
+            return response;
+        }
+    
         //Create the new table
-        Table newTable = new Table(tableName, false, authSession.getUser().getUsername(), );
-        
+        Table newTable = new Table(tableName, false, authSession.getUser().getUsername(), typeToken);
+    
+        //Set the users permissions on the table
+        Permission newPermissions = new Permission(true, true, true);
+        newTable.addUser(authSession.getUser(), newPermissions);
+    
+        // add the table to the database
+        if(!TableManager.addTable(newTable))
+        {
+            response.setMessage500();
+            return response;
+        }
+    
+    
+        response.setMessage200();
+        return response;
     }
     
     @Override
     public boolean requiresSuccessfulAuth()
     {
-        return false;
+        return true;
     }
     
     @Override
     public boolean requiresPasswordAuth()
     {
-        return false;
+        return true;
     }
     
     @Override
     public boolean requiresUser()
     {
-        return false;
+        return true;
     }
 }
