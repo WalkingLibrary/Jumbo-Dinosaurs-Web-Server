@@ -22,15 +22,19 @@ public class TableManager
     public static Table getTable(DataBase dataBase, String tableName)
             throws NoSuchTableException, SQLException, WrongStorageFormatException
     {
+        if(!isValidTableName(tableName))
+        {
+            throw new NoSuchTableException("Table Name Given was not valid");
+        }
         String statement = "SELECT * FROM " + tableTablesName;
         statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", \"$.name\") =?;";
         Query query = new Query(statement);
         ArrayList<String> parameters = new ArrayList<String>();
         parameters.add(tableName);
         query.setParameters(parameters);
-        
+    
         ArrayList<Table> tables;
-        
+    
         tables = DataBaseUtil.getObjectsDataBase(query, dataBase, new TypeToken<Table>() {});
         
         
@@ -104,10 +108,16 @@ public class TableManager
         }
     }
     
+    public static Table getTable(String tableName)
+            throws NoSuchDataBaseException, WrongStorageFormatException, NoSuchTableException, SQLException
+    {
+        return getTable(getTableDataBase(), tableName);
+    }
+    
     public static boolean updateTable(Table oldTable, Table newTable)
     {
         Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableTablesName, oldTable, newTable);
-    
+        
         try
         {
             DataBaseUtil.manipulateDataBase(updateQuery, getTableDataBase());

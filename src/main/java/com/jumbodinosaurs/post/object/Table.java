@@ -23,6 +23,11 @@ public class Table<E>
     }
     
     
+    public Permission getPermissions(String username)
+    {
+        return permissions.get(username);
+    }
+    
     public void addUser(User user, Permission permission)
     {
         permissions.put(user.getUsername(), permission);

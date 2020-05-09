@@ -129,7 +129,7 @@ public class CreateTable extends PostCommand
         Table newTable = new Table(tableName, false, authSession.getUser().getUsername(), typeToken);
     
         //Set the users permissions on the table
-        Permission newPermissions = new Permission(true, true, true);
+        Permission newPermissions = new Permission(true, true, true, true);
         newTable.addUser(authSession.getUser(), newPermissions);
     
         // add the table to the database

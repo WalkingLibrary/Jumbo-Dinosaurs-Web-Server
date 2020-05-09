@@ -1,10 +1,18 @@
 package com.jumbodinosaurs.post.object;
 
-public interface PostObject
+public abstract class PostObject
 {
-    boolean isValidObject();
+    private String user;
     
-    String getUser();
+    public abstract boolean isValidObject();
     
-    void setUser(String user);
+    public String getUser()
+    {
+        return user;
+    }
+    
+    public void setUser(String user)
+    {
+        this.user = user;
+    }
 }
