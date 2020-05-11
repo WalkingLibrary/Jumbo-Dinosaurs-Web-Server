@@ -84,7 +84,7 @@ public class CreateTable extends PostCommand
         }
         
         //Check/Verify ContentObject Attributes
-        if(contentObject.getTableName() == null || contentObject.getObjectName() == null)
+        if(contentObject.getTableName() == null || contentObject.getObjectType() == null)
         {
             response.setMessage400();
             return response;
@@ -117,7 +117,7 @@ public class CreateTable extends PostCommand
         TypeToken typeToken;
         try
         {
-            typeToken = ObjectManager.getTypeToken(contentObject.getObjectName());
+            typeToken = ObjectManager.getTypeToken(contentObject.getObjectType());
         }
         catch(NoSuchPostObject noSuchPostObject)
         {

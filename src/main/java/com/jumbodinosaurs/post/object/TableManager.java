@@ -142,4 +142,11 @@ public class TableManager
     }
     
     
+    public static ArrayList<PostObject> queryTable(Query query, TypeToken typeToken)
+            throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
+    {
+        return DataBaseUtil.getObjectsDataBase(query, getTableDataBase(), typeToken);
+    }
+    
+    
 }

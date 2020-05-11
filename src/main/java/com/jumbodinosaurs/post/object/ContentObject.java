@@ -3,8 +3,10 @@ package com.jumbodinosaurs.post.object;
 public class ContentObject
 {
     private String tableName;
-    private String objectName;
+    private String objectType;
     private String object;
+    private String attribute;
+    private String limiter;
     
     public String getTableName()
     {
@@ -16,14 +18,14 @@ public class ContentObject
         this.tableName = tableName;
     }
     
-    public String getObjectName()
+    public String getObjectType()
     {
-        return objectName;
+        return objectType;
     }
     
-    public void setObjectName(String objectName)
+    public void setObjectType(String objectType)
     {
-        this.objectName = objectName;
+        this.objectType = objectType;
     }
     
     public String getObject()
@@ -34,5 +36,25 @@ public class ContentObject
     public void setObject(String object)
     {
         this.object = object;
+    }
+    
+    public String getLimiter()
+    {
+        return limiter;
+    }
+    
+    public void setLimiter(String limiter)
+    {
+        this.limiter = limiter;
+    }
+    
+    public String getAttribute()
+    {
+        return attribute;
+    }
+    
+    public void setAttribute(String attribute)
+    {
+        this.attribute = attribute;
     }
 }

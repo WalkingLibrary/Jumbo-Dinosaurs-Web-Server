@@ -12,6 +12,7 @@ Java Based Web Server
 
 ### Todos
 - design object posting system
+- added JWT
 - prep for Trom-Bone Integration
 
 License
