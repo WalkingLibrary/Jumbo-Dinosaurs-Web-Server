@@ -97,7 +97,7 @@ public class GetObject extends PostCommand
         if(!table.isPublic())
         {
             Permission permissions = table.getPermissions(authSession.getUser().getUsername());
-            if(!permissions.isCanAdd())
+            if(!permissions.canSearch())
             {
                 response.setMessage403();
                 return response;

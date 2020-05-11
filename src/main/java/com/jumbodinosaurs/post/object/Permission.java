@@ -15,7 +15,7 @@ public class Permission
         this.canSearch = canSearch;
     }
     
-    public boolean isCanAdd()
+    public boolean canAdd()
     {
         return canAdd;
     }
@@ -25,7 +25,7 @@ public class Permission
         this.canAdd = canAdd;
     }
     
-    public boolean isCanRemove()
+    public boolean canRemove()
     {
         return canRemove;
     }
@@ -35,7 +35,7 @@ public class Permission
         this.canRemove = canRemove;
     }
     
-    public boolean isCanSearch()
+    public boolean canSearch()
     {
         return canSearch;
     }
@@ -45,7 +45,7 @@ public class Permission
         this.canSearch = canSearch;
     }
     
-    public boolean isAdminPerms()
+    public boolean hasAdminPerms()
     {
         return adminPerms;
     }

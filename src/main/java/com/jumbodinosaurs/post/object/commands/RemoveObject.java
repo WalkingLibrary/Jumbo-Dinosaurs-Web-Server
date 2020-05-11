@@ -98,7 +98,7 @@ public class RemoveObject extends PostCommand
         if(!table.isPublic())
         {
             Permission permissions = table.getPermissions(authSession.getUser().getUsername());
-            if(!permissions.isCanAdd())
+            if(!permissions.canRemove())
             {
                 response.setMessage403();
                 return response;
