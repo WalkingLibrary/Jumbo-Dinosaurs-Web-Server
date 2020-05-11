@@ -149,4 +149,10 @@ public class TableManager
     }
     
     
+    public static void manipulateObjectTable(Query query)
+            throws NoSuchDataBaseException, SQLException
+    {
+        DataBaseUtil.manipulateDataBase(query, getTableDataBase());
+    }
+    
 }
