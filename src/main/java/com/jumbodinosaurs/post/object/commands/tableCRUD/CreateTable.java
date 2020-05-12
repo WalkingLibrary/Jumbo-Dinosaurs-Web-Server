@@ -5,35 +5,19 @@ import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
+import com.jumbodinosaurs.devlib.database.Query;
+import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.object.*;
 import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class CreateTable extends CRUDCommand
 {
-    
-    
-    @Override
-    public boolean requiresSuccessfulAuth()
-    {
-        return true;
-    }
-    
-    @Override
-    public boolean requiresPasswordAuth()
-    {
-        return true;
-    }
-    
-    @Override
-    public boolean requiresUser()
-    {
-        return true;
-    }
-    
     @Override
     public HTTPResponse getResponse(PostRequest postRequest,
                                     AuthSession authSession,
@@ -136,10 +120,57 @@ public class CreateTable extends CRUDCommand
             return response;
         }
         
+        
         //Create the new Table in the database
+        String createTableStatement = "CREATE TABLE ? (id int primary key auto_increment, " +
+                                      "objectJson json not null);";
+        
+        Query createTableQuery = new Query(createTableStatement);
+        ArrayList<String> parameters = new ArrayList<String>();
+        parameters.add(newTable.getName());
+        createTableQuery.setParameters(parameters);
+        
+        try
+        {
+            CRUDUtil.manipulateTableDataBase(createTableQuery);
+        }
+        catch(NoSuchDataBaseException e)
+        {
+            response.setMessage501();
+            return response;
+        }
+        catch(SQLException e)
+        {
+            response.setMessage500();
+            return response;
+        }
         
         
         response.setMessage200();
         return response;
+    }
+    
+    @Override
+    public boolean requiresSuccessfulAuth()
+    {
+        return true;
+    }
+    
+    @Override
+    public boolean requiresPasswordAuth()
+    {
+        return true;
+    }
+    
+    @Override
+    public boolean requiresUser()
+    {
+        return true;
+    }
+    
+    @Override
+    public boolean requiresTable()
+    {
+        return false;
     }
 }

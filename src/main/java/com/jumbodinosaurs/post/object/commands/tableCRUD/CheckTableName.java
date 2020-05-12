@@ -4,35 +4,33 @@ import com.google.gson.JsonObject;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.post.PostCommand;
+import com.jumbodinosaurs.post.object.CRUDCommand;
+import com.jumbodinosaurs.post.object.CRUDRequest;
 import com.jumbodinosaurs.post.object.CRUDUtil;
+import com.jumbodinosaurs.post.object.Table;
 
-public class CheckTableName extends PostCommand
+public class CheckTableName extends CRUDCommand
 {
     
     @Override
-    public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
+    public HTTPResponse getResponse(PostRequest postRequest,
+                                    AuthSession authSession,
+                                    CRUDRequest crudRequest,
+                                    Table table)
     {
         /* Process for creating a new table
          *
          *
-         * Check/Verify PostRequest Attributes
          * Validate tableName
          * Check Table Name's availability
          *
          *  */
+        
         HTTPResponse response = new HTTPResponse();
         
-        
-        //Check/Verify PostRequest Attributes
-        if(request.getContent() == null)
-        {
-            response.setMessage400();
-            return response;
-        }
-        
         //Validate tableName
-        String tableName = request.getContent();
+        String tableName = crudRequest.getTableName();
+        
         if(!CRUDUtil.isValidTableName(tableName))
         {
             response.setMessage400();
@@ -52,6 +50,12 @@ public class CheckTableName extends PostCommand
     }
     
     @Override
+    public boolean requiresTable()
+    {
+        return false;
+    }
+    
+    @Override
     public boolean requiresSuccessfulAuth()
     {
         return false;
@@ -68,4 +72,6 @@ public class CheckTableName extends PostCommand
     {
         return false;
     }
+    
+    
 }

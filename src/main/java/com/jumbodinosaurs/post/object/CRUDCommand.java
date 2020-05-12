@@ -3,12 +3,12 @@ package com.jumbodinosaurs.post.object;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.jumbodinosaurs.auth.util.AuthSession;
+import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.commands.tableCRUD.CreateTable;
 import com.jumbodinosaurs.post.object.exceptions.NoSuchTableException;
 
 import java.sql.SQLException;
@@ -21,6 +21,8 @@ public abstract class CRUDCommand extends PostCommand
                                              CRUDRequest crudRequest,
                                              Table table);
     
+    public abstract boolean requiresTable();
+    
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
@@ -31,6 +33,7 @@ public abstract class CRUDCommand extends PostCommand
          * Validate Table Name
          * Filter By Create Command
          * Check Table Permissions with AuthSession
+         * Ensure password or AuthToken auth
          *
          *  */
         
@@ -79,7 +82,7 @@ public abstract class CRUDCommand extends PostCommand
         
         //Filter By Create Command
         // All Commands require a table except for creating a table
-        if(request.getCommand().equals(CreateTable.class.getSimpleName()))
+        if(!requiresTable())
         {
             return getResponse(request, authSession, crudRequest, null);
         }
@@ -115,6 +118,17 @@ public abstract class CRUDCommand extends PostCommand
         if(!table.isPublic() && authSession.getUser() != null)
         {
             if(table.getPermissions(authSession.getUser().getUsername()) == null)
+            {
+                response.setMessage403();
+                return response;
+            }
+        }
+        
+        //Ensure password or AuthToken auth
+        //Note that in GenerateHTTPResponse 'password auth needed' checks should be preformed
+        if(requiresSuccessfulAuth())
+        {
+            if(!authSession.getTokenUsed().getUse().equals(AuthUtil.authUseName))
             {
                 response.setMessage403();
                 return response;
