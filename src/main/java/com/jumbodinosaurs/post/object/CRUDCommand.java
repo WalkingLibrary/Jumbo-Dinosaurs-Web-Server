@@ -115,6 +115,7 @@ public abstract class CRUDCommand extends PostCommand
         
         
         //Check Table Permissions with AuthSession
+        //Note that the Permission Check here is only for if they have any permissions at all on a given table
         if(!table.isPublic() && authSession.getUser() != null)
         {
             if(table.getPermissions(authSession.getUser().getUsername()) == null)
