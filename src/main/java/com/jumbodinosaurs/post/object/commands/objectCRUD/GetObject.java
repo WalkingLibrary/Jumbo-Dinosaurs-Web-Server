@@ -1,6 +1,7 @@
-package com.jumbodinosaurs.post.object.commands;
+package com.jumbodinosaurs.post.object.commands.objectCRUD;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
@@ -10,31 +11,29 @@ import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.ContentObject;
-import com.jumbodinosaurs.post.object.Permission;
-import com.jumbodinosaurs.post.object.Table;
-import com.jumbodinosaurs.post.object.TableManager;
+import com.jumbodinosaurs.post.object.*;
 import com.jumbodinosaurs.post.object.exceptions.NoSuchTableException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class RemoveObject extends PostCommand
+public class GetObject extends PostCommand
 {
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
         /*
-         * Process for Removing an object from the database
+         * Process for Getting Objects from a Table
          *
          * Check/Verify PostRequest Attributes
          * Ensure it was a AuthToken Auth or Password Auth
          * Check/Verify ContentObject Attributes
          * Get The Table from the DataBase
          * Validate Users Permissions on the Table
-         * Prepare Query
-         * Remove object by id
+         * Generate Prepared Query from Limiter
+         * Return Requested Objects
          *  */
+        
         
         HTTPResponse response = new HTTPResponse();
         
@@ -55,32 +54,31 @@ public class RemoveObject extends PostCommand
         
         //ContentObject
         String content = request.getContent();
-        
-        ContentObject contentObject;
+    
+        CRUDRequest CRUDRequest;
         try
         {
-            contentObject = new Gson().fromJson(content, ContentObject.class);
+            CRUDRequest = new Gson().fromJson(content, CRUDRequest.class);
         }
         catch(JsonParseException e)
         {
             response.setMessage400();
             return response;
         }
-        
+    
         //Check/Verify ContentObject Attributes
-        //Note the id should be stored in the limiter
-        if(contentObject.getTableName() == null || contentObject.getLimiter() == null)
+        if(CRUDRequest.getTableName() == null || CRUDRequest.getLimiter() == null || CRUDRequest.getAttribute() == null)
         {
             response.setMessage400();
             return response;
         }
-        
-        
+    
+    
         //Get The Table from the DataBase
         Table table;
         try
         {
-            table = TableManager.getTable(contentObject.getTableName());
+            table = CRUDUtil.getTable(CRUDRequest.getTableName());
         }
         catch(NoSuchTableException e)
         {
@@ -98,57 +96,50 @@ public class RemoveObject extends PostCommand
         if(!table.isPublic())
         {
             Permission permissions = table.getPermissions(authSession.getUser().getUsername());
-            if(!permissions.canRemove())
+            if(!permissions.canSearch())
             {
                 response.setMessage403();
                 return response;
             }
         }
-        
-        //Prepare Query
-        int id;
-        id = Integer.getInteger(contentObject.getLimiter());
-        
-        if(!contentObject.equals("" + id))
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        
-        //Remove object by id
-        String statement = "DELETE FROM " + table.getName() + "WHERE id = ?";
-        Query deleteQuery = new Query(statement);
+    
+    
+        // Generate Prepared Query from Limiter
+        String statement = "SELECT * FROM " + table.getName() + " WHERE JSON_EXTRACT(objectJson, ?) = ?;";
+        Query objectQuery = new Query(statement);
+    
         ArrayList<String> parameters = new ArrayList<String>();
-        parameters.add("" + id);
-        
-        deleteQuery.setParameters(parameters);
+        parameters.add(CRUDRequest.getAttribute());
+        parameters.add(CRUDRequest.getLimiter());
+    
+        ArrayList<PostObject> foundObjects;
         try
         {
-            TableManager.manipulateObjectTable(deleteQuery);
+            foundObjects = CRUDUtil.queryTable(objectQuery, table.getObjectType());
         }
         catch(NoSuchDataBaseException e)
         {
             response.setMessage501();
             return response;
         }
-        catch(SQLException e)
+        catch(SQLException | WrongStorageFormatException e)
         {
             response.setMessage500();
             return response;
         }
-        
-        
+    
         response.setMessage200();
+        //By default Json escapes HTML
+        //static final boolean DEFAULT_ESCAPE_HTML = true;
+        Gson sanitizer = new GsonBuilder().create();
+        response.addPayload(sanitizer.toJson(foundObjects));
         return response;
-        
-        
     }
     
     @Override
     public boolean requiresSuccessfulAuth()
     {
-        return false;
+        return true;
     }
     
     @Override
@@ -160,6 +151,6 @@ public class RemoveObject extends PostCommand
     @Override
     public boolean requiresUser()
     {
-        return false;
+        return true;
     }
 }

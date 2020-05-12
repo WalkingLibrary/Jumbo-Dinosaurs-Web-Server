@@ -1,11 +1,11 @@
-package com.jumbodinosaurs.post.object.commands;
+package com.jumbodinosaurs.post.object.commands.tableCRUD;
 
 import com.google.gson.JsonObject;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.TableManager;
+import com.jumbodinosaurs.post.object.CRUDUtil;
 
 public class CheckTableName extends PostCommand
 {
@@ -33,7 +33,7 @@ public class CheckTableName extends PostCommand
         
         //Validate tableName
         String tableName = request.getContent();
-        if(!TableManager.isValidTableName(tableName))
+        if(!CRUDUtil.isValidTableName(tableName))
         {
             response.setMessage400();
             JsonObject reason = new JsonObject();
@@ -45,7 +45,7 @@ public class CheckTableName extends PostCommand
         
         response.setMessage200();
         JsonObject reason = new JsonObject();
-        reason.addProperty("isTableNmeTaken", TableManager.isTableNameTaken(tableName));
+        reason.addProperty("isTableNmeTaken", CRUDUtil.isTableNameTaken(tableName));
         response.addPayload(reason.toString());
         
         return response;

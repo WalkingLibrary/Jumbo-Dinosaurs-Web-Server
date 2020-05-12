@@ -1,12 +1,13 @@
 package com.jumbodinosaurs.post.object;
 
-public class ContentObject
+public class CRUDRequest
 {
     private String tableName;
     private String objectType;
     private String object;
     private String attribute;
     private String limiter;
+    private int id;
     
     public String getTableName()
     {
@@ -56,5 +57,15 @@ public class ContentObject
     public void setAttribute(String attribute)
     {
         this.attribute = attribute;
+    }
+    
+    public int getId()
+    {
+        return id;
+    }
+    
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

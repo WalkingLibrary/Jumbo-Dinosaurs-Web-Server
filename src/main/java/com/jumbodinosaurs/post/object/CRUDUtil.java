@@ -8,14 +8,17 @@ import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
+import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
+import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
 import com.jumbodinosaurs.post.object.exceptions.NoSuchTableException;
 import com.jumbodinosaurs.util.OptionUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class TableManager
+public class CRUDUtil
 {
+    //The name for the table that holds table information
     private static String tableTablesName = "tables";
     
     
@@ -153,6 +156,20 @@ public class TableManager
             throws NoSuchDataBaseException, SQLException
     {
         DataBaseUtil.manipulateDataBase(query, getTableDataBase());
+    }
+    
+    
+    public static <E> TypeToken<E> getTypeToken(String objectName)
+            throws NoSuchPostObject
+    {
+        for(Class postObject : ReflectionUtil.getSubClasses(PostObject.class))
+        {
+            if(postObject.getSimpleName().equals(objectName))
+            {
+                return TypeToken.get(postObject);
+            }
+        }
+        throw new NoSuchPostObject("No Post Object found with the name " + objectName);
     }
     
 }

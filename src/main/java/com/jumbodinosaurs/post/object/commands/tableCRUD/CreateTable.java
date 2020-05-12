@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.post.object.commands;
+package com.jumbodinosaurs.post.object.commands.tableCRUD;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -10,7 +10,10 @@ import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.*;
+import com.jumbodinosaurs.post.object.CRUDRequest;
+import com.jumbodinosaurs.post.object.CRUDUtil;
+import com.jumbodinosaurs.post.object.Permission;
+import com.jumbodinosaurs.post.object.Table;
 import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
 
 import java.io.IOException;
@@ -71,39 +74,39 @@ public class CreateTable extends PostCommand
         
         //ContentObject
         String content = request.getContent();
-        
-        ContentObject contentObject;
+    
+        CRUDRequest CRUDRequest;
         try
         {
-            contentObject = new Gson().fromJson(content, ContentObject.class);
+            CRUDRequest = new Gson().fromJson(content, CRUDRequest.class);
         }
         catch(JsonParseException e)
         {
             response.setMessage400();
             return response;
         }
-        
+    
         //Check/Verify ContentObject Attributes
-        if(contentObject.getTableName() == null || contentObject.getObjectType() == null)
+        if(CRUDRequest.getTableName() == null || CRUDRequest.getObjectType() == null)
         {
             response.setMessage400();
             return response;
         }
-        
-        
+    
+    
         //Validate Table Name
-        String tableName = contentObject.getTableName();
-        if(!TableManager.isValidTableName(tableName))
+        String tableName = CRUDRequest.getTableName();
+        if(!CRUDUtil.isValidTableName(tableName))
         {
             response.setMessage409();
             JsonObject reason = new JsonObject();
             reason.addProperty("failureReason", "Table Name given was not valid");
             response.addPayload(reason.toString());
         }
-        
-        
+    
+    
         //Check to make sure that the table name is not already taken
-        if(TableManager.isTableNameTaken(tableName))
+        if(CRUDUtil.isTableNameTaken(tableName))
         {
             response.setMessage409();
             JsonObject reason = new JsonObject();
@@ -117,7 +120,7 @@ public class CreateTable extends PostCommand
         TypeToken typeToken;
         try
         {
-            typeToken = ObjectManager.getTypeToken(contentObject.getObjectType());
+            typeToken = ObjectManager.getTypeToken(CRUDRequest.getObjectType());
         }
         catch(NoSuchPostObject noSuchPostObject)
         {
@@ -133,7 +136,7 @@ public class CreateTable extends PostCommand
         newTable.addUser(authSession.getUser(), newPermissions);
     
         // add the table to the database
-        if(!TableManager.addTable(newTable))
+        if(!CRUDUtil.addTable(newTable))
         {
             response.setMessage500();
             return response;

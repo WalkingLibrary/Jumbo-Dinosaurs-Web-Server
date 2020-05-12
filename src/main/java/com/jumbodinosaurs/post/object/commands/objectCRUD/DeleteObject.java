@@ -1,40 +1,39 @@
-package com.jumbodinosaurs.post.object.commands;
+package com.jumbodinosaurs.post.object.commands.objectCRUD;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
-import com.jumbodinosaurs.devlib.database.DataBase;
-import com.jumbodinosaurs.devlib.database.DataBaseManager;
-import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.*;
+import com.jumbodinosaurs.post.object.CRUDRequest;
+import com.jumbodinosaurs.post.object.CRUDUtil;
+import com.jumbodinosaurs.post.object.Permission;
+import com.jumbodinosaurs.post.object.Table;
 import com.jumbodinosaurs.post.object.exceptions.NoSuchTableException;
-import com.jumbodinosaurs.util.OptionUtil;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-public class AddObject extends PostCommand
+public class DeleteObject extends PostCommand
 {
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
-        /* Process for Adding an object to a Table
-         *
+        /*
+         * Process for Removing an object from the database
          *
          * Check/Verify PostRequest Attributes
          * Ensure it was a AuthToken Auth or Password Auth
          * Check/Verify ContentObject Attributes
          * Get The Table from the DataBase
          * Validate Users Permissions on the Table
-         * Validate the Object given
-         * Add the object to DataBase
-         *
+         * Prepare Query
+         * Remove object by id
          *  */
         
         HTTPResponse response = new HTTPResponse();
@@ -57,10 +56,10 @@ public class AddObject extends PostCommand
         //ContentObject
         String content = request.getContent();
         
-        ContentObject contentObject;
+        CRUDRequest CRUDRequest;
         try
         {
-            contentObject = new Gson().fromJson(content, ContentObject.class);
+            CRUDRequest = new Gson().fromJson(content, CRUDRequest.class);
         }
         catch(JsonParseException e)
         {
@@ -69,17 +68,18 @@ public class AddObject extends PostCommand
         }
         
         //Check/Verify ContentObject Attributes
-        if(contentObject.getTableName() == null || contentObject.getObject() == null)
+        if(CRUDRequest.getTableName() == null || CRUDRequest.getId() <= 0)
         {
             response.setMessage400();
             return response;
         }
         
+        
         //Get The Table from the DataBase
         Table table;
         try
         {
-            table = TableManager.getTable(contentObject.getTableName());
+            table = CRUDUtil.getTable(CRUDRequest.getTableName());
         }
         catch(NoSuchTableException e)
         {
@@ -97,50 +97,29 @@ public class AddObject extends PostCommand
         if(!table.isPublic())
         {
             Permission permissions = table.getPermissions(authSession.getUser().getUsername());
-            if(!permissions.canAdd())
+            if(!permissions.canRemove())
             {
                 response.setMessage403();
                 return response;
             }
         }
         
-        //Validate the Object given
-        String objectJson = contentObject.getObject();
+        //Prepare Query
+        //Remove object by id
+        String statement = "DELETE FROM " + table.getName() + "WHERE id = ?";
+        Query deleteQuery = new Query(statement);
+        ArrayList<String> parameters = new ArrayList<String>();
+        parameters.add("" + CRUDRequest.getId());
         
-        PostObject postObject;
+        deleteQuery.setParameters(parameters);
         try
         {
-            postObject = new Gson().fromJson(objectJson, table.getObjectType().getType());
-        }
-        catch(JsonParseException e)
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        if(!postObject.isValidObject())
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        
-        //Add the object to the DataBase
-        Query insertQuery = DataBaseUtil.getInsertQuery(table.getName(), postObject);
-        DataBase objectDataBase;
-        try
-        {
-            objectDataBase = DataBaseManager.getDataBase(OptionUtil.getServersDataBaseName());
+            CRUDUtil.manipulateObjectTable(deleteQuery);
         }
         catch(NoSuchDataBaseException e)
         {
             response.setMessage501();
             return response;
-        }
-        
-        try
-        {
-            DataBaseUtil.manipulateDataBase(insertQuery, objectDataBase);
         }
         catch(SQLException e)
         {
@@ -148,19 +127,11 @@ public class AddObject extends PostCommand
             return response;
         }
         
-        if(insertQuery.getResponseCode() > 1)
-        {
-            throw new IllegalStateException("Query Manipulated more than one row " + insertQuery.toString());
-        }
-        
-        if(insertQuery.getResponseCode() == 0)
-        {
-            response.setMessage500();
-            return response;
-        }
         
         response.setMessage200();
         return response;
+        
+        
     }
     
     @Override
