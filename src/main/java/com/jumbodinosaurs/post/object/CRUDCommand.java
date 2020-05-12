@@ -71,8 +71,10 @@ public abstract class CRUDCommand extends PostCommand
         
         if(CRUDUtil.isValidTableName(tableName))
         {
-            response.setMessage400();
-            return response;
+            response.setMessage409();
+            JsonObject reason = new JsonObject();
+            reason.addProperty("failureReason", "Table Name given was not valid");
+            response.addPayload(reason.toString());
         }
         
         //Filter By Create Command

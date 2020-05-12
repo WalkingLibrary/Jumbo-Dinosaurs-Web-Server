@@ -115,7 +115,7 @@ public class GetObject extends PostCommand
         ArrayList<PostObject> foundObjects;
         try
         {
-            foundObjects = CRUDUtil.queryTable(objectQuery, table.getObjectType());
+            foundObjects = CRUDUtil.getObjects(objectQuery, table.getObjectType());
         }
         catch(NoSuchDataBaseException e)
         {

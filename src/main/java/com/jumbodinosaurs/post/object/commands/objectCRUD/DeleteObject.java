@@ -114,7 +114,7 @@ public class DeleteObject extends PostCommand
         deleteQuery.setParameters(parameters);
         try
         {
-            CRUDUtil.manipulateObjectTable(deleteQuery);
+            CRUDUtil.manipulateTableDataBase(deleteQuery);
         }
         catch(NoSuchDataBaseException e)
         {

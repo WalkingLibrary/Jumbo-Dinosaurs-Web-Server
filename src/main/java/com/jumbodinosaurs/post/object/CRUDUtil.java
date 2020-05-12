@@ -22,6 +22,29 @@ public class CRUDUtil
     private static String tableTablesName = "tables";
     
     
+    //TABLE CRUD
+    
+    
+    public static boolean addTable(Table tableToAdd)
+    {
+        Query insertQuery = DataBaseUtil.getInsertQuery(tableTablesName, tableToAdd);
+        try
+        {
+            DataBaseUtil.manipulateDataBase(insertQuery, getTableDataBase());
+            return true;
+        }
+        catch(SQLException | NoSuchDataBaseException e)
+        {
+            return false;
+        }
+    }
+    
+    public static Table getTable(String tableName)
+            throws NoSuchDataBaseException, WrongStorageFormatException, NoSuchTableException, SQLException
+    {
+        return getTable(getTableDataBase(), tableName);
+    }
+    
     public static Table getTable(DataBase dataBase, String tableName)
             throws NoSuchTableException, SQLException, WrongStorageFormatException
     {
@@ -35,9 +58,9 @@ public class CRUDUtil
         ArrayList<String> parameters = new ArrayList<String>();
         parameters.add(tableName);
         query.setParameters(parameters);
-    
+        
         ArrayList<Table> tables;
-    
+        
         tables = DataBaseUtil.getObjectsDataBase(query, dataBase, new TypeToken<Table>() {});
         
         
@@ -53,6 +76,65 @@ public class CRUDUtil
         
         return tables.get(0);
     }
+    
+    public static boolean updateTable(Table oldTable, Table newTable)
+    {
+        Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableTablesName, oldTable, newTable);
+        
+        try
+        {
+            DataBaseUtil.manipulateDataBase(updateQuery, getTableDataBase());
+        }
+        catch(SQLException | NoSuchDataBaseException e)
+        {
+            return false;
+        }
+        
+        int status = updateQuery.getResponseCode();
+        if(status > 1)
+        {
+            throw new IllegalStateException("More than one table effected by update query");
+        }
+        return status == 1;
+    }
+    
+    
+    //OBJECT CRUD
+    public static ArrayList<PostObject> getObjects(Query query, TypeToken typeToken)
+            throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
+    {
+        return DataBaseUtil.getObjectsDataBase(query, getTableDataBase(), typeToken);
+    }
+    
+    
+    //ETC
+    private static DataBase getTableDataBase()
+            throws NoSuchDataBaseException
+    {
+        return DataBaseManager.getDataBase(OptionUtil.getServersDataBaseName());
+    }
+    
+    
+    public static void manipulateTableDataBase(Query query)
+            throws NoSuchDataBaseException, SQLException
+    {
+        DataBaseUtil.manipulateDataBase(query, getTableDataBase());
+    }
+    
+    
+    public static <E> TypeToken<E> getTypeToken(String objectName)
+            throws NoSuchPostObject
+    {
+        for(Class postObject : ReflectionUtil.getSubClasses(PostObject.class))
+        {
+            if(postObject.getSimpleName().equals(objectName))
+            {
+                return TypeToken.get(postObject);
+            }
+        }
+        throw new NoSuchPostObject("No Post Object found with the name " + objectName);
+    }
+    
     
     public static boolean isValidTableName(String name)
     {
@@ -96,80 +178,5 @@ public class CRUDUtil
         }
     }
     
-    
-    public static boolean addTable(Table tableToAdd)
-    {
-        Query insertQuery = DataBaseUtil.getInsertQuery(tableTablesName, tableToAdd);
-        try
-        {
-            DataBaseUtil.manipulateDataBase(insertQuery, getTableDataBase());
-            return true;
-        }
-        catch(SQLException | NoSuchDataBaseException e)
-        {
-            return false;
-        }
-    }
-    
-    public static Table getTable(String tableName)
-            throws NoSuchDataBaseException, WrongStorageFormatException, NoSuchTableException, SQLException
-    {
-        return getTable(getTableDataBase(), tableName);
-    }
-    
-    public static boolean updateTable(Table oldTable, Table newTable)
-    {
-        Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableTablesName, oldTable, newTable);
-        
-        try
-        {
-            DataBaseUtil.manipulateDataBase(updateQuery, getTableDataBase());
-        }
-        catch(SQLException | NoSuchDataBaseException e)
-        {
-            return false;
-        }
-    
-        int status = updateQuery.getResponseCode();
-        if(status > 1)
-        {
-            throw new IllegalStateException("More than one table effected by update query");
-        }
-        return status == 1;
-    }
-    
-    private static DataBase getTableDataBase()
-            throws NoSuchDataBaseException
-    {
-        return DataBaseManager.getDataBase(OptionUtil.getServersDataBaseName());
-    }
-    
-    
-    public static ArrayList<PostObject> queryTable(Query query, TypeToken typeToken)
-            throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
-    {
-        return DataBaseUtil.getObjectsDataBase(query, getTableDataBase(), typeToken);
-    }
-    
-    
-    public static void manipulateObjectTable(Query query)
-            throws NoSuchDataBaseException, SQLException
-    {
-        DataBaseUtil.manipulateDataBase(query, getTableDataBase());
-    }
-    
-    
-    public static <E> TypeToken<E> getTypeToken(String objectName)
-            throws NoSuchPostObject
-    {
-        for(Class postObject : ReflectionUtil.getSubClasses(PostObject.class))
-        {
-            if(postObject.getSimpleName().equals(objectName))
-            {
-                return TypeToken.get(postObject);
-            }
-        }
-        throw new NoSuchPostObject("No Post Object found with the name " + objectName);
-    }
     
 }
