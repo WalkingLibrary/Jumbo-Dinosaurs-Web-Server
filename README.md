@@ -11,7 +11,6 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- design object posting system
 - added JWT
 - prep for Trom-Bone Integration
 
