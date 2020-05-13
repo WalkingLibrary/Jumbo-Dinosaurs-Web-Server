@@ -82,4 +82,14 @@ public class Table<E>
     {
         this.isPublic = isPublic;
     }
+    
+    public HashMap<String, Permission> getPermissions()
+    {
+        return permissions;
+    }
+    
+    public void setPermissions(HashMap<String, Permission> permissions)
+    {
+        this.permissions = permissions;
+    }
 }
