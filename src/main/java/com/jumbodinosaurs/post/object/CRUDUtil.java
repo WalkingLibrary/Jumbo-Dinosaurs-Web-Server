@@ -68,13 +68,43 @@ public class CRUDUtil
         {
             throw new IllegalStateException("More than one Table Named " + tableName);
         }
-        
+    
         if(tables.size() == 0)
         {
             throw new NoSuchTableException("No Table Found with the name " + tableName);
         }
-        
+    
         return tables.get(0);
+    }
+    
+    public static ArrayList<Table> getTables(String userName)
+            throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
+    {
+        String statement = "SELECT * FROM " +
+                           tableTablesName +
+                           " WHERE JSON_EXTRACT(" +
+                           DataBaseUtil.objectColumnName +
+                           ", \"$.permissions\") LIKE \"%\"?\"%\";";
+        Query publicTableQuery = new Query(statement);
+        ArrayList<String> parameters = new ArrayList<String>();
+        parameters.add(userName);
+        publicTableQuery.setParameters(parameters);
+        
+        return DataBaseUtil.getObjectsDataBase(publicTableQuery, getTableDataBase(), new TypeToken<Table>() {});
+    }
+    
+    public static ArrayList<Table> getPublicTables()
+            throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
+    {
+        
+        String statement = "SELECT * FROM " +
+                           tableTablesName +
+                           " WHERE JSON_EXTRACT(" +
+                           DataBaseUtil.objectColumnName +
+                           ", \"$.isPublic\") = true;";
+        Query publicTableQuery = new Query(statement);
+        
+        return DataBaseUtil.getObjectsDataBase(publicTableQuery, getTableDataBase(), new TypeToken<Table>() {});
     }
     
     public static boolean updateTable(Table oldTable, Table newTable)

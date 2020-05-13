@@ -2,6 +2,7 @@ package com.jumbodinosaurs.post.object;
 
 public class Permission
 {
+    private String user;
     private boolean adminPerms;
     private boolean canAdd;
     private boolean canRemove;
@@ -53,5 +54,15 @@ public class Permission
     public void setAdminPerms(boolean adminPerms)
     {
         this.adminPerms = adminPerms;
+    }
+    
+    public String getUser()
+    {
+        return user;
+    }
+    
+    public void setUser(String user)
+    {
+        this.user = user;
     }
 }
