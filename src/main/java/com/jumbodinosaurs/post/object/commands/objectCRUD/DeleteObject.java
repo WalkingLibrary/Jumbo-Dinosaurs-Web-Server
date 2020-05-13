@@ -1,117 +1,79 @@
 package com.jumbodinosaurs.post.object.commands.objectCRUD;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.jumbodinosaurs.auth.util.AuthSession;
-import com.jumbodinosaurs.auth.util.AuthUtil;
+import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
-import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.CRUDRequest;
-import com.jumbodinosaurs.post.object.CRUDUtil;
-import com.jumbodinosaurs.post.object.Permission;
-import com.jumbodinosaurs.post.object.Table;
-import com.jumbodinosaurs.post.object.exceptions.NoSuchTableException;
+import com.jumbodinosaurs.post.object.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-public class DeleteObject extends PostCommand
+public class DeleteObject extends CRUDCommand
 {
     @Override
-    public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
+    public HTTPResponse getResponse(PostRequest postRequest,
+                                    AuthSession authSession,
+                                    CRUDRequest crudRequest,
+                                    Table table)
     {
         /*
          * Process for Removing an object from the database
          *
-         * Check/Verify PostRequest Attributes
-         * Ensure it was a AuthToken Auth or Password Auth
-         * Check/Verify ContentObject Attributes
-         * Get The Table from the DataBase
+         * Check/Verify CRUDRequest Attributes
          * Validate Users Permissions on the Table
+         * Parse Object
+         * Validate Object
          * Prepare Query
          * Remove object by id
          *  */
         
         HTTPResponse response = new HTTPResponse();
         
-        //Check/Verify PostRequest Attributes
-        if(request.getContent() == null)
+        
+        //Check/Verify CRUDRequest Attributes
+        if(crudRequest.getObject() == null)
         {
             response.setMessage400();
             return response;
         }
         
-        //Ensure it was a AuthToken Auth or Password Auth
-        if(!authSession.isPasswordAuth() && !authSession.getTokenUsed().getUse().equals(AuthUtil.authUseName))
+        //Validate Users Permissions on the Table
+        Permission permissions = table.getPermissions(authSession.getUser().getUsername());
+        if(!permissions.canRemove())
         {
             response.setMessage403();
             return response;
         }
         
         
-        //ContentObject
-        String content = request.getContent();
+        // Parse Object
+        PostObject objectToDelete;
         
-        CRUDRequest CRUDRequest;
         try
         {
-            CRUDRequest = new Gson().fromJson(content, CRUDRequest.class);
+            objectToDelete = new Gson().fromJson(crudRequest.getObject(), table.getObjectType().getType());
         }
-        catch(JsonParseException e)
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        //Check/Verify ContentObject Attributes
-        if(CRUDRequest.getTableName() == null || CRUDRequest.getId() <= 0)
+        catch(JsonSyntaxException e)
         {
             response.setMessage400();
             return response;
         }
         
         
-        //Get The Table from the DataBase
-        Table table;
-        try
-        {
-            table = CRUDUtil.getTable(CRUDRequest.getTableName());
-        }
-        catch(NoSuchTableException e)
+        // Validate Object
+        if(!objectToDelete.isValidObject())
         {
             response.setMessage400();
             return response;
-        }
-        catch(WrongStorageFormatException | SQLException | NoSuchDataBaseException e)
-        {
-            response.setMessage500();
-            return response;
-        }
-        
-        
-        //Validate Users Permissions on the Table
-        if(!table.isPublic())
-        {
-            Permission permissions = table.getPermissions(authSession.getUser().getUsername());
-            if(!permissions.canRemove())
-            {
-                response.setMessage403();
-                return response;
-            }
         }
         
         //Prepare Query
-        //Remove object by id
-        String statement = "DELETE FROM " + table.getName() + "WHERE id = ?";
-        Query deleteQuery = new Query(statement);
-        ArrayList<String> parameters = new ArrayList<String>();
-        parameters.add("" + CRUDRequest.getId());
+        Query deleteQuery = DataBaseUtil.getDeleteQuery(table.getName(), objectToDelete);
         
-        deleteQuery.setParameters(parameters);
         try
         {
             CRUDUtil.manipulateTableDataBase(deleteQuery);
@@ -131,7 +93,12 @@ public class DeleteObject extends PostCommand
         response.setMessage200();
         return response;
         
-        
+    }
+    
+    @Override
+    public boolean requiresTable()
+    {
+        return true;
     }
     
     @Override
