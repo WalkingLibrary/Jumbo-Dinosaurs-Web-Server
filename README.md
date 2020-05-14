@@ -11,7 +11,6 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- added JWT
 - prep for Trom-Bone Integration
 
 License
