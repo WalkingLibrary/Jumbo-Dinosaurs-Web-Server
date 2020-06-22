@@ -11,6 +11,7 @@ Java Based Web Server
 - linux support
 
 ### Todos
+- Content-Encoding Header?
 - prep for Trom-Bone Integration
 
 License

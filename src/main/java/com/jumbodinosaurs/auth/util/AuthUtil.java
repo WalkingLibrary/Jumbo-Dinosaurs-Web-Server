@@ -41,7 +41,12 @@ public class AuthUtil
         {
             return false;
         }
-        
+    
+        if(username.length() == 0)
+        {
+            return false;
+        }
+    
         char[] usernameArray = username.toCharArray();
         for(int i = 0; i < usernameArray.length; i++)
         {
@@ -86,7 +91,7 @@ public class AuthUtil
         HttpURLConnection connection;
         connection = (HttpsURLConnection) url.openConnection();
         HttpResponse response = WebUtil.getResponse(connection);
-        
+    
         return new Gson().fromJson(response.getResponse(), CaptchaResponse.class);
     }
     
@@ -163,6 +168,11 @@ public class AuthUtil
     
     public static boolean isUserNameTaken(String username)
     {
+        if(!isValidUsername(username))
+        {
+            return true;
+        }
+    
         try
         {
             getUser(getUserDataBase(), username);
@@ -380,6 +390,7 @@ public class AuthUtil
         }
         catch(SQLException | NoSuchDataBaseException e)
         {
+            e.printStackTrace();
             return false;
         }
         

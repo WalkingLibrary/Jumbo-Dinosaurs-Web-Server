@@ -46,17 +46,22 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 {
                     response = HTTPResponseGenerator.generateResponse(message);
                 }
-                
+    
                 //Would be kinda point less to hash a password if we saved it over in logs.json :P
                 msg.setMessage(message.getCensoredMessage());
                 msg.setMessageSent(response.getMessageToLog());
-                
+    
                 //Send Response
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    
+                /*DEBUG MESSAGES*/
                 if(OptionUtil.isInDebugMode())
                 {
-                    System.out.println(msg.toString());
+                    //System.out.println(msg.toString());
+                    System.out.println(message.toString());
+                    System.out.println(response.toString());
                 }
+    
                 LogManager.log(msg);
             }
             catch(MalformedHTTPMessage e)

@@ -8,6 +8,7 @@ import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
@@ -123,7 +124,8 @@ public class CreateAccount extends PostCommand
             }
             catch(IOException e)
             {
-                System.out.println(e.getMessage());
+                System.out.println("IO");
+                LogManager.consoleLogger.error(e.getMessage());
                 response.setMessage500();
                 return response;
             }
@@ -167,6 +169,7 @@ public class CreateAccount extends PostCommand
         }
         catch(PasswordStorage.CannotPerformOperationException e)
         {
+            System.out.println("Password");
             response.setMessage500();
             return response;
         }
@@ -193,6 +196,7 @@ public class CreateAccount extends PostCommand
         }
         catch(PasswordStorage.CannotPerformOperationException e)
         {
+            System.out.println("pass 2");
             response.setMessage500();
             return response;
         }
@@ -221,6 +225,7 @@ public class CreateAccount extends PostCommand
         //Note: We check to make sure the was added
         if(!AuthUtil.addUser(newUser))
         {
+            System.out.println("Add User");
             response.setMessage500();
             return response;
         }
@@ -268,4 +273,5 @@ public class CreateAccount extends PostCommand
     {
         return false;
     }
+    
 }

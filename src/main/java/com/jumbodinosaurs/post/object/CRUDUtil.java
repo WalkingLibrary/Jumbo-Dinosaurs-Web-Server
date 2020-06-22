@@ -166,19 +166,20 @@ public class CRUDUtil
     }
     
     
-    public static boolean isValidTableName(String name)
+    
+    public static boolean isValidTableDisplayName(String tableName)
     {
-        if(name.equals(tableTablesName) || name.equals(AuthUtil.userTableName))
+        if(tableName.length() > 15)
         {
             return false;
         }
-        
-        if(name.length() > 15)
+    
+        if(tableName.length() == 0)
         {
             return false;
         }
-        
-        char[] usernameArray = name.toCharArray();
+    
+        char[] usernameArray = tableName.toCharArray();
         for(int i = 0; i < usernameArray.length; i++)
         {
             if(!AuthUtil.generalWhiteListedCharacters.contains("" + usernameArray[i]))
@@ -186,26 +187,7 @@ public class CRUDUtil
                 return false;
             }
         }
-        
         return true;
-    }
-    
-    
-    public static boolean isTableNameTaken(String name)
-    {
-        try
-        {
-            getTable(getTableDataBase(), name);
-            return true;
-        }
-        catch(NoSuchTableException e)
-        {
-            return false;
-        }
-        catch(SQLException | WrongStorageFormatException | NoSuchDataBaseException e)
-        {
-            return true;
-        }
     }
     
     

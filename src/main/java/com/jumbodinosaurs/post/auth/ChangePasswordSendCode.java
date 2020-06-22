@@ -7,6 +7,7 @@ import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
+import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
@@ -69,7 +70,7 @@ public class ChangePasswordSendCode extends PostCommand
             }
             catch(IOException e)
             {
-                System.out.println(e.getMessage());
+                LogManager.consoleLogger.error(e.getMessage());
                 response.setMessage500();
                 return response;
             }
