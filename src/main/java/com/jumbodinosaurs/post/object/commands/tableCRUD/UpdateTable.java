@@ -1,7 +1,6 @@
 package com.jumbodinosaurs.post.object.commands.tableCRUD;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
@@ -74,19 +73,9 @@ public class UpdateTable extends CRUDCommand
         
         
         //Check the New Name of the Table
-        if(!CRUDUtil.isValidTableName(newTable.getName()))
+        if(!CRUDUtil.isValidTableDisplayName(newTable.getName()))
         {
             response.setMessage400();
-            return response;
-        }
-        
-        
-        if(CRUDUtil.isTableNameTaken(newTable.getName()))
-        {
-            response.setMessage409();
-            JsonObject reason = new JsonObject();
-            reason.addProperty("failureReason", "Table Name Taken");
-            response.addPayload(reason.toString());
             return response;
         }
         

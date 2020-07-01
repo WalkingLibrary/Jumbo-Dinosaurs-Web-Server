@@ -7,7 +7,8 @@ public class CRUDRequest
     private String object;
     private String attribute;
     private String limiter;
-    private int id;
+    private int tableID;
+    private int objectID;
     
     public String getTableName()
     {
@@ -59,13 +60,23 @@ public class CRUDRequest
         this.attribute = attribute;
     }
     
-    public int getId()
+    public int getTableID()
     {
-        return id;
+        return tableID;
     }
     
-    public void setId(int id)
+    public void setTableID(int tableID)
     {
-        this.id = id;
+        this.tableID = tableID;
+    }
+    
+    public int getObjectID()
+    {
+        return objectID;
+    }
+    
+    public void setObjectID(int objectID)
+    {
+        this.objectID = objectID;
     }
 }

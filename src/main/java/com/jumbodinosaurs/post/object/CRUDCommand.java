@@ -30,8 +30,8 @@ public abstract class CRUDCommand extends PostCommand
          *
          * Check/Verify PostRequest Attributes
          * Check/Verify CRUDRequest Attributes
-         * Validate Table Name
-         * Filter By Create Command
+         * Filter By requiresTable
+         * Get Table for getResponse()
          * Check Table Permissions with AuthSession
          * Ensure password or AuthToken auth
          *
@@ -60,39 +60,28 @@ public abstract class CRUDCommand extends PostCommand
             response.setMessage400();
             return response;
         }
-        
-        //Check/Verify ContentObject Attributes
-        //All CRUD request require a tableName
-        if(crudRequest.getTableName() == null)
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        //Validate Table Name
-        String tableName = crudRequest.getTableName();
-        
-        if(CRUDUtil.isValidTableName(tableName))
-        {
-            response.setMessage409();
-            JsonObject reason = new JsonObject();
-            reason.addProperty("failureReason", "Table Name given was not valid");
-            response.addPayload(reason.toString());
-        }
-        
-        //Filter By Create Command
-        // All Commands require a table except for creating a table
+    
+    
+        //Filter By requiresTable
+        // All Commands require a table except for Creating a Table and Retrieving Tables Commands
         if(!requiresTable())
         {
             return getResponse(request, authSession, crudRequest, null);
         }
-        
-        
+    
+        //Get Table for getResponse()
+        //Check to make sure Table ID given is a valid table id
+        if(crudRequest.getTableID() < 0)
+        {
+            response.setMessage400();
+            return response;
+        }
+    
         Table table;
-        
+    
         try
         {
-            table = CRUDUtil.getTable(tableName);
+            table = CRUDUtil.getTable(crudRequest.getTableID());
         }
         catch(NoSuchDataBaseException e)
         {
@@ -108,7 +97,7 @@ public abstract class CRUDCommand extends PostCommand
         {
             response.setMessage400();
             JsonObject object = new JsonObject();
-            object.addProperty("failureReason", "Table Name Taken");
+            object.addProperty("failureReason", "Table with ID: " + crudRequest.getTableID() + " does not exist");
             response.addPayload(object.toString());
             return response;
         }

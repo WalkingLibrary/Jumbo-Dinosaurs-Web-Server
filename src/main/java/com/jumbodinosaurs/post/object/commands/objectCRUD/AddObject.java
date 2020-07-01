@@ -81,7 +81,7 @@ public class AddObject extends CRUDCommand
         
         try
         {
-            CRUDUtil.manipulateTableDataBase(insertQuery);
+            CRUDUtil.manipulateObjectDataBase(insertQuery);
         }
         catch(NoSuchDataBaseException e)
         {

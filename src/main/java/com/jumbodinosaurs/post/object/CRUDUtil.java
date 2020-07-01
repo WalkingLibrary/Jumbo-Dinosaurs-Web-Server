@@ -19,67 +19,50 @@ import java.util.ArrayList;
 public class CRUDUtil
 {
     //The name for the table that holds table information
-    private static String tableTablesName = "tables";
+    public static String tableTablesName = "tables";
+    public static String objectsTableIdColumnName = "tableId";
     
     
     //TABLE CRUD
     
     
-    public static boolean addTable(Table tableToAdd)
+    public static Table getTable(int id)
+            throws NoSuchTableException, SQLException, WrongStorageFormatException, NoSuchDataBaseException
     {
-        Query insertQuery = DataBaseUtil.getInsertQuery(tableTablesName, tableToAdd);
-        try
-        {
-            DataBaseUtil.manipulateDataBase(insertQuery, getTableDataBase());
-            return true;
-        }
-        catch(SQLException | NoSuchDataBaseException e)
-        {
-            return false;
-        }
-    }
-    
-    public static Table getTable(String tableName)
-            throws NoSuchDataBaseException, WrongStorageFormatException, NoSuchTableException, SQLException
-    {
-        return getTable(getTableDataBase(), tableName);
-    }
-    
-    public static Table getTable(DataBase dataBase, String tableName)
-            throws NoSuchTableException, SQLException, WrongStorageFormatException
-    {
-        if(!isValidTableName(tableName))
-        {
-            throw new NoSuchTableException("Table Name Given was not valid");
-        }
+        
         String statement = "SELECT * FROM " + tableTablesName;
-        statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", \"$.name\") =?;";
+        statement += " WHERE id =?;";
         Query query = new Query(statement);
         ArrayList<String> parameters = new ArrayList<String>();
-        parameters.add(tableName);
+        parameters.add("" + id);
         query.setParameters(parameters);
-        
         ArrayList<Table> tables;
         
-        tables = DataBaseUtil.getObjectsDataBase(query, dataBase, new TypeToken<Table>() {});
+        tables = DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), new TypeToken<Table>() {});
         
         
         if(tables.size() > 1)
         {
-            throw new IllegalStateException("More than one Table Named " + tableName);
+            throw new IllegalStateException("More than one Table with ID " + id);
         }
-    
+        
         if(tables.size() == 0)
         {
-            throw new NoSuchTableException("No Table Found with the name " + tableName);
+            throw new NoSuchTableException("No Table with the ID " + id);
         }
-    
-        return tables.get(0);
+        Table requestedTable = tables.get(0);
+        
+        requestedTable.setId(query.getResultSet().getInt("id"));
+        
+        return requestedTable;
     }
     
     public static ArrayList<Table> getTables(String userName)
             throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
     {
+        /*
+         * Getting Tables from a Username
+         *  */
         String statement = "SELECT * FROM " +
                            tableTablesName +
                            " WHERE JSON_EXTRACT(" +
@@ -89,22 +72,51 @@ public class CRUDUtil
         ArrayList<String> parameters = new ArrayList<String>();
         parameters.add(userName);
         publicTableQuery.setParameters(parameters);
+    
+        ArrayList<Table> tablesToReturn = DataBaseUtil.getObjectsDataBase(publicTableQuery,
+                                                                          getObjectDataBase(),
+                                                                          new TypeToken<Table>() {});
+    
+        /*Add Table Id's To The returned Tables*/
+        publicTableQuery.getResultSet().beforeFirst();
+        for(Table table : tablesToReturn)
+        {
+            table.setId(publicTableQuery.getResultSet().getInt("id"));
         
-        return DataBaseUtil.getObjectsDataBase(publicTableQuery, getTableDataBase(), new TypeToken<Table>() {});
+            if(!publicTableQuery.getResultSet().next())
+            {
+                throw new IllegalStateException("More Tables than IDs");
+            }
+        }
+        return tablesToReturn;
     }
     
     public static ArrayList<Table> getPublicTables()
             throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
     {
-        
+    
         String statement = "SELECT * FROM " +
                            tableTablesName +
                            " WHERE JSON_EXTRACT(" +
                            DataBaseUtil.objectColumnName +
                            ", \"$.isPublic\") = true;";
         Query publicTableQuery = new Query(statement);
+    
+        ArrayList<Table> tablesToReturn = DataBaseUtil.getObjectsDataBase(publicTableQuery,
+                                                                          getObjectDataBase(),
+                                                                          new TypeToken<Table>() {});
+        /*Add Table Id's To The returned Tables*/
+        publicTableQuery.getResultSet().beforeFirst();
+        for(Table table : tablesToReturn)
+        {
+            table.setId(publicTableQuery.getResultSet().getInt("id"));
         
-        return DataBaseUtil.getObjectsDataBase(publicTableQuery, getTableDataBase(), new TypeToken<Table>() {});
+            if(!publicTableQuery.getResultSet().next())
+            {
+                throw new IllegalStateException("More Tables than IDs");
+            }
+        }
+        return tablesToReturn;
     }
     
     public static boolean updateTable(Table oldTable, Table newTable)
@@ -113,7 +125,7 @@ public class CRUDUtil
         
         try
         {
-            DataBaseUtil.manipulateDataBase(updateQuery, getTableDataBase());
+            DataBaseUtil.manipulateDataBase(updateQuery, getObjectDataBase());
         }
         catch(SQLException | NoSuchDataBaseException e)
         {
@@ -133,24 +145,28 @@ public class CRUDUtil
     public static ArrayList<PostObject> getObjects(Query query, TypeToken typeToken)
             throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
     {
-        return DataBaseUtil.getObjectsDataBase(query, getTableDataBase(), typeToken);
+        return DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), typeToken);
     }
     
     
     //ETC
-    private static DataBase getTableDataBase()
+    private static DataBase getObjectDataBase()
             throws NoSuchDataBaseException
     {
         return DataBaseManager.getDataBase(OptionUtil.getServersDataBaseName());
     }
     
     
-    public static void manipulateTableDataBase(Query query)
+    public static void manipulateObjectDataBase(Query query)
             throws NoSuchDataBaseException, SQLException
     {
-        DataBaseUtil.manipulateDataBase(query, getTableDataBase());
+        DataBaseUtil.manipulateDataBase(query, getObjectDataBase());
     }
     
+    public static <E> String getObjectSchemaTableName(TypeToken<E> objectType)
+    {
+        return objectType.getClass().getCanonicalName();
+    }
     
     public static <E> TypeToken<E> getTypeToken(String objectName)
             throws NoSuchPostObject
@@ -164,7 +180,6 @@ public class CRUDUtil
         }
         throw new NoSuchPostObject("No Post Object found with the name " + objectName);
     }
-    
     
     
     public static boolean isValidTableDisplayName(String tableName)

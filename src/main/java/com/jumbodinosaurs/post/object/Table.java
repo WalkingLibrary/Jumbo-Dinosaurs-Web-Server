@@ -7,11 +7,14 @@ import java.util.HashMap;
 
 public class Table<E>
 {
+    //Warning Don't Use Transient for Stopping data from being sent via
+    // Get Tables as Gson will still send it
     private String name;
     private boolean isPublic;
     private String creator;
     private TypeToken<E> objectType;
     private HashMap<String, Permission> permissions;
+    private transient int id;
     
     public Table(String name, boolean isPublic, String creator, TypeToken<E> objectType)
     {
@@ -91,5 +94,15 @@ public class Table<E>
     public void setPermissions(HashMap<String, Permission> permissions)
     {
         this.permissions = permissions;
+    }
+    
+    public int getId()
+    {
+        return id;
+    }
+    
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

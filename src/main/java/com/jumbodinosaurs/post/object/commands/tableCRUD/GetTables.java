@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.post.object.commands.tableCRUD;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
@@ -11,6 +12,7 @@ import com.jumbodinosaurs.post.object.CRUDRequest;
 import com.jumbodinosaurs.post.object.CRUDUtil;
 import com.jumbodinosaurs.post.object.Table;
 
+import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -26,8 +28,9 @@ public class GetTables extends CRUDCommand
          *
          *
          * To Allow for Public Access to Public Tables we Have to check the
-         * AuthSession for success and user to determine if it's a "public" query only
-         * Prepare query Statement
+         * AuthSession for success and user to determine if it's a "public" query or not
+         * Get The Tables
+         * Add Tables returned to Response
          *
          *  */
         
@@ -37,7 +40,7 @@ public class GetTables extends CRUDCommand
         // AuthSession for success to determine if it's a "public" query or not
         
         boolean isPublicQuery = authSession.isSuccess();
-        
+        //Get The Tables
         ArrayList<Table> tablesToReturn;
         try
         {
@@ -61,9 +64,15 @@ public class GetTables extends CRUDCommand
             response.setMessage500();
             return response;
         }
-        
+    
         response.setMessage200();
-        response.addPayload(new Gson().toJson(tablesToReturn));
+    
+        //Add Tables returned to Response
+        // NOTE: the client needs to have the ID of the Table for manipulation purposes
+        // The id Field is Transient and needs to be added to the serialized JSON Objects
+        //So we make a special Gson Object
+        Gson transientIgnorableGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE).create();
+        response.addPayload(transientIgnorableGson.toJson(tablesToReturn));
         return response;
     }
     

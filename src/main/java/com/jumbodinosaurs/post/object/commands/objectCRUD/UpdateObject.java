@@ -83,7 +83,7 @@ public class UpdateObject extends CRUDCommand
         //Update the DataBase
         try
         {
-            CRUDUtil.manipulateTableDataBase(updateQuery);
+            CRUDUtil.manipulateObjectDataBase(updateQuery);
         }
         catch(NoSuchDataBaseException e)
         {
