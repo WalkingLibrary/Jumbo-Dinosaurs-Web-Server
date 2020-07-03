@@ -66,26 +66,27 @@ public class UpdateObject extends CRUDCommand
             response.setMessage500();
             return response;
         }
-        
-        
+
+
         //Validate new and old Objects
-        if(!oldObject.isValidObject() || !newObject.isValidObject())
+        if (!oldObject.isValidObject() || !newObject.isValidObject())
         {
             response.setMessage400();
             return response;
         }
-        
-        
+
+
         //Create Update Query
-        Query updateQuery = DataBaseUtil.getUpdateObjectQuery(table.getName(), oldObject, newObject);
-        
-        
+        String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
+        Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableToEdit, oldObject, newObject);
+
+
         //Update the DataBase
         try
         {
             CRUDUtil.manipulateObjectDataBase(updateQuery);
         }
-        catch(NoSuchDataBaseException e)
+        catch (NoSuchDataBaseException e)
         {
             response.setMessage501();
             return response;

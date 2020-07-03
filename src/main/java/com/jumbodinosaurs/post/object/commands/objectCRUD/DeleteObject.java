@@ -62,23 +62,24 @@ public class DeleteObject extends CRUDCommand
             response.setMessage400();
             return response;
         }
-        
-        
+
+
         // Validate Object
-        if(!objectToDelete.isValidObject())
+        if (!objectToDelete.isValidObject())
         {
             response.setMessage400();
             return response;
         }
-        
+
         //Prepare Query
-        Query deleteQuery = DataBaseUtil.getDeleteQuery(table.getName(), objectToDelete);
-        
+        String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
+        Query deleteQuery = DataBaseUtil.getDeleteQuery(tableToEdit, objectToDelete);
+
         try
         {
             CRUDUtil.manipulateObjectDataBase(deleteQuery);
         }
-        catch(NoSuchDataBaseException e)
+        catch (NoSuchDataBaseException e)
         {
             response.setMessage501();
             return response;

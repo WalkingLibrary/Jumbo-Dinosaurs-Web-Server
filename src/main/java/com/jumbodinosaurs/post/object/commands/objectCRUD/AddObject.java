@@ -3,7 +3,6 @@ package com.jumbodinosaurs.post.object.commands.objectCRUD;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.jumbodinosaurs.auth.util.AuthSession;
-import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
@@ -67,23 +66,24 @@ public class AddObject extends CRUDCommand
             response.setMessage400();
             return response;
         }
-        
+
         //Validate the Object given
-        if(!postObject.isValidObject())
+        if (!postObject.isValidObject())
         {
             response.setMessage400();
             return response;
         }
-        
-        
+
+
         //Add the object to the DataBase
-        Query insertQuery = DataBaseUtil.getInsertQuery(table.getName(), postObject);
-        
+        String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
+        Query insertQuery = CRUDUtil.getObjectInsertQuery(tableToEdit, postObject, table.getId());
+
         try
         {
             CRUDUtil.manipulateObjectDataBase(insertQuery);
         }
-        catch(NoSuchDataBaseException e)
+        catch (NoSuchDataBaseException e)
         {
             response.setMessage501();
             return response;

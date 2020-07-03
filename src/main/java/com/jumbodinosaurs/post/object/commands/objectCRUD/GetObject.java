@@ -44,24 +44,26 @@ public class GetObject extends CRUDCommand
         
         
         //Validate Users Permissions on the Table
-        
+
         Permission permissions = table.getPermissions(authSession.getUser().getUsername());
-        if(!permissions.canSearch())
+        if (!permissions.canSearch())
         {
             response.setMessage403();
             return response;
         }
-        
-        
+
+
         //Generate Prepared Query from Table Name, Limiter, and Attribute
-        String statement = "SELECT * FROM ? WHERE JSON_EXTRACT(objectJson, ?) = ?;";
+        String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
+        String statement = "SELECT * FROM " + tableToEdit;
+        statement += " WHERE JSON_EXTRACT(objectJson, ?) = ?;";
         Query objectQuery = new Query(statement);
-        
+
         ArrayList<String> parameters = new ArrayList<String>();
         parameters.add(table.getName());
         parameters.add(crudRequest.getAttribute());
         parameters.add(crudRequest.getLimiter());
-        
+
         ArrayList<PostObject> foundObjects;
         try
         {
