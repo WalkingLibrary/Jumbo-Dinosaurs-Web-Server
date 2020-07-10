@@ -5,6 +5,7 @@ import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.exceptions.MissingCertificateException;
 import com.jumbodinosaurs.netty.handler.IHandlerHolder;
+import com.jumbodinosaurs.netty.pipline.FullMessageFramer;
 import com.jumbodinosaurs.netty.pipline.HTTPResponseEncoder;
 import com.jumbodinosaurs.netty.pipline.SessionDecoder;
 import io.netty.channel.ChannelPipeline;
@@ -14,6 +15,7 @@ import io.netty.handler.ssl.SniHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.CharsetUtil;
 import io.netty.util.DomainNameMapping;
 import io.netty.util.Mapping;
 
@@ -47,17 +49,18 @@ public class SecureHTTPConnectListenerInitializer extends ConnectionListenerInit
     @Override
     protected void initChannel(SocketChannel channel) throws Exception
     {
-        
-        
+    
+    
         ChannelPipeline pipeline = channel.pipeline();
         pipeline.addLast("sni", new SniHandler(this.domainToContextMap));
-        pipeline.addLast("decoder", new StringDecoder());
+        pipeline.addLast("framer", new FullMessageFramer());
+        pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
         pipeline.addLast("sessionDecoder", new SessionDecoder());
         pipeline.addLast("encoder", new HTTPResponseEncoder());
         pipeline.addLast("streamer", new ChunkedWriteHandler());
         pipeline.addLast("handler", this.handlerHolder.getInstance());
-        
-        
+    
+    
     }
     
     

@@ -27,11 +27,6 @@ public class UpdateDNS extends ScheduledTask
         super(executor);
     }
     
-    @Override
-    public int getInitialDelay()
-    {
-        return 0;
-    }
     
     @Override
     public int getPeriod()
