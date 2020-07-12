@@ -198,9 +198,9 @@ public class AuthUtil
          * Check/Verify Post Request Attributes (Password, Token, and Token Use)
          * Determine if it's a Token or Password Auth
          *
-         * Check if account has been activated
-         * Check given credentials with stored credentials
          *
+         * Check given credentials with stored credentials
+         * Check if account has been activated
          *
          * NOTE:
          * To avoid over querying for users we will ensure that a user is set to the AuthSession from the username.
@@ -296,14 +296,8 @@ public class AuthUtil
         
         try
         {
-            //Check if account has been activated
-            if(!currentUser.isActive())
-            {
-                authSession.setFailureCode(FailureReasons.ACCOUNT_NOT_ACTIVATED);
-                return authSession;
-            }
-            
-            
+    
+    
             //Check given credentials with stored credentials
             boolean correctPassword, correctToken;
             if(passwordAuth)
@@ -325,14 +319,29 @@ public class AuthUtil
                     authSession.setFailureCode(FailureReasons.INCORRECT_TOKEN);
                     return authSession;
                 }
-                
+    
                 authSession.setTokenUsed(currentUser.getToken(use));
             }
-            
+    
+            //Check if account has been activated
+            //Note: We Check if the account is active right before returning a successful auth
+            //Allowing for the logic of checking if the failure reason was that the account was not active
+            // to be the only reason an auth failed
+            //
+            // Very important that a PostCommand can say that if the reason for failure is ACCOUNT_NOT_ACTIVATED
+            // that it is the only reason for failure
+            //
+            if(!currentUser.isActive())
+            {
+        
+                authSession.setFailureCode(FailureReasons.ACCOUNT_NOT_ACTIVATED);
+                return authSession;
+            }
+    
             authSession.setSuccess(true);
             return authSession;
-            
-            
+    
+    
         }
         catch(PasswordStorage.InvalidHashException | PasswordStorage.CannotPerformOperationException e)
         {
