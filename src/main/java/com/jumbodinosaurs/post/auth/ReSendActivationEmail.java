@@ -5,7 +5,6 @@ import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
-import com.jumbodinosaurs.auth.util.FailureReasons;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.log.LogManager;
@@ -25,8 +24,7 @@ public class ReSendActivationEmail extends PostCommand
         /*
          * Process for sending a new Activation Email
          *
-         * Check/Verify Correct Auth
-         *
+         * Make sure the account is not activated
          * Check/Verify PostRequest Attributes
          * Get user From Auth Session
          * Prepare Activation Email
@@ -34,42 +32,19 @@ public class ReSendActivationEmail extends PostCommand
          * Send New Activation Email
          * Send 200 Okay
          *  */
-        
+    
         HTTPResponse response = new HTTPResponse();
-        
-        
-        /* Check/Verify Correct Auth
-         *
-         * We need to make sure the auth session was a failure
-         * as any successful auth means the account is activated
-         *
-         * We then need to make sure the only reason for the failed auth is ACCOUNT_NOT_ACTIVATED
-         *
-         * Note: If the only reason for a failed auth is FailureReasons.ACCOUNT_NOT_ACTIVATED
-         * We can then conclude that the correct username and password was entered
-         *
-         *
-         */
-        
-        
-        // We need to make sure the auth session was a failure
-        // as any successful auth means the account is activated
-        if(authSession.isSuccess())
+    
+    
+        // Make sure the account is not activated
+        if(!authSession.getUser().isActive())
         {
-            response.setMessage400();
+            response.setMessage200();
             return response;
         }
-        
-        //We then need to make sure the only reason for the failed auth is ACCOUNT_NOT_ACTIVATED
-        if(!authSession.getFailureCode().equals(FailureReasons.ACCOUNT_NOT_ACTIVATED))
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        
+    
         //Check/Verify PostRequest Attributes
-        
+    
         if(request.getCaptchaCode() == null)
         {
             response.setMessage400();

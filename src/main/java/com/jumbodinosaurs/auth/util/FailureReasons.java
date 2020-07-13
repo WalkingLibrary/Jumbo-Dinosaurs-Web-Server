@@ -2,8 +2,14 @@ package com.jumbodinosaurs.auth.util;
 
 public enum FailureReasons
 {
-    MISSING_ATTRIBUTES, INCORRECT_PASSWORD, INCORRECT_TOKEN, NO_DATABASE, MISSING_USER, SERVER_ERROR,
-    ACCOUNT_NOT_ACTIVATED, INVALID_USERNAME, MISSING_USERNAME;
+    MISSING_ATTRIBUTES,
+    INCORRECT_PASSWORD,
+    INCORRECT_TOKEN,
+    NO_DATABASE,
+    MISSING_USER,
+    SERVER_ERROR,
+    INVALID_USERNAME,
+    MISSING_USERNAME;
     
     FailureReasons()
     {
@@ -13,6 +19,6 @@ public enum FailureReasons
     @Override
     public String toString()
     {
-        return "FailureReasons{" + this.name() +"}";
+        return "FailureReasons{" + this.name() + "}";
     }
 }

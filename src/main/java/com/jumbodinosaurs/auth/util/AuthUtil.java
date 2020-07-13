@@ -323,20 +323,8 @@ public class AuthUtil
                 authSession.setTokenUsed(currentUser.getToken(use));
             }
     
-            //Check if account has been activated
-            //Note: We Check if the account is active right before returning a successful auth
-            //Allowing for the logic of checking if the failure reason was that the account was not active
-            // to be the only reason an auth failed
-            //
-            // Very important that a PostCommand can say that if the reason for failure is ACCOUNT_NOT_ACTIVATED
-            // that it is the only reason for failure
-            //
-            if(!currentUser.isActive())
-            {
-        
-                authSession.setFailureCode(FailureReasons.ACCOUNT_NOT_ACTIVATED);
-                return authSession;
-            }
+            //Moved the is Account active check in auth to allow for authentication
+            // The check for is active will be done in the CrudCommand Checks
     
             authSession.setSuccess(true);
             return authSession;

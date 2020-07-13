@@ -15,16 +15,25 @@ public class ActivateAccount extends PostCommand
         /* Process for Activating an Account
          *
          * Check/Verify PostRequest Attributes
+         * Make sure account is not already active
          * Ensure it was a Activate Account token authentication
          * Update users Activation Status
          * Revoke/Remove Activation Token
          * Update the User in the Data Base
          *
          */
-        
+    
         HTTPResponse response = new HTTPResponse();
-        
+    
         //Check/Verify PostRequest Attributes
+    
+        //Make sure account is not already active
+        if(authSession.getUser().isActive())
+        {
+            response.setMessage200();
+            return response;
+        }
+    
         //Ensure it was a Activate Account token authentication
         if(!request.getTokenUse().equals(AuthUtil.emailActivationUseName))
         {
