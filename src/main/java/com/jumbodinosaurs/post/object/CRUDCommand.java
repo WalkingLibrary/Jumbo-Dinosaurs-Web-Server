@@ -32,7 +32,9 @@ public abstract class CRUDCommand extends PostCommand
          * Check/Verify CRUDRequest Attributes
          * Filter By requiresTable
          * Get Table for getResponse()
+         *
          * Check Table Permissions with AuthSession
+         * Check to make sure the account has been activated
          * Ensure password or AuthToken auth
          *
          *  */
@@ -107,6 +109,13 @@ public abstract class CRUDCommand extends PostCommand
         //Note that the Permission Check here is only for if they have any permissions at all on a given table
         if(!table.isPublic() && authSession.getUser() != null)
         {
+            //Check to make sure the account has been activated
+            if(!authSession.getUser().isActive())
+            {
+                response.setMessage400();
+                return response;
+            }
+    
             if(table.getPermissions(authSession.getUser().getUsername()) == null)
             {
                 response.setMessage403();
