@@ -4,6 +4,9 @@ import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.options.Option;
+import com.jumbodinosaurs.util.OptionIdentifier;
+import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.ServerUtil;
 
 import java.io.File;
@@ -16,7 +19,9 @@ public class SetGETDir extends Command
         System.out.println("Enter the Path to the new GET Dir");
         String path = OperatorConsole.getEnsuredAnswer();
         ServerUtil.getDirectory = new File(path);
-        return new MessageResponse("GET Dir has been changed to " + path + " for the remainder of this session");
+        Option getDirPath = new Option(path, OptionIdentifier.getDirPath.getIdentifier());
+        OptionUtil.setOption(getDirPath);
+        return new MessageResponse("GET Dir has been changed to " + path + ".");
     }
     
     @Override

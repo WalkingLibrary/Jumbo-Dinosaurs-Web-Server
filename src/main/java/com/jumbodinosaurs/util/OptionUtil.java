@@ -57,6 +57,12 @@ public class OptionUtil
         return optionsManager.getOption(OptionIdentifier.captchaKey.getIdentifier(), new CaptchaKey()).getOption();
     }
     
+    public static String getGETDirPath()
+    {
+        return optionsManager.getOption(OptionIdentifier.captchaKey.getIdentifier(),
+                                        ServerUtil.getDirectory.getAbsolutePath()).getOption();
+    }
+    
     
     public static <E> void setOption(Option<E> option)
     {
