@@ -110,7 +110,7 @@ public abstract class CRUDCommand extends PostCommand
         if(!table.isPublic() && authSession.getUser() != null)
         {
             //Check to make sure the account has been activated
-            if(!authSession.getUser().isActive())
+            if(!authSession.getUser().isActive() && !AuthUtil.testMode)
             {
                 response.setMessage400();
                 return response;

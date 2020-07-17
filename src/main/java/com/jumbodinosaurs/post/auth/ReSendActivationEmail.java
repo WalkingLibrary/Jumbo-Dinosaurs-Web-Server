@@ -1,5 +1,6 @@
 package com.jumbodinosaurs.post.auth;
 
+import com.google.gson.JsonObject;
 import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
@@ -40,6 +41,9 @@ public class ReSendActivationEmail extends PostCommand
         if(!authSession.getUser().isActive())
         {
             response.setMessage200();
+            JsonObject object = new JsonObject();
+            object.addProperty("isActive", true);
+            response.addPayload(object.toString());
             return response;
         }
     
@@ -147,9 +151,12 @@ public class ReSendActivationEmail extends PostCommand
                  */
             }
         }
-        
+    
         //Send 200 okay
         response.setMessage200();
+        JsonObject object = new JsonObject();
+        object.addProperty("isActive", false);
+        response.addPayload(object.toString());
         return response;
     }
     
