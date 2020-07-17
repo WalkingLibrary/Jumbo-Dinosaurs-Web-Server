@@ -31,13 +31,14 @@ public class ServerUtil
         codeExecutionDir = new File(System.getProperty("user.dir"));
         LogManager.consoleLogger.debug("USER DIR: " + codeExecutionDir.getAbsolutePath());
         getDirectory = GeneralUtil.checkFor(codeExecutionDir, "GET", true);
-        getDirectory = new File(OptionUtil.getGETDirPath());
         postDirectory = GeneralUtil.checkFor(codeExecutionDir, "POST", true);
         serverDataDir = GeneralUtil.checkFor(codeExecutionDir, "Server Data", true);
         timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper", true);
         userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo", true);
         logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log", true);
+        getDirectory = new File(OptionUtil.getGETDirPath());
         LogManager.consoleLogger.debug("Finished Creating Server Util Files");
+    
     }
     
     

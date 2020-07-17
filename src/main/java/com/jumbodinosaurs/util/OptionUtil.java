@@ -59,7 +59,7 @@ public class OptionUtil
     
     public static String getGETDirPath()
     {
-        return optionsManager.getOption(OptionIdentifier.captchaKey.getIdentifier(),
+        return optionsManager.getOption(OptionIdentifier.getDirPath.getIdentifier(),
                                         ServerUtil.getDirectory.getAbsolutePath()).getOption();
     }
     
