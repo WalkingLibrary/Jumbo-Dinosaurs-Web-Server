@@ -11,6 +11,12 @@ Java Based Web Server
 - linux support
 
 ### Todos
+
+- Add GET Dir Changing Persistent
+- Add Central CapchaToken System
+- Add Captcha Key Tieing to a domain
+- Add PostCheck Command and Enable PostCommand?
+- Add Delete Unactivated Accounts Task
 - Content-Encoding Header?
 - prep for Trom-Bone Integration
 
