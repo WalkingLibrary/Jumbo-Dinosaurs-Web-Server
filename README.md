@@ -12,9 +12,9 @@ Java Based Web Server
 
 ### Todos
 - Add Central CapchaToken System
-- Add Captcha Key Tieing to a domain
 - Add PostCheck Command and Enable PostCommand?
 - Add Delete Unactivated Accounts Task
+- Add localHost "Support"
 - Content-Encoding Header?
 - prep for Trom-Bone Integration
 

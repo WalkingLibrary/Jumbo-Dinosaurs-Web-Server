@@ -1,6 +1,5 @@
 package com.jumbodinosaurs.util;
 
-import com.jumbodinosaurs.auth.server.captcha.CaptchaKey;
 import com.jumbodinosaurs.devlib.options.Option;
 import com.jumbodinosaurs.devlib.options.OptionsManager;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
@@ -52,10 +51,6 @@ public class OptionUtil
                              .getOption();
     }
     
-    public static CaptchaKey getCaptchaKey()
-    {
-        return optionsManager.getOption(OptionIdentifier.captchaKey.getIdentifier(), new CaptchaKey()).getOption();
-    }
     
     public static String getGETDirPath()
     {

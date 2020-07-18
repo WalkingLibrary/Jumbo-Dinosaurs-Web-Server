@@ -1,6 +1,7 @@
 package com.jumbodinosaurs.domain.util;
 
 import com.google.gson.Gson;
+import com.jumbodinosaurs.auth.server.captcha.CaptchaKey;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.util.ServerUtil;
 
@@ -12,6 +13,7 @@ public abstract class Domain
     
     private String domain;
     private String type;
+    private CaptchaKey captchaKey;
     private transient File getDir;
     private transient File postDir;
     
@@ -77,14 +79,22 @@ public abstract class Domain
     @Override
     public String toString()
     {
-        return "Domain{" +
-                       "domain='" + domain + '\'' +
-                       '}';
+        return "Domain{" + "domain='" + domain + '\'' + '}';
     }
     
-   
+    
     public String getType()
     {
         return type;
+    }
+    
+    public CaptchaKey getCaptchaKey()
+    {
+        return captchaKey;
+    }
+    
+    public void setCaptchaKey(CaptchaKey captchaKey)
+    {
+        this.captchaKey = captchaKey;
     }
 }

@@ -9,7 +9,6 @@ public enum OptionIdentifier
     email("email"),
     shouldUpgradeInsecureConnections("shouldUpgradeInsecureConnections"),
     userDataBaseName("userDataBaseName"),
-    captchaKey("captchaKey"),
     getDirPath("getDirPath");
     private String identifier;
     
