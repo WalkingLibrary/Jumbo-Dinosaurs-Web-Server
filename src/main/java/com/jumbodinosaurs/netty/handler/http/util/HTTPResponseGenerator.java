@@ -78,8 +78,8 @@ public class HTTPResponseGenerator
                 response.setMessage200(headers, photoBytes);
                 return response;
             }
-            
-            
+    
+    
             if(ResponseHeaderUtil.getApplicationFileTypes().contains(type))
             {
                 byte[] applicationBytes = ServerUtil.readZip(fileToServe);
@@ -89,8 +89,16 @@ public class HTTPResponseGenerator
                 response.setMessage200(headers, applicationBytes);
                 return response;
             }
-            
-            
+    
+            if(ResponseHeaderUtil.getScriptFileTypes().contains(type))
+            {
+                headers += ResponseHeaderUtil.contentApplicationHeader + "x-javascript";
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage200(headers, GeneralUtil.scanFileContents(fileToServe));
+                return response;
+            }
+    
+    
             headers += ResponseHeaderUtil.contentTextHeader + type;
             HTTPResponse response = new HTTPResponse();
             response.setMessage200(headers, GeneralUtil.scanFileContents(fileToServe));

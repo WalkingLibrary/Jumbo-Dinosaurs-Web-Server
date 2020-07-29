@@ -33,5 +33,13 @@ public class ResponseHeaderUtil
         applicationFileTypes.add("zip");
         return applicationFileTypes;
     }
-
+    
+    public static ArrayList<String> getScriptFileTypes()
+    {
+        ArrayList<String> applicationFileTypes = new ArrayList<String>();
+        applicationFileTypes.add("js");
+        return applicationFileTypes;
+    }
+    
+    
 }
