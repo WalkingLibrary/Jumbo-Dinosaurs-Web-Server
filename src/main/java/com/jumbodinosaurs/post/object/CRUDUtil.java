@@ -55,9 +55,6 @@ public class CRUDUtil
             throw new NoSuchTableException("No Table with the ID " + id);
         }
         Table requestedTable = tables.get(0);
-
-        requestedTable.setId(query.getResultSet().getInt("id"));
-
         return requestedTable;
     }
 
@@ -82,18 +79,6 @@ public class CRUDUtil
                 new TypeToken<Table>()
                 {
                 });
-
-        /*Add Table Id's To The returned Tables*/
-        publicTableQuery.getResultSet().beforeFirst();
-        for (Table table : tablesToReturn)
-        {
-            table.setId(publicTableQuery.getResultSet().getInt("id"));
-
-            if (!publicTableQuery.getResultSet().next())
-            {
-                throw new IllegalStateException("More Tables than IDs");
-            }
-        }
         return tablesToReturn;
     }
 
@@ -113,17 +98,6 @@ public class CRUDUtil
                 new TypeToken<Table>()
                 {
                 });
-        /*Add Table Id's To The returned Tables*/
-        publicTableQuery.getResultSet().beforeFirst();
-        for (Table table : tablesToReturn)
-        {
-            table.setId(publicTableQuery.getResultSet().getInt("id"));
-
-            if (!publicTableQuery.getResultSet().next())
-            {
-                throw new IllegalStateException("More Tables than IDs");
-            }
-        }
         return tablesToReturn;
     }
 

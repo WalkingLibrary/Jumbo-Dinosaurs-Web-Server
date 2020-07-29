@@ -2,10 +2,11 @@ package com.jumbodinosaurs.post.object;
 
 import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.auth.server.User;
+import com.jumbodinosaurs.devlib.database.Identifiable;
 
 import java.util.HashMap;
 
-public class Table<E>
+public class Table<E> implements Identifiable
 {
     //Warning Don't Use Transient for Stopping data from being sent via
     // Get Tables as Gson will still send it
