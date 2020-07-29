@@ -5,12 +5,14 @@
 
 Java Based Web Server
 
-- uses netty for non io blocking connections
-- console commands
-- https connections
-- linux support
+- Netty IO
+- HTTPs Connections
+- Linux Targeted
+- Post and User Authentication
+- Console Commands
 
 ### Todos
+- Front end js api??
 - Add localHost "Support"
 - Content-Encoding Header?
 - prep for Trom-Bone Integration
