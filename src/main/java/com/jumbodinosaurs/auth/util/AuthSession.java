@@ -2,6 +2,7 @@ package com.jumbodinosaurs.auth.util;
 
 import com.jumbodinosaurs.auth.server.AuthToken;
 import com.jumbodinosaurs.auth.server.User;
+import com.jumbodinosaurs.domain.util.Domain;
 
 public class AuthSession
 {
@@ -10,6 +11,7 @@ public class AuthSession
     private boolean passwordAuth;
     private AuthToken tokenUsed;
     private FailureReasons failureCode;
+    private Domain domain;
     
     public AuthSession(User user)
     {
@@ -69,6 +71,27 @@ public class AuthSession
     @Override
     public String toString()
     {
-        return "AuthSession{" + "success=" + success + ", user=" + user + ", passwordAuth=" + passwordAuth + ", tokenUsed=" + tokenUsed + ", failureCode=" + failureCode + '}';
+        return "AuthSession{" +
+               "success=" +
+               success +
+               ", user=" +
+               user +
+               ", passwordAuth=" +
+               passwordAuth +
+               ", tokenUsed=" +
+               tokenUsed +
+               ", failureCode=" +
+               failureCode +
+               '}';
+    }
+    
+    public Domain getDomain()
+    {
+        return domain;
+    }
+    
+    public void setDomain(Domain domain)
+    {
+        this.domain = domain;
     }
 }

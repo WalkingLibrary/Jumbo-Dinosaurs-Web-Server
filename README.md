@@ -11,9 +11,8 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- Add Central CapchaToken System
-- Add PostCheck Command and Enable PostCommand?
 - Add Delete Unactivated Accounts Task
+- Add PostCheck Command and Enable PostCommand?
 - Add localHost "Support"
 - Content-Encoding Header?
 - prep for Trom-Bone Integration

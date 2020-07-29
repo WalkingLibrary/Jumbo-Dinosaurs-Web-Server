@@ -55,26 +55,26 @@ public class ChangePasswordSendCode extends PostCommand
         }
     
         //Verify Captcha code
-        if(!AuthUtil.testMode)
+    
+        try
         {
-            try
+            CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode(),
+                                                                          authSession.getDomain());
+            double captchaScore = captchaResponse.getScore();
+            boolean captchaSuccess = captchaResponse.isSuccess();
+            if(!(captchaSuccess && captchaScore > .7))
             {
-                CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode());
-                double captchaScore = captchaResponse.getScore();
-                boolean captchaSuccess = captchaResponse.isSuccess();
-                if(!(captchaSuccess && captchaScore > .7))
-                {
-                    response.setMessage409();
-                    return response;
-                }
-            }
-            catch(IOException e)
-            {
-                LogManager.consoleLogger.error(e.getMessage());
-                response.setMessage500();
+                response.setMessage409();
                 return response;
             }
         }
+        catch(IOException e)
+        {
+            LogManager.consoleLogger.error(e.getMessage());
+            response.setMessage500();
+            return response;
+        }
+    
     
         //Get the User From the AuthSession
         User user = authSession.getUser();

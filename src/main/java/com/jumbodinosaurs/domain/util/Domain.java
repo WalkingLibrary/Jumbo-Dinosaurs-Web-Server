@@ -33,12 +33,13 @@ public abstract class Domain
     
     public String getSecondLevelDomainName()
     {
+    
         String[] domains = this.domain.split("\\.");
         if(domains.length >= 2)
         {
             return domains[domains.length - 2];
         }
-        return null;
+        return domains[0];
     }
     
     public String getDomain()

@@ -158,6 +158,7 @@ public class HTTPResponseGenerator
     
             //Generate Auth Session from Post Request
             AuthSession authSession = AuthUtil.authenticateUser(request);
+            authSession.setDomain(message.getDomain());
     
             if(AuthUtil.testMode)
             {

@@ -106,31 +106,31 @@ public class CreateAccount extends PostCommand
             response.addPayload(reason.toString());
             return response;
         }
-        
-        
+    
+    
         //Verify Captcha code
-        if(!AuthUtil.testMode)
+    
+        try
         {
-            try
+            CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode(),
+                                                                          authSession.getDomain());
+            double captchaScore = captchaResponse.getScore();
+            boolean captchaSuccess = captchaResponse.isSuccess();
+            if(!(captchaSuccess && captchaScore > .7))
             {
-                CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode());
-                double captchaScore = captchaResponse.getScore();
-                boolean captchaSuccess = captchaResponse.isSuccess();
-                if(!(captchaSuccess && captchaScore > .7))
-                {
-                    response.setMessage409();
-                    return response;
-                }
-            }
-            catch(IOException e)
-            {
-                System.out.println("IO");
-                LogManager.consoleLogger.error(e.getMessage());
-                response.setMessage500();
+                response.setMessage409();
                 return response;
             }
         }
-        
+        catch(IOException e)
+        {
+            System.out.println("IO");
+            LogManager.consoleLogger.error(e.getMessage());
+            response.setMessage500();
+            return response;
+        }
+    
+    
         /* Send Activation Email
          *
          *
@@ -140,7 +140,6 @@ public class CreateAccount extends PostCommand
          *
          *
          */
-        
         
         
         //Form email with activation code

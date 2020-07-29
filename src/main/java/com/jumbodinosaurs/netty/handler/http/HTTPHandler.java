@@ -4,10 +4,7 @@ import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.log.Session;
 import com.jumbodinosaurs.netty.handler.IHandlerHolder;
 import com.jumbodinosaurs.netty.handler.http.exceptions.MalformedHTTPMessage;
-import com.jumbodinosaurs.netty.handler.http.util.HTTPMessage;
-import com.jumbodinosaurs.netty.handler.http.util.HTTPParser;
-import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.netty.handler.http.util.HTTPResponseGenerator;
+import com.jumbodinosaurs.netty.handler.http.util.*;
 import com.jumbodinosaurs.util.OptionUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -58,8 +55,11 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 if(OptionUtil.isInDebugMode())
                 {
                     //System.out.println(msg.toString());
-                    System.out.println(message.toString());
-                    System.out.println(response.toString());
+                    if(message.getMethod().equals(Method.POST))
+                    {
+                        System.out.println(message.toString());
+                        System.out.println(response.toString());
+                    }
                 }
     
                 LogManager.log(msg);

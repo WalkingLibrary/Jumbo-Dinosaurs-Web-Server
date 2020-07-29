@@ -10,11 +10,15 @@ public class ListDomains extends DomainCommand
     @Override
     public MessageResponse getExecutedMessage() throws WaveringParametersException
     {
-        for(Domain domain: DomainManager.getDomains())
+        if(DomainManager.getDomains().size() > 0)
         {
-            System.out.println("Domain: " + domain.getDomain());
+            for(Domain domain : DomainManager.getDomains())
+            {
+                System.out.println("Domain: " + domain.getDomain());
+            }
+            return new MessageResponse("These are the domains in service");
         }
-        return new MessageResponse("These are the domains in service");
+        return new MessageResponse("No Domains In service");
     }
     
     @Override

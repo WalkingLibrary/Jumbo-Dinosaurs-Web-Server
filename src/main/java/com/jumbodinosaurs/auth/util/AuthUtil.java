@@ -15,6 +15,7 @@ import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
+import com.jumbodinosaurs.domain.util.Domain;
 import com.jumbodinosaurs.util.OptionUtil;
 import com.jumbodinosaurs.util.PasswordStorage;
 
@@ -69,7 +70,7 @@ public class AuthUtil
         return password.length() <= 255;
     }
     
-    public static CaptchaResponse getCaptchaResponse(String captchaToken)
+    public static CaptchaResponse getCaptchaResponse(String captchaToken, Domain domain)
             throws IOException
     {
         if(testMode)
@@ -77,7 +78,12 @@ public class AuthUtil
             return new CaptchaResponse(true, "TESTMODE", .9, "TESTMODE");
         }
         
-        String captchaSecret = OptionUtil.getCaptchaKey().getSecretKey();
+        if(domain == null)
+        {
+            return new CaptchaResponse(false, "", .0, "null");
+        }
+        
+        String captchaSecret = domain.getCaptchaKey().getSecretKey();
         if(captchaSecret == null)
         {
             return new CaptchaResponse(false, "", .0, "null");

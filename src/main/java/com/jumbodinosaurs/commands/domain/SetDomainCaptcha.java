@@ -5,7 +5,7 @@ import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.domain.DomainManager;
-import com.jumbodinosaurs.domain.util.Domain;
+import com.jumbodinosaurs.domain.util.SecureDomain;
 
 public class SetDomainCaptcha extends DomainCommand
 {
@@ -15,8 +15,8 @@ public class SetDomainCaptcha extends DomainCommand
     {
         System.out.println("Enter the domain you'd like to Change:");
         String domain = OperatorConsole.getEnsuredAnswer();
-        
-        Domain domainToEdit = DomainManager.getDomain(domain);
+    
+        SecureDomain domainToEdit = DomainManager.getDomain(domain);
         
         if(domainToEdit == null)
         {
@@ -29,9 +29,9 @@ public class SetDomainCaptcha extends DomainCommand
         String captchaPrivateKey = OperatorConsole.getEnsuredAnswer();
         
         CaptchaKey newCaptchaKey = new CaptchaKey(captchaPublicKey, captchaPrivateKey);
-        
+    
         domainToEdit.setCaptchaKey(newCaptchaKey);
-        
+        DomainManager.updateDomain(domainToEdit);
         
         return new MessageResponse("The Captcha Key was added to " + domain);
     }

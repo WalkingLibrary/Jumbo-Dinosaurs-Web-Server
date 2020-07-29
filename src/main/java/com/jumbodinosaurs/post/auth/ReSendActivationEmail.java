@@ -54,36 +54,35 @@ public class ReSendActivationEmail extends PostCommand
             response.setMessage400();
             return response;
         }
-        
+    
         //Verify Captcha code
-        if(!AuthUtil.testMode)
+    
+        try
         {
-            try
+            CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode(),
+                                                                          authSession.getDomain());
+            double captchaScore = captchaResponse.getScore();
+            boolean captchaSuccess = captchaResponse.isSuccess();
+            if(!(captchaSuccess && captchaScore > .7))
             {
-                CaptchaResponse captchaResponse = AuthUtil.getCaptchaResponse(request.getCaptchaCode());
-                double captchaScore = captchaResponse.getScore();
-                boolean captchaSuccess = captchaResponse.isSuccess();
-                if(!(captchaSuccess && captchaScore > .7))
-                {
-                    response.setMessage409();
-                    return response;
-                }
-            }
-            catch(IOException e)
-            {
-                LogManager.consoleLogger.error(e.getMessage());
-                response.setMessage500();
+                response.setMessage409();
                 return response;
             }
         }
-        
-        
+        catch(IOException e)
+        {
+            LogManager.consoleLogger.error(e.getMessage());
+            response.setMessage500();
+            return response;
+        }
+    
+    
         //Get user From Auth Session
-        
+    
         User currentUser = authSession.getUser();
-        
-        
-        
+    
+    
+    
         /* Prepare Activation Email
          *
          *
