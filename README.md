@@ -11,7 +11,6 @@ Java Based Web Server
 - linux support
 
 ### Todos
-- Add PostCheck Command and Enable PostCommand?
 - Add localHost "Support"
 - Content-Encoding Header?
 - prep for Trom-Bone Integration
