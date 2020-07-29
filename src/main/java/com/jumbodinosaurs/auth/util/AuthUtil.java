@@ -424,4 +424,20 @@ public class AuthUtil
         }
     }
     
+    public static boolean deleteUser(int id)
+    {
+        try
+        {
+            Query deleteQuery = DataBaseUtil.getDeleteQuery(userTableName, id);
+            DataBase userDataBase = getUserDataBase();
+            DataBaseUtil.manipulateDataBase(deleteQuery, userDataBase);
+            return true;
+        }
+        catch(NoSuchDataBaseException | SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 }

@@ -2,13 +2,14 @@ package com.jumbodinosaurs.auth.server;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jumbodinosaurs.devlib.database.Identifiable;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 
-public class User
+public class User implements Identifiable
 {
     private String username;
     private String base64HashedPassword;
@@ -16,6 +17,7 @@ public class User
     private String base64Email;
     private LocalDateTime joinDate;
     private ArrayList<AuthToken> tokens = new ArrayList<AuthToken>();
+    private transient int id;
     
     
     public User(String username, String base64HashedPassword, String base64Email)
@@ -132,6 +134,34 @@ public class User
     @Override
     public String toString()
     {
-        return "User{" + "username='" + username + '\'' + ", base64HashedPassword='" + base64HashedPassword + '\'' + ", isActive=" + isActive + ", base64Email='" + base64Email + '\'' + ", joinDate=" + joinDate + ", tokens=" + tokens + '}';
+        return "User{" +
+               "username='" +
+               username +
+               '\'' +
+               ", base64HashedPassword='" +
+               base64HashedPassword +
+               '\'' +
+               ", isActive=" +
+               isActive +
+               ", base64Email='" +
+               base64Email +
+               '\'' +
+               ", joinDate=" +
+               joinDate +
+               ", tokens=" +
+               tokens +
+               '}';
+    }
+    
+    @Override
+    public int getId()
+    {
+        return id;
+    }
+    
+    @Override
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

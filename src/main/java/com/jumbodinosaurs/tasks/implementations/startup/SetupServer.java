@@ -58,11 +58,15 @@ public class SetupServer extends Task
                 task.run();
             }
         }
-        
-       
+    
+    
         ArrayList<ScheduledTask> scheduledServerTasks = TaskUtil.getScheduledTasks(ServerController.getThreadScheduler());
-        
+    
         ServerController.setScheduledServerTasks(scheduledServerTasks);
+        for(ScheduledTask scheduledTask : scheduledServerTasks)
+        {
+            scheduledTask.start();
+        }
         LogManager.consoleLogger.info("Server Setup Task Complete");
     }
 }
