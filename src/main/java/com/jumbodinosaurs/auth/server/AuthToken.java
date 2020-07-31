@@ -60,7 +60,7 @@ public class AuthToken
     public boolean hasExpired()
     {
         LocalDateTime now = LocalDateTime.now();
-        return now.isBefore(this.expirationDate);
+        return now.isAfter(this.expirationDate);
     }
     
     public String getUse()
@@ -96,6 +96,25 @@ public class AuthToken
     @Override
     public String toString()
     {
-        return "AuthToken{" + "use='" + use + '\'' + ", mintDate=" + mintDate + ", expirationDate=" + expirationDate + ", ip='" + ip + '\'' + ", base64HashedToken='" + base64HashedToken + '\'' + '}';
+        return "AuthToken{" +
+               "use='" +
+               use +
+               '\'' +
+               ", mintDate=" +
+               mintDate +
+               ", expirationDate=" +
+               expirationDate +
+               ", ip='" +
+               ip +
+               '\'' +
+               ", base64HashedToken='" +
+               base64HashedToken +
+               '\'' +
+               '}';
+    }
+    
+    public LocalDateTime getExpirationDate()
+    {
+        return expirationDate;
     }
 }

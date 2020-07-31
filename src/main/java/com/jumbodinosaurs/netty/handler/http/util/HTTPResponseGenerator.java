@@ -168,11 +168,6 @@ public class HTTPResponseGenerator
             AuthSession authSession = AuthUtil.authenticateUser(request);
             authSession.setDomain(message.getDomain());
     
-            if(AuthUtil.testMode)
-            {
-                System.out.println(authSession.toString());
-            }
-    
     
             if(!authSession.isSuccess())
             {

@@ -28,8 +28,8 @@ public class GetPublicCaptchaCode extends PostCommand
         if(request.getContent() == null)
         {
             response.setMessage400();
-            
-            System.out.println("content");
+    
+    
             return response;
         }
         
@@ -56,26 +56,25 @@ public class GetPublicCaptchaCode extends PostCommand
         {
             host = host.substring(0, host.length() - 1);
         }
-        System.out.println("HOST NOW:  " + host);
-        
+    
+    
         Domain domainSpecified = DomainManager.getDomain(host);
         
         if(domainSpecified == null)
         {
             response.setMessage400();
-            
-            System.out.println("domain");
+    
+    
             return response;
         }
         
         if(domainSpecified.getCaptchaKey() == null)
         {
             response.setMessage400();
-            
-            System.out.println("key");
+    
+    
             return response;
         }
-        System.out.println("");
         response.setMessage200();
         JsonObject captchaCodeResponse = new JsonObject();
         captchaCodeResponse.addProperty("publicCaptchaCode", domainSpecified.getCaptchaKey().getSiteKey());

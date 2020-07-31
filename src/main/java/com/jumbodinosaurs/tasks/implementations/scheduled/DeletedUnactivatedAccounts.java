@@ -82,10 +82,9 @@ public class DeletedUnactivatedAccounts extends ScheduledTask
                     if(emailToken != null && emailToken.hasExpired())
                     {
                         LogManager.consoleLogger.debug("Deleting " + user.getUsername());
-                        if(AuthUtil.deleteUser(user.getId()))
+                        if(!AuthUtil.deleteUser(user.getId()))
                         {
                             LogManager.consoleLogger.error("Error Deleting " + user.getUsername());
-                            
                         }
                     }
                 }

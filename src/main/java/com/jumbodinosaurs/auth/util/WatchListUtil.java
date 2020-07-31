@@ -35,7 +35,6 @@ public class WatchListUtil
         {
             return true;
         }
-        System.out.println("Added " + ip);
         FloatUser user = getUser(ip);
         LocalDateTime now = LocalDateTime.now();
         

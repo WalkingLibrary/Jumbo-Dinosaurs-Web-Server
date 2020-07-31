@@ -124,7 +124,6 @@ public class CreateAccount extends PostCommand
         }
         catch(IOException e)
         {
-            System.out.println("IO");
             LogManager.consoleLogger.error(e.getMessage());
             response.setMessage500();
             return response;
@@ -168,7 +167,6 @@ public class CreateAccount extends PostCommand
         }
         catch(PasswordStorage.CannotPerformOperationException e)
         {
-            System.out.println("Password");
             response.setMessage500();
             return response;
         }
@@ -195,7 +193,6 @@ public class CreateAccount extends PostCommand
         }
         catch(PasswordStorage.CannotPerformOperationException e)
         {
-            System.out.println("pass 2");
             response.setMessage500();
             return response;
         }
@@ -224,7 +221,6 @@ public class CreateAccount extends PostCommand
         //Note: We check to make sure the was added
         if(!AuthUtil.addUser(newUser))
         {
-            System.out.println("Add User");
             response.setMessage500();
             return response;
         }
