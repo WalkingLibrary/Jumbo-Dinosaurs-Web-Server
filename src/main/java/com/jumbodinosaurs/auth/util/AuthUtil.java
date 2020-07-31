@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 public class AuthUtil
 {
-    public static final boolean testMode = true;
+    public static final boolean testMode = false;
     public static final String userTableName = testMode ? "testUsers" : "users";
     public static final String emailActivationUseName = "email";
     public static final String authUseName = "auth";

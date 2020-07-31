@@ -6,7 +6,6 @@ import com.jumbodinosaurs.netty.handler.IHandlerHolder;
 import com.jumbodinosaurs.netty.handler.http.exceptions.MalformedHTTPMessage;
 import com.jumbodinosaurs.netty.handler.http.util.*;
 import com.jumbodinosaurs.util.OptionUtil;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
@@ -49,7 +48,7 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 msg.setMessageSent(response.getMessageToLog());
     
                 //Send Response
-                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                ctx.writeAndFlush(response);
     
                 /*DEBUG MESSAGES*/
                 if(OptionUtil.isInDebugMode())
