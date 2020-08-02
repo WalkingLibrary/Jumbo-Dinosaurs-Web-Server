@@ -6,14 +6,12 @@ import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
-import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -233,9 +231,9 @@ public class CreateAccount extends PostCommand
             
             try
             {
-                WebUtil.sendEmail(getServersEmail(), request.getEmail(), topic, message);
+                getServersEmail().sendEmail(request.getEmail(), topic, message);
             }
-            catch(MessagingException e)
+            catch(Exception e)
             {
                 /*
                  * If we fail to send the code to the user's email then they can request it again

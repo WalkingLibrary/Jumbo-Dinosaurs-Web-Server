@@ -64,7 +64,7 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
             }
             catch(MalformedHTTPMessage e)
             {
-                LogManager.consoleLogger.error(e.getMessage(), e);
+                LogManager.consoleLogger.debug(e.getMessage(), e);
             }
             
         }

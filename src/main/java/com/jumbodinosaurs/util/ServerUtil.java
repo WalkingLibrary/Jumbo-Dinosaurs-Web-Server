@@ -100,7 +100,11 @@ public class ServerUtil
         //DEBUG
         if(count > 1)
         {
-            LogManager.consoleLogger.warn(localPath + " was found " + count + " times in " + dirToSearch.getAbsolutePath());
+            LogManager.consoleLogger.debug(localPath +
+                                           " was found " +
+                                           count +
+                                           " times in " +
+                                           dirToSearch.getAbsolutePath());
         }
         return fileToGive;
     }

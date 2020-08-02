@@ -132,7 +132,7 @@ public class PostStatus extends Command
             }
             catch(SQLException e)
             {
-                returnMessage += "Error Querying " + dataBase.getDataBaseName() + ":\n" + e.getMessage();
+                returnMessage += "Error Querying " + dataBase.getDataBaseName() + ":\n" + e.getMessage() + "\n";
             }
         }
         

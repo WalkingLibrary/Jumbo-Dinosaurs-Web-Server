@@ -5,14 +5,12 @@ import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
-import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -149,9 +147,9 @@ public class ChangePasswordSendCode extends PostCommand
         //Send Change Password Email
         try
         {
-            WebUtil.sendEmail(getServersEmail(), user.getEmail(), topic, message);
+            getServersEmail().sendEmail(user.getEmail(), topic, message);
         }
-        catch(MessagingException e)
+        catch(Exception e)
         {
             response.setMessage500();
             return response;

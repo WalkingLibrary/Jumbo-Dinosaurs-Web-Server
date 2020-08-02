@@ -3,8 +3,10 @@ package com.jumbodinosaurs.commands.email;
 import com.jumbodinosaurs.commands.OperatorConsole;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
+import com.jumbodinosaurs.devlib.email.DefaultEmail;
 import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.devlib.email.EmailManager;
+import com.jumbodinosaurs.devlib.email.GoogleAPIEmail;
 
 public class AddEmail extends EmailCommand
 {
@@ -14,10 +16,23 @@ public class AddEmail extends EmailCommand
     {
         System.out.println("Enter Username: ");
         String username = OperatorConsole.getEnsuredAnswer();
-        System.out.println("Enter Password: ");
-        String password = OperatorConsole.getEnsuredAnswer();
-        Email email = new Email(username, password);
-        EmailManager.addEmail(email);
+        System.out.println("Is this a GoogleAPIEmail?(y/n)");
+        String isGoogleAAPEmailResponse = OperatorConsole.getEnsuredAnswer();
+        if(isGoogleAAPEmailResponse.contains("n"))
+        {
+            System.out.println("Enter Password: ");
+            String password = OperatorConsole.getEnsuredAnswer();
+            Email email = new DefaultEmail(username, password);
+            EmailManager.addEmail(email);
+            return new MessageResponse("Added " + username + " to EmailManager");
+        }
+    
+        System.out.println("Enter the Credentials Json: ");
+        String credentialsJson = OperatorConsole.getEnsuredAnswer();
+        Email googleAPIEmail = new GoogleAPIEmail(username,
+                                                  credentialsJson,
+                                                  EmailManager.getEmailMemory().getParentFile().getAbsolutePath());
+        EmailManager.addEmail(googleAPIEmail);
         return new MessageResponse("Added " + username + " to EmailManager");
     }
     

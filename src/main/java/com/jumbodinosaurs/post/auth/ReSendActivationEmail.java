@@ -6,14 +6,12 @@ import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
-import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -38,7 +36,7 @@ public class ReSendActivationEmail extends PostCommand
     
     
         // Make sure the account is not activated
-        if(!authSession.getUser().isActive())
+        if(authSession.getUser().isActive())
         {
             response.setMessage200();
             JsonObject object = new JsonObject();
@@ -54,6 +52,7 @@ public class ReSendActivationEmail extends PostCommand
             response.setMessage400();
             return response;
         }
+    
     
         //Verify Captcha code
     
@@ -140,9 +139,9 @@ public class ReSendActivationEmail extends PostCommand
             
             try
             {
-                WebUtil.sendEmail(getServersEmail(), request.getEmail(), topic, message);
+                getServersEmail().sendEmail(authSession.getUser().getEmail(), topic, message);
             }
-            catch(MessagingException e)
+            catch(Exception e)
             {
                 /*
                  * If we fail to send the code to the user's email then they can request it again
