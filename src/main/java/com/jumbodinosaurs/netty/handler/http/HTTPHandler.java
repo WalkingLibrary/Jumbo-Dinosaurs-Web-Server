@@ -1,8 +1,8 @@
 package com.jumbodinosaurs.netty.handler.http;
 
+import com.jumbodinosaurs.devlib.netty.handler.IHandlerHolder;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.log.Session;
-import com.jumbodinosaurs.netty.handler.IHandlerHolder;
 import com.jumbodinosaurs.netty.handler.http.exceptions.MalformedHTTPMessage;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPMessage;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPParser;

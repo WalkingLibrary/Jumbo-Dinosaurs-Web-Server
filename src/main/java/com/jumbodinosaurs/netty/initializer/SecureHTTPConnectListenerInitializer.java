@@ -1,10 +1,11 @@
 package com.jumbodinosaurs.netty.initializer;
 
+import com.jumbodinosaurs.devlib.netty.ConnectionListenerInitializer;
+import com.jumbodinosaurs.devlib.netty.handler.IHandlerHolder;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.exceptions.MissingCertificateException;
-import com.jumbodinosaurs.netty.handler.IHandlerHolder;
 import com.jumbodinosaurs.netty.pipline.HTTPResponseEncoder;
 import com.jumbodinosaurs.netty.pipline.SessionDecoder;
 import io.netty.channel.ChannelPipeline;

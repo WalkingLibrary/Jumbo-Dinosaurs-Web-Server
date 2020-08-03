@@ -1,13 +1,13 @@
 package com.jumbodinosaurs.tasks.implementations.scheduled;
 
+import com.jumbodinosaurs.devlib.netty.ChannelManager;
+import com.jumbodinosaurs.devlib.netty.ConnectionListenerInitializer;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.domain.DomainManager;
 import com.jumbodinosaurs.domain.util.SecureDomain;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.CertificateManager;
-import com.jumbodinosaurs.netty.ChannelManager;
 import com.jumbodinosaurs.netty.handler.http.HTTPHandler;
-import com.jumbodinosaurs.netty.initializer.ConnectionListenerInitializer;
 import com.jumbodinosaurs.netty.initializer.SecureHTTPConnectListenerInitializer;
 
 import java.io.FileInputStream;
