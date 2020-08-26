@@ -67,7 +67,7 @@ public class SolveAStar2D extends PostCommand
         hasGoalNode = false;
         for(int r = 0; r < map.length; r++)
         {
-            
+    
             //Shape
             // Needs To be square for the AStarPathBuilder to work
             if(map[r].length != map.length)
@@ -84,7 +84,7 @@ public class SolveAStar2D extends PostCommand
                     response.setMessage400();
                     return response;
                 }
-                
+    
                 /* Map Makers
                  * 0 means the cell can be traversed
                  * 1 means the cell can not be traversed
@@ -115,7 +115,7 @@ public class SolveAStar2D extends PostCommand
                     }
                     hasGoalNode = true;
                 }
-                
+    
                 //Can't have path nodes in the map to solve
                 if(map[r][c] == 4)
                 {
@@ -131,12 +131,12 @@ public class SolveAStar2D extends PostCommand
             response.setMessage400();
             return response;
         }
-        
+    
         Point2D startPoint = TwoDIntArrayAStarMap.getStartPoint(map);
         Point2D goalPoint = TwoDIntArrayAStarMap.getGoalPoint(map);
         AStarNode startNode = new AStarNode(null, startPoint, 0);
         AStarNode goalNode = new AStarNode(null, goalPoint, Double.MAX_VALUE);
-        
+    
         TwoDIntArrayAStarMap map2D = new TwoDIntArrayAStarMap(startNode, goalNode, map);
         AStarPathBuilder pathBuilder = new AStarPathBuilder(map2D)
         {
@@ -145,17 +145,17 @@ public class SolveAStar2D extends PostCommand
             {
             
             }
-            
+        
             @Override
             public void buildingLoopHookMiddle()
             {
             
             }
-            
+        
             @Override
             public void buildingLoopHookEnd()
             {
-            
+    
             }
         };
         
@@ -177,7 +177,7 @@ public class SolveAStar2D extends PostCommand
             response.setMessage500();
             return response;
         }
-        
+    
         /* Map Makers
          * 0 means the cell can be traversed
          * 1 means the cell can not be traversed
@@ -192,8 +192,6 @@ public class SolveAStar2D extends PostCommand
             pointZ = (int) point.getZ();
             map[pointX][pointZ] = 4;
         }
-        
-        
         JsonObject object = new JsonObject();
         object.addProperty("solvedMap", new Gson().toJson(aStar2DIntArrayMap));
         response.setMessage200(object.toString());
