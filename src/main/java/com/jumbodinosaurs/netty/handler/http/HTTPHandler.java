@@ -57,6 +57,10 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 if(OptionUtil.isInDebugMode())
                 {
                     System.out.println(msg.toString());
+                    if(message.getPostRequest() != null)
+                    {
+                        System.out.println(message.getPostRequest().toString());
+                    }
                     System.out.println(response.toString());
                 }
     

@@ -5,10 +5,8 @@ import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
-import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.object.*;
-import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
 
 import java.sql.SQLException;
 
@@ -44,7 +42,6 @@ public class DeleteTable extends CRUDCommand
         /* Creating and Executing Delete Queries
          *
          * Create Delete Table from Tables table Query
-         * Create Delete Query for Objects
          * Manipulate Database
          *
          *  */
@@ -53,32 +50,10 @@ public class DeleteTable extends CRUDCommand
         Query deleteTableQuery = DataBaseUtil.getDeleteQuery(CRUDUtil.tableTablesName, table.getId());
     
     
-        //Create Delete Query for Objects
-        String objectsTableName;
-        try
-        {
-            objectsTableName = CRUDUtil.getObjectSchemaTableName(CRUDUtil.getTypeToken(crudRequest.getObjectType()));
-        }
-        catch(NoSuchPostObject noSuchPostObject)
-        {
-            response.setMessage400();
-            return response;
-        }
-    
-        /*
-         * Delete all Objects from the Object Table if they belong to the table being deleted
-         *  */
-        String deleteObjectsStatement = "DELETE FROM " + objectsTableName;
-        deleteObjectsStatement += " WHERE " + CRUDUtil.objectsTableIdColumnName;
-        deleteObjectsStatement += " = " + table.getId();
-        Query removeObjectsStatement = new Query(deleteObjectsStatement);
-    
-    
         //Manipulate Database
         try
         {
             CRUDUtil.manipulateObjectDataBase(deleteTableQuery);
-        
         }
         catch(NoSuchDataBaseException e)
         {
@@ -91,6 +66,21 @@ public class DeleteTable extends CRUDCommand
             return response;
         }
     
+    
+        /* TODO Rather than remove objects based on each delete request we could schedule task
+            that would send a query that would delete all objects missing a table
+        
+        
+        
+        
+        
+         * Delete all Objects from the Object Table if they belong to the table being deleted
+         *
+        String deleteObjectsStatement = "DELETE FROM " + objectsTableName;
+        deleteObjectsStatement += " WHERE " + CRUDUtil.objectsTableIdColumnName;
+        deleteObjectsStatement += " = " + table.getId();
+        Query removeObjectsStatement = new Query(deleteObjectsStatement);
+        
         try
         {
             CRUDUtil.manipulateObjectDataBase(removeObjectsStatement);
@@ -107,7 +97,8 @@ public class DeleteTable extends CRUDCommand
             LogManager.consoleLogger.error(e.getMessage(), e);
             return response;
         }
-    
+       
+         */
     
         response.setMessage200();
         return response;

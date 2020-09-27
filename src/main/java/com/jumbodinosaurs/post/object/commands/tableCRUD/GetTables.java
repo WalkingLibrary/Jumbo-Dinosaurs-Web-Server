@@ -7,6 +7,7 @@ import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.netty.handler.http.util.ResponseHeaderUtil;
 import com.jumbodinosaurs.post.object.CRUDCommand;
 import com.jumbodinosaurs.post.object.CRUDRequest;
 import com.jumbodinosaurs.post.object.CRUDUtil;
@@ -38,8 +39,8 @@ public class GetTables extends CRUDCommand
         
         // To Allow for Public Access to Public Tables we Have to check the
         // AuthSession for success to determine if it's a "public" query or not
-        
-        boolean isPublicQuery = authSession.isSuccess();
+    
+        boolean isPublicQuery = !authSession.isSuccess();
         //Get The Tables
         ArrayList<Table> tablesToReturn;
         try
@@ -65,14 +66,13 @@ public class GetTables extends CRUDCommand
             return response;
         }
     
-        response.setMessage200();
-    
         //Add Tables returned to Response
         // NOTE: the client needs to have the ID of the Table for manipulation purposes
         // The id Field is Transient and needs to be added to the serialized JSON Objects
         //So we make a special Gson Object
+        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         Gson transientIgnorableGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE).create();
-        response.addPayload(transientIgnorableGson.toJson(tablesToReturn));
+        response.setMessage200(jsonApplicationTypeHeader, transientIgnorableGson.toJson(tablesToReturn));
         return response;
     }
     

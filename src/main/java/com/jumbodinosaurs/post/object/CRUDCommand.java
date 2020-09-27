@@ -127,7 +127,7 @@ public abstract class CRUDCommand extends PostCommand
         //Note that in GenerateHTTPResponse 'password auth needed' checks should be preformed
         if(requiresSuccessfulAuth())
         {
-            if(!authSession.getTokenUsed().getUse().equals(AuthUtil.authUseName))
+            if(authSession.getTokenUsed() != null && !authSession.getTokenUsed().getUse().equals(AuthUtil.authUseName))
             {
                 response.setMessage403();
                 return response;

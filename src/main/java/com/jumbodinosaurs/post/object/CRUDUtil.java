@@ -165,7 +165,7 @@ public class CRUDUtil
 
     public static <E> String getObjectSchemaTableName(TypeToken<E> objectType)
     {
-        return objectType.getClass().getCanonicalName();
+        return objectType.getClass().getSimpleName();
     }
 
     public static <E> TypeToken<E> getTypeToken(String objectName)
@@ -180,8 +180,8 @@ public class CRUDUtil
         }
         throw new NoSuchPostObject("No Post Object found with the name " + objectName);
     }
-
-
+    
+    
     public static boolean isValidTableDisplayName(String tableName)
     {
         if (tableName.length() > 15)

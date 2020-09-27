@@ -84,7 +84,7 @@ public class CreateTable extends CRUDCommand
         //Check/Validate Display Name
         String displayName = crudRequest.getTableName();
     
-        if(CRUDUtil.isValidTableDisplayName(displayName))
+        if(!CRUDUtil.isValidTableDisplayName(displayName))
         {
             response.setMessage409();
             JsonObject reason = new JsonObject();
@@ -138,7 +138,7 @@ public class CreateTable extends CRUDCommand
     @Override
     public boolean requiresPasswordAuth()
     {
-        return true;
+        return false;
     }
     
     @Override

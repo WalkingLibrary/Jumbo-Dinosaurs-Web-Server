@@ -96,6 +96,7 @@ public class HTTPResponse
     {
         this.messageOut = this.sC400;
         this.messageOut += this.closeHeader;
+        this.setDebug();
     }
     
     public void setMessage400(String payload)
@@ -103,12 +104,14 @@ public class HTTPResponse
         this.messageOut = this.sC400;
         this.messageOut += this.closeHeader;
         this.messageOut += payload;
+        this.setDebug();
     }
     
     public void setMessage403()
     {
         this.messageOut = this.sC403;
         this.messageOut += this.closeHeader;
+        this.setDebug();
     }
     
     //Sets the message to send as 404
@@ -125,12 +128,14 @@ public class HTTPResponse
     {
         this.messageOut = this.sC409;
         this.messageOut += this.closeHeader;
+        this.setDebug();
     }
     
     public void setMessage500()
     {
         this.messageOut = this.sC500;
         this.messageOut += this.closeHeader;
+        this.setDebug();
     }
     
     public void setMessage501()
@@ -149,6 +154,19 @@ public class HTTPResponse
         return this.messageOut.substring(0, this.messageOut.indexOf(this.closeHeader));
     }
     
+    public void setDebug()
+    {
+        /*
+         * This function is here to help debug why certain code was thrown
+         *
+         *  */
+        StackTraceElement[] element = Thread.currentThread().getStackTrace();
+        for(int i = 0; i < element.length && i < 8; i++)
+        {
+            //this.messageOut += element[i] + "\n";
+            System.out.println(element[i]);
+        }
+    }
     
     @Override
     public boolean equals(Object o)

@@ -8,6 +8,7 @@ import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.netty.handler.http.util.ResponseHeaderUtil;
 import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
 
@@ -57,10 +58,11 @@ public class GetAuthToken extends PostCommand
         
         if(AuthUtil.updateUser(authSession, currentUser))
         {
+            String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
             JsonObject object = new JsonObject();
             object.addProperty("token", token);
             object.addProperty("tokenUse", AuthUtil.authUseName);
-            response.setMessage200(object.toString());
+            response.setMessage200(jsonApplicationTypeHeader, object.toString());
             return response;
         }
         

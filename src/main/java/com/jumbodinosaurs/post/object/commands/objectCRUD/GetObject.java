@@ -30,40 +30,48 @@ public class GetObject extends CRUDCommand
          * Generate Prepared Query from Table Name, Limiter, and Attribute
          * Return Requested Objects
          *  */
-        
-        
+    
+    
         HTTPResponse response = new HTTPResponse();
-        
-        
-        //Check/Verify CRUDRequest Attributes
-        if(crudRequest.getLimiter() == null || crudRequest.getAttribute() == null)
-        {
-            response.setMessage400();
-            return response;
-        }
-        
-        
+    
+    
         //Validate Users Permissions on the Table
-
+    
+    
         Permission permissions = table.getPermissions(authSession.getUser().getUsername());
-        if (!permissions.canSearch())
+        if(!table.isPublic())
         {
-            response.setMessage403();
-            return response;
+            if(!permissions.canSearch())
+            {
+                response.setMessage403();
+                return response;
+            }
+        
+            if(!authSession.isSuccess())
+            {
+                response.setMessage403();
+                return response;
+            }
         }
-
-
+    
+    
         //Generate Prepared Query from Table Name, Limiter, and Attribute
         String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
         String statement = "SELECT * FROM " + tableToEdit;
-        statement += " WHERE JSON_EXTRACT(objectJson, ?) = ?;";
+    
+        if(crudRequest.getLimiter() != null && crudRequest.getAttribute() != null)
+        {
+            statement += " WHERE JSON_EXTRACT(objectJson, ?) = ?";
+        
+            ArrayList<String> parameters = new ArrayList<String>();
+            parameters.add(crudRequest.getAttribute());
+            parameters.add(crudRequest.getLimiter());
+        }
+        statement += ";";
+    
         Query objectQuery = new Query(statement);
-
-        ArrayList<String> parameters = new ArrayList<String>();
-        parameters.add(table.getName());
-        parameters.add(crudRequest.getAttribute());
-        parameters.add(crudRequest.getLimiter());
-
+    
+    
         ArrayList<PostObject> foundObjects;
         try
         {
@@ -100,7 +108,7 @@ public class GetObject extends CRUDCommand
     @Override
     public boolean requiresSuccessfulAuth()
     {
-        return true;
+        return false;
     }
     
     @Override
@@ -112,6 +120,6 @@ public class GetObject extends CRUDCommand
     @Override
     public boolean requiresUser()
     {
-        return true;
+        return false;
     }
 }

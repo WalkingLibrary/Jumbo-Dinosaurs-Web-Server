@@ -9,6 +9,7 @@ import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.netty.handler.http.util.ResponseHeaderUtil;
 import com.jumbodinosaurs.post.PostCommand;
 import com.jumbodinosaurs.util.PasswordStorage;
 
@@ -38,10 +39,10 @@ public class ReSendActivationEmail extends PostCommand
         // Make sure the account is not activated
         if(authSession.getUser().isActive())
         {
-            response.setMessage200();
+            String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
             JsonObject object = new JsonObject();
             object.addProperty("isActive", true);
-            response.addPayload(object.toString());
+            response.setMessage200(jsonApplicationTypeHeader, object.toString());
             return response;
         }
     
@@ -151,10 +152,10 @@ public class ReSendActivationEmail extends PostCommand
         }
     
         //Send 200 okay
-        response.setMessage200();
+        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         JsonObject object = new JsonObject();
         object.addProperty("isActive", false);
-        response.addPayload(object.toString());
+        response.setMessage200(jsonApplicationTypeHeader, object.toString());
         return response;
     }
     

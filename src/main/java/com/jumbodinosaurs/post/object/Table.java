@@ -13,7 +13,7 @@ public class Table<E> implements Identifiable
     private String name;
     private boolean isPublic;
     private String creator;
-    private TypeToken<E> objectType;
+    private transient TypeToken<E> objectType;
     private HashMap<String, Permission> permissions;
     private transient int id;
     

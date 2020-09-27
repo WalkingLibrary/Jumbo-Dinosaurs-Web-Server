@@ -88,8 +88,6 @@ public class UpdateTable extends CRUDCommand
         }
         
         
-        //Change Type to current Tables Type
-        newTable.setObjectType(table.getObjectType());
         boolean doesSomeoneHaveAdminPerms = false;
         
         HashMap<String, Permission> permissionHashMap = newTable.getPermissions();
