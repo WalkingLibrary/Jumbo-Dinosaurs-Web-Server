@@ -13,8 +13,9 @@ Java Based Web Server
 
 ### Todos
 - Front end js api??
+- GZIP?
+- ZIP Chunking
 - Add localHost "Support"
-- Content-Encoding Header?
 - prep for Trom-Bone Integration
 
 License
