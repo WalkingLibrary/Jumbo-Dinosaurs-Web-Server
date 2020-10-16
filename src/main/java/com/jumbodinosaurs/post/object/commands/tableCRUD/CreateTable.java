@@ -1,7 +1,6 @@
 package com.jumbodinosaurs.post.object.commands.tableCRUD;
 
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
@@ -12,7 +11,6 @@ import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.object.*;
-import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -72,14 +70,7 @@ public class CreateTable extends CRUDCommand
     
         /* Check/Verify CrudRequest Attributes
          * Check/Validate Display Name
-         * Get/Verify The Type of object to Store
          */
-        if(crudRequest.getObjectType() == null)
-        {
-            response.setMessage400();
-            return response;
-        }
-    
     
         //Check/Validate Display Name
         String displayName = crudRequest.getTableName();
@@ -94,20 +85,8 @@ public class CreateTable extends CRUDCommand
         }
     
     
-        // Get/Verify The Type of object to Store
-        TypeToken typeToken;
-        try
-        {
-            typeToken = CRUDUtil.getTypeToken(crudRequest.getObjectType());
-        }
-        catch(NoSuchPostObject noSuchPostObject)
-        {
-            response.setMessage400();
-            return response;
-        }
-    
         //Create the new table
-        Table newTable = new Table(displayName, false, authSession.getUser().getUsername(), typeToken);
+        Table newTable = new Table(displayName, false, authSession.getUser().getUsername());
     
         //Set the users permissions on the table
         Permission newPermissions = new Permission(true, true, true, true);

@@ -17,12 +17,11 @@ public class Table<E> implements Identifiable
     private HashMap<String, Permission> permissions;
     private transient int id;
     
-    public Table(String name, boolean isPublic, String creator, TypeToken<E> objectType)
+    public Table(String name, boolean isPublic, String creator)
     {
         this.name = name;
         this.isPublic = isPublic;
         this.creator = creator;
-        this.objectType = objectType;
         this.permissions = new HashMap<String, Permission>();
     }
     
