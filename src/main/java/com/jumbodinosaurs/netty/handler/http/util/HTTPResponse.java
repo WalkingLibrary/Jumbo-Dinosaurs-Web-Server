@@ -96,7 +96,6 @@ public class HTTPResponse
     {
         this.messageOut = this.sC400;
         this.messageOut += this.closeHeader;
-        this.setDebug();
     }
     
     public void setMessage400(String payload)
@@ -104,14 +103,12 @@ public class HTTPResponse
         this.messageOut = this.sC400;
         this.messageOut += this.closeHeader;
         this.messageOut += payload;
-        this.setDebug();
     }
     
     public void setMessage403()
     {
         this.messageOut = this.sC403;
         this.messageOut += this.closeHeader;
-        this.setDebug();
     }
     
     //Sets the message to send as 404
@@ -128,14 +125,12 @@ public class HTTPResponse
     {
         this.messageOut = this.sC409;
         this.messageOut += this.closeHeader;
-        this.setDebug();
     }
     
     public void setMessage500()
     {
         this.messageOut = this.sC500;
         this.messageOut += this.closeHeader;
-        this.setDebug();
     }
     
     public void setMessage501()
