@@ -13,6 +13,7 @@ import com.jumbodinosaurs.devlib.pathfinding.exceptions.PreMatureStopException;
 import com.jumbodinosaurs.devlib.util.objects.Point2D;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.netty.handler.http.util.ResponseHeaderUtil;
 import com.jumbodinosaurs.post.PostCommand;
 
 import java.util.ArrayList;
@@ -166,10 +167,11 @@ public class SolveAStar2D extends PostCommand
         }
         catch(NoAvailablePathException e)
         {
-            
+    
             JsonObject object = new JsonObject();
             object.addProperty("failureReason", "NoPath");
-            response.setMessage200(object.toString());
+            String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+            response.setMessage200(jsonApplicationTypeHeader, object.toString());
             return response;
         }
         catch(PreMatureStopException e)
@@ -194,7 +196,8 @@ public class SolveAStar2D extends PostCommand
         }
         JsonObject object = new JsonObject();
         object.addProperty("solvedMap", new Gson().toJson(aStar2DIntArrayMap));
-        response.setMessage200(object.toString());
+        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+        response.setMessage200(jsonApplicationTypeHeader, object.toString());
         return response;
     }
     

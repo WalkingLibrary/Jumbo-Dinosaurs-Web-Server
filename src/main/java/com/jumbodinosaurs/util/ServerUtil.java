@@ -138,6 +138,7 @@ public class ServerUtil
             FileInputStream fileInputStream = new FileInputStream(file);
             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
             bufferedInputStream.read(fileContents, 0, fileContents.length);
+            fileInputStream.close();
         }
         catch(IOException e)
         {
@@ -176,6 +177,7 @@ public class ServerUtil
             byte[] imageBytes = new byte[(int) file.length()];
             InputStream imageStream = new BufferedInputStream(new FileInputStream(file));
             imageStream.read(imageBytes, 0, imageBytes.length);
+            imageStream.close();
             return imageBytes;
         }
         catch(Exception e)
