@@ -415,7 +415,7 @@ public class AuthUtil
         {
             Query updateQuery = DataBaseUtil.getUpdateObjectQuery(userTableName, authSession.getUser(), newUserInfo);
             DataBase userDataBase = getUserDataBase();
-            DataBaseUtil.queryDataBase(updateQuery, userDataBase);
+            DataBaseUtil.manipulateDataBase(updateQuery, userDataBase);
             return true;
         }
         catch(NoSuchDataBaseException | SQLException e)

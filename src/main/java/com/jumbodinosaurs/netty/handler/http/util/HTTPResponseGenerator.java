@@ -186,10 +186,12 @@ public class HTTPResponseGenerator
                 if(authSession.getFailureCode().equals(FailureReasons.INCORRECT_PASSWORD) ||
                    authSession.getFailureCode().equals(FailureReasons.INCORRECT_TOKEN))
                 {
+    
                     WatchListUtil.strikeUser(message.getIp());
                     HTTPResponse response = new HTTPResponse();
                     response.setMessage403();
                     return response;
+    
                 }
             }
             

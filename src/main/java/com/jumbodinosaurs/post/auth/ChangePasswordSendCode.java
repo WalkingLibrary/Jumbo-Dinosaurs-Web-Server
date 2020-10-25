@@ -127,7 +127,7 @@ public class ChangePasswordSendCode extends PostCommand
         updatedUser.setToken(changePasswordToken);
         
         //Update the user in the DataBase
-        if(AuthUtil.updateUser(authSession, updatedUser))
+        if(!AuthUtil.updateUserNoAuthCheck(authSession, updatedUser))
         {
             response.setMessage500();
             return response;
@@ -135,15 +135,13 @@ public class ChangePasswordSendCode extends PostCommand
     
     
         //Prepare Email with Instructions
-        
+    
         //This code is specific for jumbodinosaurs.com
-        String topic = "Change Password";
-        String message = "Here is the code needed to change your password on your Jumbo Dinosaurs Account\n";
-        message += "Code: " + token + "\n";
-        message += "Enter it at the link below to change your password\n";
-        message += "https://jumbodinosaurs.com/changePassword.html";
-        
-        
+        String topic = "Password Change";
+        String message = "Here is the token needed to change your password on your Jumbo Dinosaurs Account\n";
+        message += "Code: \n\n    " + token + "\n";
+    
+    
         //Send Change Password Email
         try
         {

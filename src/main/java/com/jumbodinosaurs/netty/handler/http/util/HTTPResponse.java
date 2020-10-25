@@ -96,6 +96,7 @@ public class HTTPResponse
     {
         this.messageOut = this.sC400;
         this.messageOut += this.closeHeader;
+    
     }
     
     public void setMessage400(String payload)
