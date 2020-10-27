@@ -11,8 +11,8 @@ import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
+import com.jumbodinosaurs.post.object.exceptions.NoSuchObjectException;
 import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
-import com.jumbodinosaurs.post.object.exceptions.NoSuchTableException;
 import com.jumbodinosaurs.util.OptionUtil;
 
 import java.sql.SQLException;
@@ -23,39 +23,63 @@ public class CRUDUtil
     //The name for the table that holds table information
     public static String tableTablesName = "tables";
     public static String objectsTableIdColumnName = "tableId";
-
-
-    //TABLE CRUD
-
-
-    public static Table getTable(int id)
-            throws NoSuchTableException, SQLException, WrongStorageFormatException, NoSuchDataBaseException
+    private static ArrayList<Class> postObjectClasses = ReflectionUtil.getSubClasses(PostObject.class);
+    
+    
+    public static PostObject getObject(int id, TypeToken<PostObject> typeToken)
+            throws NoSuchObjectException, NoSuchDataBaseException, SQLException, WrongStorageFormatException
     {
-
+        String tableName = getObjectSchemaTableName(typeToken);
+        String statement = "SELECT * FROM " + tableName;
+        statement += " WHERE id=?;";
+        Query query = new Query(statement);
+        ArrayList<String> parameters = new ArrayList<String>();
+        parameters.add("" + id);
+        query.setParameters(parameters);
+        
+        ArrayList<PostObject> objectList = DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), typeToken);
+        
+        if(objectList.size() > 1)
+        {
+            throw new IllegalStateException("More than one Object in " + tableName + " with ID " + id);
+        }
+        
+        if(objectList.size() <= 0)
+        {
+            throw new NoSuchObjectException("No PostObject with the ID " + id + " in " + tableName);
+        }
+        
+        return objectList.get(0);
+    }
+    
+    //TABLE CRUD
+    public static Table getTable(int id)
+            throws NoSuchObjectException, SQLException, WrongStorageFormatException, NoSuchDataBaseException
+    {
+        
         String statement = "SELECT * FROM " + tableTablesName;
         statement += " WHERE id =?;";
         Query query = new Query(statement);
         ArrayList<String> parameters = new ArrayList<String>();
         parameters.add("" + id);
         query.setParameters(parameters);
-        ArrayList<Table> tables;
-
-        tables = DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), new TypeToken<Table>()
-        {
-        });
-
-
-        if (tables.size() > 1)
+        ArrayList<Table> tablesList;
+        
+        tablesList = DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), new TypeToken<Table>()
+        {});
+        
+        
+        if(tablesList.size() > 1)
         {
             throw new IllegalStateException("More than one Table with ID " + id);
         }
-
-        if (tables.size() == 0)
+        
+        if(tablesList.size() <= 0)
         {
-            throw new NoSuchTableException("No Table with the ID " + id);
+            throw new NoSuchObjectException("No Table with the ID " + id);
         }
-        Table requestedTable = tables.get(0);
-        return requestedTable;
+        
+        return tablesList.get(0);
     }
 
     public static ArrayList<Table> getTables(String userName)
@@ -155,25 +179,30 @@ public class CRUDUtil
     {
         return DataBaseManager.getDataBase(OptionUtil.getServersDataBaseName());
     }
-
-
+    
+    
     public static void manipulateObjectDataBase(Query query)
             throws NoSuchDataBaseException, SQLException
     {
         DataBaseUtil.manipulateDataBase(query, getObjectDataBase());
     }
-
+    
     public static <E> String getObjectSchemaTableName(TypeToken<E> objectType)
     {
-        return objectType.getClass().getSimpleName();
+        return getObjectSchemaTableName(objectType.getRawType());
     }
-
+    
+    public static <E> String getObjectSchemaTableName(Class clazz)
+    {
+        return clazz.getSimpleName();
+    }
+    
     public static <E> TypeToken<E> getTypeToken(String objectName)
             throws NoSuchPostObject
     {
-        for (Class postObject : ReflectionUtil.getSubClasses(PostObject.class))
+        for(Class<E> postObject : postObjectClasses)
         {
-            if (postObject.getSimpleName().equals(objectName))
+            if(postObject.getSimpleName().equals(objectName))
             {
                 return TypeToken.get(postObject);
             }
@@ -193,17 +222,21 @@ public class CRUDUtil
         {
             return false;
         }
-
+    
         char[] usernameArray = tableName.toCharArray();
-        for (int i = 0; i < usernameArray.length; i++)
+        for(int i = 0; i < usernameArray.length; i++)
         {
-            if (!AuthUtil.generalWhiteListedCharacters.contains("" + usernameArray[i]))
+            if(!AuthUtil.generalWhiteListedCharacters.contains("" + usernameArray[i]))
             {
                 return false;
             }
         }
         return true;
     }
-
-
+    
+    
+    public static ArrayList<Class> getPostObjectClasses()
+    {
+        return postObjectClasses;
+    }
 }

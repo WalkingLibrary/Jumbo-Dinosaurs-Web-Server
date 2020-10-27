@@ -2,6 +2,7 @@ package com.jumbodinosaurs.post.object;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.auth.util.AuthUtil;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
@@ -9,7 +10,8 @@ import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.PostCommand;
-import com.jumbodinosaurs.post.object.exceptions.NoSuchTableException;
+import com.jumbodinosaurs.post.object.exceptions.NoSuchObjectException;
+import com.jumbodinosaurs.post.object.exceptions.NoSuchPostObject;
 
 import java.sql.SQLException;
 
@@ -51,7 +53,7 @@ public abstract class CRUDCommand extends PostCommand
         
         //Check/Verify CRUDRequest Attributes
         String content = request.getContent();
-        
+    
         CRUDRequest crudRequest;
         try
         {
@@ -61,6 +63,25 @@ public abstract class CRUDCommand extends PostCommand
         {
             response.setMessage400();
             return response;
+        }
+    
+        //TypeToken Checking
+        /* Checking/Verifying the Object Type Given here allows following crud commands
+         * to only check for if the object type given is null and then assume type tokens
+         * from the crud request
+         */
+        if(crudRequest.getObjectType() != null)
+        {
+            try
+            {
+                TypeToken typeToken = CRUDUtil.getTypeToken(crudRequest.getObjectType());
+                crudRequest.setTypeToken(typeToken);
+            }
+            catch(NoSuchPostObject e)
+            {
+                response.setMessage400();
+                return response;
+            }
         }
     
     
@@ -95,7 +116,7 @@ public abstract class CRUDCommand extends PostCommand
             response.setMessage500();
             return response;
         }
-        catch(NoSuchTableException e)
+        catch(NoSuchObjectException e)
         {
             response.setMessage400();
             JsonObject object = new JsonObject();

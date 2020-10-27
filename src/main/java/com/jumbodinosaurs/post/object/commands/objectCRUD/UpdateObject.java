@@ -6,9 +6,11 @@ import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
+import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.post.object.*;
+import com.jumbodinosaurs.post.object.exceptions.NoSuchObjectException;
 
 import java.sql.SQLException;
 
@@ -20,9 +22,9 @@ public class UpdateObject extends CRUDCommand
                                     CRUDRequest crudRequest,
                                     Table table)
     {
-        
+    
         /*
-         * Process for Getting Objects from a Table
+         * Process for Updating Objects from a Table
          *
          * Check/Verify CRUDRequest Attributes
          * Validate Users Permissions on the Table
@@ -31,62 +33,92 @@ public class UpdateObject extends CRUDCommand
          * Create Update Query
          * Update the DataBase
          *  */
-        
+    
         HTTPResponse response = new HTTPResponse();
-        
+    
         //Check/Verify CRUDRequest Attributes
-        if(crudRequest.getObject() == null || crudRequest.getLimiter() == null)
+        if(crudRequest.getObjectType() == null || crudRequest.getObject() == null)
         {
             response.setMessage400();
             return response;
         }
-        
-        
+    
+        PostObject oldObject;
+    
+        try
+        {
+            oldObject = CRUDUtil.getObject(crudRequest.getObjectID(), crudRequest.getTypeToken());
+        }
+        catch(NoSuchObjectException e)
+        {
+            response.setMessage400();
+            return response;
+        }
+        catch(NoSuchDataBaseException | SQLException | WrongStorageFormatException e)
+        {
+            response.setMessage500();
+            return response;
+        }
+    
+        Table tableToCheck;
+    
+        try
+        {
+            tableToCheck = CRUDUtil.getTable(oldObject.getTableID());
+        }
+        catch(NoSuchObjectException e)
+        {
+            response.setMessage400();
+            return response;
+        }
+        catch(NoSuchDataBaseException | SQLException | WrongStorageFormatException e)
+        {
+            response.setMessage500();
+            return response;
+        }
         //Validate Users Permissions on the Table
-        Permission usersPermissions = table.getPermissions(authSession.getUser().getUsername());
+        Permission usersPermissions = tableToCheck.getPermissions(authSession.getUser().getUsername());
         if(!usersPermissions.canAdd() || !usersPermissions.canRemove())
         {
             response.setMessage403();
             return response;
         }
-        
-        
-        //Parse new and Old Object from Limiter and Object
-        //Note: the new Object should be in the Object Attribute and the Old Object in the Limiter Attribute
-        
-        PostObject oldObject, newObject;
+    
+    
+        //Parse the new Object
+    
+        PostObject newObject;
         
         try
         {
-            oldObject = new Gson().fromJson(crudRequest.getLimiter(), table.getObjectType().getType());
-            newObject = new Gson().fromJson(crudRequest.getObject(), table.getObjectType().getType());
+            newObject = new Gson().fromJson(crudRequest.getObject(), crudRequest.getTypeToken().getType());
         }
         catch(JsonSyntaxException e)
         {
             response.setMessage500();
             return response;
         }
-
-
+    
+    
         //Validate new and old Objects
-        if (!oldObject.isValidObject() || !newObject.isValidObject())
+        if(!newObject.isValidObject())
         {
             response.setMessage400();
             return response;
         }
-
-
+    
+    
         //Create Update Query
-        String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
-        Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableToEdit, oldObject, newObject);
-
-
+        String tableToEdit = CRUDUtil.getObjectSchemaTableName(crudRequest.getTypeToken());
+        Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableToEdit, newObject, crudRequest.getObjectID());
+    
+    
         //Update the DataBase
         try
         {
             CRUDUtil.manipulateObjectDataBase(updateQuery);
         }
-        catch (NoSuchDataBaseException e)
+        catch(NoSuchDataBaseException e)
         {
             response.setMessage501();
             return response;
@@ -105,7 +137,7 @@ public class UpdateObject extends CRUDCommand
     @Override
     public boolean requiresTable()
     {
-        return true;
+        return false;
     }
     
     @Override

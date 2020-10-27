@@ -1,9 +1,13 @@
 package com.jumbodinosaurs.post.object;
 
-public abstract class PostObject
+import com.jumbodinosaurs.devlib.database.Identifiable;
+
+public abstract class PostObject implements Identifiable
 {
+    private transient int id;
     private String user;
-    private String table;
+    private int tableID;
+    
     
     public abstract boolean isValidObject();
     
@@ -17,13 +21,25 @@ public abstract class PostObject
         this.user = user;
     }
     
-    public String getTable()
+    @Override
+    public int getId()
     {
-        return table;
+        return id;
     }
     
-    public void setTable(String table)
+    @Override
+    public void setId(int id)
     {
-        this.table = table;
+        this.id = id;
+    }
+    
+    public int getTableID()
+    {
+        return tableID;
+    }
+    
+    public void setTableID(int tableID)
+    {
+        this.tableID = tableID;
     }
 }

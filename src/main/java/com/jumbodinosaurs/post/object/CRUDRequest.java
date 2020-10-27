@@ -1,7 +1,10 @@
 package com.jumbodinosaurs.post.object;
 
-public class CRUDRequest
+import com.google.gson.reflect.TypeToken;
+
+public class CRUDRequest<E>
 {
+    private transient TypeToken<E> typeToken;
     private String tableName;
     private String objectType;
     private String object;
@@ -78,5 +81,15 @@ public class CRUDRequest
     public void setObjectID(int objectID)
     {
         this.objectID = objectID;
+    }
+    
+    public TypeToken<E> getTypeToken()
+    {
+        return typeToken;
+    }
+    
+    public void setTypeToken(TypeToken<E> typeToken)
+    {
+        this.typeToken = typeToken;
     }
 }

@@ -5,16 +5,13 @@ import com.jumbodinosaurs.devlib.database.DataBaseManager;
 import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
-import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.task.Phase;
 import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.log.LogManager;
 import com.jumbodinosaurs.post.object.CRUDUtil;
-import com.jumbodinosaurs.post.object.PostObject;
 import com.jumbodinosaurs.util.OptionUtil;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class CreateObjectTables extends StartUpTask
 {
@@ -34,7 +31,7 @@ public class CreateObjectTables extends StartUpTask
          *
          *
          *  */
-        ArrayList<Class> postObjects = ReflectionUtil.getSubClasses(PostObject.class);
+    
         try
         {
             //Get/Check for Server DataBase
@@ -62,13 +59,13 @@ public class CreateObjectTables extends StartUpTask
             {
                 LogManager.consoleLogger.error(e.getMessage());
             }
-            
-            
+    
             //Create a table for each PostObject
-            for(Class clazz : postObjects)
+    
+            for(Class clazz : CRUDUtil.getPostObjectClasses())
             {
-                
-                String createTableStatement = String.format(statement, clazz.getSimpleName());
+                String tableName = CRUDUtil.getObjectSchemaTableName(clazz);
+                String createTableStatement = String.format(statement, tableName);
                 Query query = new Query(createTableStatement);
                 try
                 {

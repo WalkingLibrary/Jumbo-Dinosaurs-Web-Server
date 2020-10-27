@@ -1,6 +1,5 @@
 package com.jumbodinosaurs.post.object;
 
-import com.google.gson.reflect.TypeToken;
 import com.jumbodinosaurs.auth.server.User;
 import com.jumbodinosaurs.devlib.database.Identifiable;
 
@@ -13,7 +12,6 @@ public class Table<E> implements Identifiable
     private String name;
     private boolean isPublic;
     private String creator;
-    private transient TypeToken<E> objectType;
     private HashMap<String, Permission> permissions;
     private transient int id;
     
@@ -56,15 +54,6 @@ public class Table<E> implements Identifiable
         this.name = name;
     }
     
-    public TypeToken<E> getObjectType()
-    {
-        return objectType;
-    }
-    
-    public void setObjectType(TypeToken<E> objectType)
-    {
-        this.objectType = objectType;
-    }
     
     public String getCreator()
     {

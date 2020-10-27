@@ -3,17 +3,20 @@ package com.jumbodinosaurs.post.object.commands.objectCRUD;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jumbodinosaurs.auth.util.AuthSession;
+import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.netty.handler.http.util.ResponseHeaderUtil;
 import com.jumbodinosaurs.post.object.*;
 
+import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class GetObject extends CRUDCommand
+public class GetObjects extends CRUDCommand
 {
     
     @Override
@@ -30,52 +33,73 @@ public class GetObject extends CRUDCommand
          * Generate Prepared Query from Table Name, Limiter, and Attribute
          * Return Requested Objects
          *  */
-    
-    
+        
+        
         HTTPResponse response = new HTTPResponse();
-    
-    
+        
+        //Check/Verify CRUDRequest Attributes
+        
+        if(crudRequest.getObjectType() == null)
+        {
+            response.setMessage400();
+            return response;
+        }
+        
         //Validate Users Permissions on the Table
-    
-    
-        Permission permissions = table.getPermissions(authSession.getUser().getUsername());
+        
+        Permission permissions = null;
+        if(authSession.getUser() != null)
+        {
+            permissions = table.getPermissions(authSession.getUser().getUsername());
+        }
+        
         if(!table.isPublic())
         {
+            if(permissions == null)
+            {
+                response.setMessage403();
+                return response;
+            }
+            
             if(!permissions.canSearch())
             {
                 response.setMessage403();
                 return response;
             }
-        
+            
             if(!authSession.isSuccess())
             {
                 response.setMessage403();
                 return response;
             }
         }
-    
-    
+        
         //Generate Prepared Query from Table Name, Limiter, and Attribute
-        String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
-        String statement = "SELECT * FROM " + tableToEdit;
-    
+        String tableToSearch = CRUDUtil.getObjectSchemaTableName(crudRequest.getTypeToken());
+        
+        String statement = "SELECT * FROM " + tableToSearch;
+        ArrayList<String> parameters = new ArrayList<String>();
+        statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", ?) = ?";
+        parameters.add("$.tableID");
+        parameters.add("" + table.getId());
+        
         if(crudRequest.getLimiter() != null && crudRequest.getAttribute() != null)
         {
-            statement += " WHERE JSON_EXTRACT(objectJson, ?) = ?";
-        
-            ArrayList<String> parameters = new ArrayList<String>();
+            statement += " && JSON_EXTRACT(objectJson, ?) = ?";
             parameters.add(crudRequest.getAttribute());
             parameters.add(crudRequest.getLimiter());
         }
+        
         statement += ";";
-    
+        
         Query objectQuery = new Query(statement);
-    
-    
+        objectQuery.setParameters(parameters);
+        
         ArrayList<PostObject> foundObjects;
+        
         try
         {
-            foundObjects = CRUDUtil.getObjects(objectQuery, table.getObjectType());
+            foundObjects = CRUDUtil.getObjects(objectQuery, crudRequest.getTypeToken());
         }
         catch(NoSuchDataBaseException e)
         {
@@ -84,19 +108,22 @@ public class GetObject extends CRUDCommand
         }
         catch(SQLException | WrongStorageFormatException e)
         {
+            e.printStackTrace();
             response.setMessage500();
             return response;
         }
         
-        response.setMessage200();
-        
         //By default Json escapes HTML
-        //static final boolean DEFAULT_ESCAPE_HTML = true;
-        
-        Gson sanitizer = new GsonBuilder().create();
-        response.addPayload(sanitizer.toJson(foundObjects));
-        
+        // static final boolean DEFAULT_ESCAPE_HTML = true;
+        // NOTE: the client needs to have the ID of the Objects for manipulation purposes
+        // The id Field is Transient and needs to be added to the serialized JSON Objects
+        //So we make a special Gson Object
+        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+        Gson transientIgnorableGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE).create();
+        response.setMessage200(jsonApplicationTypeHeader, transientIgnorableGson.toJson(foundObjects));
         return response;
+        
+        
     }
     
     @Override

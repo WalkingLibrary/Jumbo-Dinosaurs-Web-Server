@@ -1,7 +1,5 @@
 package com.jumbodinosaurs.post.object.commands.objectCRUD;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.jumbodinosaurs.auth.util.AuthSession;
 import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
@@ -25,8 +23,6 @@ public class DeleteObject extends CRUDCommand
          *
          * Check/Verify CRUDRequest Attributes
          * Validate Users Permissions on the Table
-         * Parse Object
-         * Validate Object
          * Prepare Query
          * Remove object by id
          *  */
@@ -35,12 +31,13 @@ public class DeleteObject extends CRUDCommand
         
         
         //Check/Verify CRUDRequest Attributes
-        if(crudRequest.getObject() == null)
+        if(crudRequest.getObjectType() == null)
         {
             response.setMessage400();
             return response;
         }
-        
+    
+    
         //Validate Users Permissions on the Table
         Permission permissions = table.getPermissions(authSession.getUser().getUsername());
         if(!permissions.canRemove())
@@ -48,38 +45,17 @@ public class DeleteObject extends CRUDCommand
             response.setMessage403();
             return response;
         }
-        
-        
-        // Parse Object
-        PostObject objectToDelete;
-        
-        try
-        {
-            objectToDelete = new Gson().fromJson(crudRequest.getObject(), table.getObjectType().getType());
-        }
-        catch(JsonSyntaxException e)
-        {
-            response.setMessage400();
-            return response;
-        }
-
-
-        // Validate Object
-        if (!objectToDelete.isValidObject())
-        {
-            response.setMessage400();
-            return response;
-        }
-
+    
+    
         //Prepare Query
-        String tableToEdit = CRUDUtil.getObjectSchemaTableName(table.getObjectType());
-        Query deleteQuery = DataBaseUtil.getDeleteQuery(tableToEdit, objectToDelete);
-
+        String tableToEdit = CRUDUtil.getObjectSchemaTableName(crudRequest.getTypeToken());
+        Query deleteQuery = DataBaseUtil.getDeleteQuery(tableToEdit, crudRequest.getObjectID());
+    
         try
         {
             CRUDUtil.manipulateObjectDataBase(deleteQuery);
         }
-        catch (NoSuchDataBaseException e)
+        catch(NoSuchDataBaseException e)
         {
             response.setMessage501();
             return response;
