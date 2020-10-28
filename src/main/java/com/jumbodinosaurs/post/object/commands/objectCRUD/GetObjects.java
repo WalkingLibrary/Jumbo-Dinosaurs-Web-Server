@@ -73,25 +73,28 @@ public class GetObjects extends CRUDCommand
                 return response;
             }
         }
-        
+    
         //Generate Prepared Query from Table Name, Limiter, and Attribute
         String tableToSearch = CRUDUtil.getObjectSchemaTableName(crudRequest.getTypeToken());
-        
+    
         String statement = "SELECT * FROM " + tableToSearch;
+        statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", ?) LIKE ?";
+    
         ArrayList<String> parameters = new ArrayList<String>();
-        statement += " WHERE JSON_EXTRACT(" + DataBaseUtil.objectColumnName + ", ?) = ?";
         parameters.add("$.tableID");
         parameters.add("" + table.getId());
-        
+    
+        System.out.println(statement);
+    
         if(crudRequest.getLimiter() != null && crudRequest.getAttribute() != null)
         {
             statement += " && JSON_EXTRACT(objectJson, ?) = ?";
             parameters.add(crudRequest.getAttribute());
             parameters.add(crudRequest.getLimiter());
         }
-        
+    
         statement += ";";
-        
+    
         Query objectQuery = new Query(statement);
         objectQuery.setParameters(parameters);
         
@@ -100,6 +103,7 @@ public class GetObjects extends CRUDCommand
         try
         {
             foundObjects = CRUDUtil.getObjects(objectQuery, crudRequest.getTypeToken());
+            System.out.println(objectQuery.getResultSet().toString());
         }
         catch(NoSuchDataBaseException e)
         {
@@ -118,8 +122,8 @@ public class GetObjects extends CRUDCommand
         // NOTE: the client needs to have the ID of the Objects for manipulation purposes
         // The id Field is Transient and needs to be added to the serialized JSON Objects
         //So we make a special Gson Object
-        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         Gson transientIgnorableGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE).create();
+        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         response.setMessage200(jsonApplicationTypeHeader, transientIgnorableGson.toJson(foundObjects));
         return response;
         

@@ -68,8 +68,16 @@ public class AddObject extends CRUDCommand
         String requestJson = crudRequest.getObject();
     
         PostObject objectToPost;
-        objectToPost = new Gson().fromJson(requestJson, crudRequest.getTypeToken().getType());
-    
+        try
+        {
+            objectToPost = new Gson().fromJson(requestJson, crudRequest.getTypeToken().getType());
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            response.setMessage400();
+            return response;
+        }
     
         if(!objectToPost.isValidObject())
         {
@@ -81,7 +89,7 @@ public class AddObject extends CRUDCommand
     
         //Add the objects to the DataBase
         String tableToEdit = CRUDUtil.getObjectSchemaTableName(crudRequest.getTypeToken());
-        Query insertQuery = CRUDUtil.getObjectInsertQuery(tableToEdit, objectToPost, table.getId());
+        Query insertQuery = CRUDUtil.getObjectInsertQuery(tableToEdit, objectToPost);
     
         try
         {
@@ -94,6 +102,7 @@ public class AddObject extends CRUDCommand
         }
         catch(SQLException e)
         {
+            e.printStackTrace();
             response.setMessage500();
             return response;
         }

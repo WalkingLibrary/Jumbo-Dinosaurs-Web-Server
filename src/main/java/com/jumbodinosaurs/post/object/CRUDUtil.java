@@ -148,25 +148,23 @@ public class CRUDUtil
 
 
     //OBJECT CRUD
-    public static ArrayList<PostObject> getObjects(Query query, TypeToken typeToken)
+    public static <E> ArrayList<E> getObjects(Query query, TypeToken<E> typeToken)
             throws NoSuchDataBaseException, SQLException, WrongStorageFormatException
     {
         return DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), typeToken);
     }
-
-    public static <E> Query getObjectInsertQuery(String table, E object, int tableID)
+    
+    public static <E> Query getObjectInsertQuery(String table, E object)
     {
         //https://github.com/google/gson/issues/203
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         String objectJson = gson.toJson(object);
-        String statement = "INSERT INTO " + table + " (" + DataBaseUtil.objectColumnName + ", " +
-                objectsTableIdColumnName + ") VALUES(?, ?);";
-
+        String statement = "INSERT INTO " + table + " (" + DataBaseUtil.objectColumnName + ") VALUES( ?);";
+        
         Query query = new Query(statement);
-
+        
         ArrayList<String> parameters = new ArrayList<String>();
         parameters.add(objectJson);
-        parameters.add(tableID + "");
         query.setParameters(parameters);
 
         return query;
