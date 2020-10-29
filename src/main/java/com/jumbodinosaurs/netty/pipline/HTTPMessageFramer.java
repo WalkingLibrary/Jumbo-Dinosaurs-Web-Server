@@ -20,22 +20,8 @@ public class HTTPMessageFramer extends StringDecoder
         //Add Futures to close the connection when the bytes are sent
         promise.addListener(new CompletionFuture());
         promise.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-        setDebug();
     }
     
-    public static void setDebug()
-    {
-        /*
-         * This function is here to help debug why certain code was thrown
-         *
-         *  */
-        StackTraceElement[] element = Thread.currentThread().getStackTrace();
-        for(int i = 0; i < element.length && i < 8; i++)
-        {
-            //this.messageOut += element[i] + "\n";
-            System.out.println(element[i]);
-        }
-    }
     
     @Override
     protected void decode(ChannelHandlerContext context, ByteBuf input, List<Object> out)
