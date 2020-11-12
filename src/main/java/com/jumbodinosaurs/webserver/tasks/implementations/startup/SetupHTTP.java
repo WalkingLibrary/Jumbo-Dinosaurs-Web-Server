@@ -1,11 +1,11 @@
 package com.jumbodinosaurs.webserver.tasks.implementations.startup;
 
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.netty.ChannelManager;
 import com.jumbodinosaurs.devlib.task.Phase;
 import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.webserver.domain.DomainManager;
 import com.jumbodinosaurs.webserver.domain.util.SecureDomain;
-import com.jumbodinosaurs.webserver.log.LogManager;
 import com.jumbodinosaurs.webserver.netty.handler.http.HTTPHandler;
 import com.jumbodinosaurs.webserver.netty.initializer.DefaultHTTPConnectListenerInitializer;
 import com.jumbodinosaurs.webserver.netty.initializer.SecureHTTPConnectListenerInitializer;

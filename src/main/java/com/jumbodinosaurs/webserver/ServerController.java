@@ -1,11 +1,11 @@
 package com.jumbodinosaurs.webserver;
 
 
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
-import com.jumbodinosaurs.webserver.log.LogManager;
 import com.jumbodinosaurs.webserver.tasks.implementations.startup.SetupServer;
 
 import java.util.ArrayList;

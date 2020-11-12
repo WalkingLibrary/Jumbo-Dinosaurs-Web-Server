@@ -1,8 +1,9 @@
 package com.jumbodinosaurs.webserver.netty.handler.http;
 
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.netty.handler.IHandlerHolder;
-import com.jumbodinosaurs.webserver.log.LogManager;
 import com.jumbodinosaurs.webserver.log.Session;
+import com.jumbodinosaurs.webserver.log.SessionLogManager;
 import com.jumbodinosaurs.webserver.netty.handler.http.exceptions.MalformedHTTPMessage;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPMessage;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPParser;
@@ -64,7 +65,7 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                     System.out.println(response.toString());
                 }
     
-                LogManager.log(msg);
+                SessionLogManager.log(msg);
             }
             catch(MalformedHTTPMessage e)
             {

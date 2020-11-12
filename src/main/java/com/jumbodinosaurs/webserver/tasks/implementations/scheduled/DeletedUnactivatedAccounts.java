@@ -7,11 +7,11 @@ import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException;
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.webserver.auth.server.AuthToken;
 import com.jumbodinosaurs.webserver.auth.server.User;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
-import com.jumbodinosaurs.webserver.log.LogManager;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
 
 import java.sql.SQLException;

@@ -1,12 +1,12 @@
 package com.jumbodinosaurs.webserver.tasks.implementations.scheduled;
 
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
 import com.jumbodinosaurs.webserver.domain.DomainManager;
 import com.jumbodinosaurs.webserver.domain.util.Domain;
 import com.jumbodinosaurs.webserver.domain.util.UpdatableDomain;
-import com.jumbodinosaurs.webserver.log.LogManager;
 import sun.misc.BASE64Encoder;
 
 import javax.net.ssl.HttpsURLConnection;

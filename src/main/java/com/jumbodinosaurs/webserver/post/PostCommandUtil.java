@@ -1,7 +1,7 @@
 package com.jumbodinosaurs.webserver.post;
 
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
-import com.jumbodinosaurs.webserver.log.LogManager;
 import com.jumbodinosaurs.webserver.post.exceptions.NoSuchPostCommand;
 
 import java.util.ArrayList;

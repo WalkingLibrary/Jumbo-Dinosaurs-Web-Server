@@ -1,13 +1,13 @@
 package com.jumbodinosaurs.webserver.post.auth;
 
 import com.google.gson.JsonObject;
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.server.AuthToken;
 import com.jumbodinosaurs.webserver.auth.server.User;
 import com.jumbodinosaurs.webserver.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
-import com.jumbodinosaurs.webserver.log.LogManager;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 import com.jumbodinosaurs.webserver.util.PasswordStorage;

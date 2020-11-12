@@ -1,33 +1,8 @@
 <configuration debug="false">
     <property name="LOG_DIR" value="Server Data/Log"/>
-    <property name="LOG_FILE_CONSOLE" value="consoleLogFile"/>
     <property name="LOG_FILE_SESSION" value="sessionLogFile"/>
 
-
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-                <level>INFO</level>
-            </filter>
-        <encoder>
-            <pattern> [%d{MM/dd/YYYY HH:mm:ss.SSS}] %-5level: %msg%n </pattern>
-        </encoder>
-    </appender>
-
-
-    <appender name="FILE_CONSOLE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/${LOG_DIR}/Console Logs/${LOG_FILE_CONSOLE}.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
-            <fileNamePattern>${user.dir}/${LOG_DIR}/Console Logs/${LOG_FILE_CONSOLE}.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- keep 60 days' worth of history capped at 10MB total size -->
-            <maxHistory>60</maxHistory>
-            <totalSizeCap>10GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>[%d{MM/dd/YYYY HH:mm:ss.SSS}] [%thread] %-5level: %msg%n</pattern>
-        </encoder>
-    </appender>
-
+    <include resource="devLibLogbackConfig.xml"/>
 
     <appender name="FILE_SESSION" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/${LOG_DIR}/Session Logs/${LOG_FILE_SESSION}.log</file>
@@ -43,13 +18,6 @@
         </encoder>
     </appender>
 
-
-
-
-    <logger name="ConsoleLogger" level="DEBUG">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE_CONSOLE" />
-    </logger>
 
     <logger name="SessionLogger" level="info">
         <appender-ref ref="FILE_SESSION" />

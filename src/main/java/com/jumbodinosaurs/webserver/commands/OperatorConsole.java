@@ -4,7 +4,7 @@ package com.jumbodinosaurs.webserver.commands;
 import com.jumbodinosaurs.devlib.commands.CommandManager;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.webserver.log.LogManager;
+import com.jumbodinosaurs.devlib.log.LogManager;
 
 import java.util.Scanner;
 

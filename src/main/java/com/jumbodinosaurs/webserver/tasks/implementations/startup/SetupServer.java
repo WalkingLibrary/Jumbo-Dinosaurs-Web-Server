@@ -1,8 +1,8 @@
 package com.jumbodinosaurs.webserver.tasks.implementations.startup;
 
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.task.*;
 import com.jumbodinosaurs.webserver.ServerController;
-import com.jumbodinosaurs.webserver.log.LogManager;
 
 import java.util.ArrayList;
 

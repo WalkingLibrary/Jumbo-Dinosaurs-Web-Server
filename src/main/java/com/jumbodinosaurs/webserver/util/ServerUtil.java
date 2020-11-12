@@ -1,10 +1,10 @@
 package com.jumbodinosaurs.webserver.util;
 
 import com.google.gson.Gson;
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
-import com.jumbodinosaurs.webserver.log.LogManager;
 
 import java.io.*;
 import java.net.HttpURLConnection;

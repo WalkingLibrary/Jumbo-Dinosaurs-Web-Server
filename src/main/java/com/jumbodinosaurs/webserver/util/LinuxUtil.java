@@ -1,8 +1,8 @@
 package com.jumbodinosaurs.webserver.util;
 
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.reflection.ResourceLoaderUtil;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
-import com.jumbodinosaurs.webserver.log.LogManager;
 
 import java.io.File;
 import java.io.IOException;
