@@ -6,7 +6,6 @@ import com.jumbodinosaurs.devlib.database.DataBaseUtil;
 import com.jumbodinosaurs.devlib.database.Query;
 import com.jumbodinosaurs.devlib.database.exceptions.NoSuchDataBaseException;
 import com.jumbodinosaurs.devlib.log.LogManager;
-import com.jumbodinosaurs.devlib.task.Phase;
 import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.webserver.post.object.CRUDUtil;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
@@ -17,7 +16,7 @@ public class CreateObjectTables extends StartUpTask
 {
     public CreateObjectTables()
     {
-        super(Phase.PostInitialization);
+        super(2);
     }
     
     @Override

@@ -30,35 +30,9 @@ public class SetupServer extends Task
          */
         LogManager.consoleLogger.info("Running SetUp Server Task");
         ArrayList<StartUpTask> startUpTasks = TaskUtil.getStartUpTasks();
-        LogManager.consoleLogger.info("Starting Pre-Initialization Phase");
-        for(StartUpTask task : startUpTasks)
-        {
-            if(task.getPhase().equals(Phase.PreInitialization))
-            {
-                LogManager.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
-                task.run();
-            }
-        }
     
-        LogManager.consoleLogger.info("Starting Initialization Phase");
-        for(StartUpTask task : startUpTasks)
-        {
-            if(task.getPhase().equals(Phase.Initialization))
-            {
-                LogManager.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
-                task.run();
-            }
-        }
-        LogManager.consoleLogger.info("Starting Post Initialization Phase");
-        for(StartUpTask task : startUpTasks)
-        {
-            if(task.getPhase().equals(Phase.PostInitialization))
-            {
-                LogManager.consoleLogger.info("Starting Task: " + task.getClass().getSimpleName());
-                task.run();
-            }
-        }
-    
+        DefaultStartUpTask defaultStartUpTask = new DefaultStartUpTask();
+        defaultStartUpTask.run();
     
         ArrayList<ScheduledTask> scheduledServerTasks = TaskUtil.getScheduledTasks(ServerController.getThreadScheduler());
     

@@ -2,7 +2,6 @@ package com.jumbodinosaurs.webserver.tasks.implementations.startup;
 
 import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.netty.ChannelManager;
-import com.jumbodinosaurs.devlib.task.Phase;
 import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.webserver.domain.DomainManager;
 import com.jumbodinosaurs.webserver.domain.util.SecureDomain;
@@ -14,7 +13,7 @@ public class SetupHTTP extends StartUpTask
 {
     public SetupHTTP()
     {
-        super(Phase.PostInitialization);
+        super(2);
     }
     
     @Override

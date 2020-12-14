@@ -1,6 +1,6 @@
 package com.jumbodinosaurs.webserver.tasks.implementations.startup;
 
-import com.jumbodinosaurs.devlib.task.Phase;
+
 import com.jumbodinosaurs.devlib.task.StartUpTask;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.webserver.util.ServerUtil;
@@ -11,7 +11,7 @@ public class GenerateIndexFile extends StartUpTask
 {
     public GenerateIndexFile()
     {
-        super(Phase.PreInitialization);
+        super(0);
     }
     
     public static String getIndexPage()
