@@ -36,7 +36,6 @@ public class ServerUtil
         timeOutHelperDir = GeneralUtil.checkFor(serverDataDir, "TimeoutHelper", true);
         userInfoDirectory = GeneralUtil.checkFor(serverDataDir, "UserInfo", true);
         logsDirectory = GeneralUtil.checkFor(serverDataDir, "Log", true);
-        getDirectory = new File(OptionUtil.getGETDirPath());
         LogManager.consoleLogger.debug("Finished Creating Server Util Files");
     
     }

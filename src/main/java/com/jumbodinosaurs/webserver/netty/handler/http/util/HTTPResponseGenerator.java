@@ -39,22 +39,32 @@ public class HTTPResponseGenerator
                 filePath = "/home.html";
             }
             
-            
             // We then need to search our GET dir for the specified file
-            Domain messageHost = message.getDomain();
+            File fileToServe = null;
+    
+            for(String getDir : OptionUtil.getGETDirPaths())
+            {
+                fileToServe = ServerUtil.safeSearchDir(new File(getDir), filePath, false);
+                if(fileToServe != null)
+                {
+                    break;
+                }
+            }
+    
             File dirToSearch = ServerUtil.getDirectory;
-            
+    
+            Domain messageHost = message.getDomain();
+    
             if(messageHost != null)
             {
                 dirToSearch = messageHost.getGetDir();
             }
-            
-            File fileToServe = ServerUtil.safeSearchDir(dirToSearch, filePath, false);
-            
+    
+    
             if(fileToServe == null)
             {
                 fileToServe = ServerUtil.safeSearchDir(ServerUtil.getDirectory, filePath, false);
-                
+        
                 //If we Don't have the file they are looking for we return a 404 message with the 404 page
                 if(fileToServe == null)
                 {

@@ -52,10 +52,10 @@ public class OptionUtil
     }
     
     
-    public static String getGETDirPath()
+    public static ArrayList<String> getGETDirPaths()
     {
-        return optionsManager.getOption(OptionIdentifier.getDirPath.getIdentifier(),
-                                        ServerUtil.getDirectory.getAbsolutePath()).getOption();
+        ArrayList<String> getDirPath = new ArrayList<String>();
+        return optionsManager.getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPath).getOption();
     }
     
     
