@@ -30,6 +30,7 @@ public class AddObject extends CRUDCommand
          *
          * Validate Users Permissions on the Table
          * Parse Object
+         * Add Request Attributes for Validation
          * Validate the Object given
          * Add the object to DataBase
          *
@@ -77,6 +78,18 @@ public class AddObject extends CRUDCommand
             e.printStackTrace();
             response.setMessage400();
             return response;
+        }
+    
+        //Add Request Attributes for Validation
+        if(objectToPost instanceof RequestDependantPostObject)
+        {
+            ((RequestDependantPostObject) objectToPost).setPostRequest(postRequest);
+            ((RequestDependantPostObject) objectToPost).setCrudRequest(crudRequest);
+        }
+    
+        if(objectToPost instanceof IRequestDependantAttributes)
+        {
+            ((IRequestDependantAttributes) objectToPost).setAttributesRequests(postRequest, crudRequest);
         }
     
         if(!objectToPost.isValidObject())
