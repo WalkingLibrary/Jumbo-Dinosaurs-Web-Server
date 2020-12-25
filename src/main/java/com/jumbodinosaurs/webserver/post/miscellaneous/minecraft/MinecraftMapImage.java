@@ -15,7 +15,7 @@ public class MinecraftMapImage extends CoordinateBased
     {
         if(this.identifiers == null)
         {
-            return false;
+            this.identifiers = new ArrayList<String>();
         }
         
         if(this.identifiers.size() > 255)
@@ -25,7 +25,7 @@ public class MinecraftMapImage extends CoordinateBased
         
         for(String identifier : this.identifiers)
         {
-            if(identifier.length() > 128)
+            if(identifier.length() > 128 || identifier.length() <= 0)
             {
                 return false;
             }

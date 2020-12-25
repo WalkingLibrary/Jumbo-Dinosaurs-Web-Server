@@ -36,6 +36,6 @@ public abstract class CoordinateBased extends MinecraftObject
             return false;
         }
         
-        return true;
+        return super.isValidObject();
     }
 }

@@ -5,7 +5,7 @@ import com.jumbodinosaurs.webserver.post.miscellaneous.img.Description;
 import com.jumbodinosaurs.webserver.post.object.CRUDRequest;
 import com.jumbodinosaurs.webserver.post.object.IRequestDependantAttributes;
 
-public class MapDetail extends CoordinateBased implements IRequestDependantAttributes
+public class MinecraftMapDetail extends CoordinateBased implements IRequestDependantAttributes
 {
     private Description description;
     
