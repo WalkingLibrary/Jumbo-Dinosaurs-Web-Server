@@ -32,21 +32,22 @@ public class Image extends PostObject
                 isAcceptedType = true;
             }
         }
-        
+    
         if(!isAcceptedType)
         {
             return false;
         }
-        
+    
         //Check it's size
         //We only want to allow images the size of 1MB or lower
         //and images that are smaller than 1 byte should be considered invalid
         int length = this.base64ImageContents.getBytes().length;
-        if(length > 1000000 || length < 1)
+        int maxLength = 1000000;
+        if(length > maxLength || length < 1)
         {
             return false;
         }
-        
+    
         try
         {
             Base64.getDecoder().decode(this.base64ImageContents);
@@ -55,8 +56,28 @@ public class Image extends PostObject
         {
             return false;
         }
-        
+    
         return true;
+    }
+    
+    public String getBase64ImageContents()
+    {
+        return base64ImageContents;
+    }
+    
+    public void setBase64ImageContents(String base64ImageContents)
+    {
+        this.base64ImageContents = base64ImageContents;
+    }
+    
+    public String getFileType()
+    {
+        return fileType;
+    }
+    
+    public void setFileType(String fileType)
+    {
+        this.fileType = fileType;
     }
     
     

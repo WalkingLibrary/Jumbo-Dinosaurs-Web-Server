@@ -1,8 +1,7 @@
-
 buildscript {
     repositories {
         jcenter()
-        maven{
+        maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
@@ -26,22 +25,6 @@ configurations.all {
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'idea'
-apply plugin: "com.zoltu.git-versioning"
-group 'com.jumbodinosaurs'
-archivesBaseName = "Jumbo-Dinosaurs-WebServer-Netty"
-
-sourceCompatibility = 1.8
-
-def versionInfo = ZoltuGitVersioning.versionInfo
-
-sourceSets.main.java.srcDir "src/main/Java"
-sourceSets.main.resources.srcDir "src/resources"
-
-
-repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-}
 
 dependencies {
 
@@ -60,16 +43,45 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
 }
 
+
+allprojects {
+
+    group 'com.jumbodinosaurs'
+    apply plugin: "com.zoltu.git-versioning"
+    archivesBaseName = "Jumbo-Dinosaurs-WebServer-Netty"
+    sourceCompatibility = 1.8
+    def versionInfo = ZoltuGitVersioning.versionInfo
+    sourceSets.main.java.srcDir "src/main/Java"
+    sourceSets.main.resources.srcDir "src/resources"
+
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+
+
+}
+
+def versionInfo = ZoltuGitVersioning.versionInfo
 print "Build Version: ${versionInfo.major}.${versionInfo.minor}.${versionInfo.commitCount}\n"
+
 
 jar {
     manifest {
-        attributes (
+        attributes(
                 "Main-Class": "com.jumbodinosaurs.webserver.Main",
                 "Jumbo-Dinosaurs-WebServer-Version": version
         )
     }
 }
+
+
+subprojects {
+
+}
+
+
+
 
 
         
