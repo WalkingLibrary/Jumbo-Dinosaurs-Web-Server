@@ -4,7 +4,7 @@ import com.jumbodinosaurs.webserver.post.object.RequestDependantPostObject;
 
 public class MinecraftObject extends RequestDependantPostObject
 {
-    private String server;
+    protected String server;
     
     
     @Override
@@ -15,5 +15,15 @@ public class MinecraftObject extends RequestDependantPostObject
             return false;
         }
         return true;
+    }
+    
+    public String getServer()
+    {
+        return server;
+    }
+    
+    public void setServer(String server)
+    {
+        this.server = server;
     }
 }

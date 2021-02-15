@@ -2,13 +2,19 @@ package com.jumbodinosaurs.webserver.util;
 
 import com.google.gson.Gson;
 import com.jumbodinosaurs.devlib.log.LogManager;
+import com.jumbodinosaurs.devlib.reflection.ResourceLoaderUtil;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.devlib.util.objects.HttpResponse;
+import com.jumbodinosaurs.devlib.util.objects.PostRequest;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -256,8 +262,50 @@ public class ServerUtil
         return host;
     }
     
-   
     
+    public static HttpResponse sendLocalHostPostRequest(PostRequest postRequest)
+            throws IOException
+    {
+        
+        String url = "http://localhost/";
+        DefaultHttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_0, HttpMethod.POST, url);
+        
+        ResourceLoaderUtil resourceLoader = new ResourceLoaderUtil();
+        String response = "";
+        int status = 400;
+        URL address = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) address.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        String message = new Gson().toJson(postRequest);
+        byte[] postData = message.getBytes(StandardCharsets.UTF_8);
+        connection.setDoOutput(true);
+        try(DataOutputStream wr = new DataOutputStream(connection.getOutputStream()))
+        {
+            
+            wr.write(postData);
+        }
+        
+        
+        status = connection.getResponseCode();
+        InputStream input;
+        
+        if(status == 200)
+        {
+            input = connection.getInputStream();
+        }
+        else
+        {
+            input = connection.getErrorStream();
+        }
+        
+        while(input.available() > 0)
+        {
+            response += (char) input.read();
+        }
+        
+        return new HttpResponse(status, response);
+    }
     
 }
 

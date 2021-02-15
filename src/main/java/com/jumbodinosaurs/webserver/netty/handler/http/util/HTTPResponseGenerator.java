@@ -100,6 +100,16 @@ public class HTTPResponseGenerator
                 return response;
             }
     
+            if(ResponseHeaderUtil.getModelTypes().contains(type))
+            {
+                byte[] modelBytes = ServerUtil.readZip(fileToServe);
+                headers += ResponseHeaderUtil.contentApplicationHeader + type;
+                headers += ResponseHeaderUtil.contentLengthHeader + modelBytes.length;
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage200(headers, modelBytes);
+                return response;
+            }
+    
             if(ResponseHeaderUtil.getScriptFileTypes().contains(type))
             {
                 headers += ResponseHeaderUtil.contentApplicationHeader + "x-javascript";

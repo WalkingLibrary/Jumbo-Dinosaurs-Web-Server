@@ -19,7 +19,7 @@ public class Description extends RequestDependantPostObject
     public boolean isValidObject()
     {
         int maxDescriptionLength = 1000;
-        if(description == null || description.length() > maxDescriptionLength || description.length() <= 0)
+        if(description == null || description.length() > maxDescriptionLength)
         {
             return false;
         }

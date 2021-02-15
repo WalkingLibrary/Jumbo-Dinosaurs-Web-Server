@@ -8,6 +8,7 @@ import io.netty.handler.codec.string.StringDecoder;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Scanner;
 
 public class HTTPMessageFramer extends StringDecoder
 {
@@ -35,43 +36,51 @@ public class HTTPMessageFramer extends StringDecoder
         {
             int headersEndIndex = totalMessage.indexOf(headersEnd);
             String contentLengthHeader = "Content-Length:";
-            
+    
             String messageHeaders = totalMessage.substring(0, headersEndIndex);
-            
+    
             if(!messageHeaders.contains(contentLengthHeader))
             {
                 out.add(totalMessage);
                 return;
             }
-            
-            int contentLengthHeaderEndIndex = messageHeaders.indexOf(contentLengthHeader);
-            
-            
-            String postContentHeaderMessage = messageHeaders.substring(contentLengthHeaderEndIndex +
-                                                                       contentLengthHeader.length());
-            
-            
-            String length = postContentHeaderMessage.substring(0, postContentHeaderMessage.indexOf("\n"));
-            length = length.trim();
-            
-            int lengthNumber;
+    
+            /*Parsing the Length from the length header*/
+            int postContentLength;
+    
             try
             {
-                lengthNumber = Integer.parseInt(length);
+                int contentLengthHeaderEndIndex = messageHeaders.indexOf(contentLengthHeader);
+        
+        
+                String lengthFromLengthHeader = messageHeaders.substring(contentLengthHeaderEndIndex +
+                                                                         contentLengthHeader.length());
+                Scanner lengthFinder = new Scanner(lengthFromLengthHeader);
+        
+                try
+                {
+                    postContentLength = lengthFinder.nextInt();
+                }
+                catch(Exception e)
+                {
+                    closeConnection(context);
+                    return;
+                }
             }
-            catch(NumberFormatException e)
+            catch(IndexOutOfBoundsException e)
             {
                 closeConnection(context);
                 return;
             }
-            
+    
+    
             try
             {
-                
-                if(totalMessage.substring(headersEndIndex + headersEnd.length()).getBytes().length == lengthNumber)
+        
+                if(totalMessage.substring(headersEndIndex + headersEnd.length()).getBytes().length == postContentLength)
                 {
                     out.add(totalMessage);
-                    
+            
                 }
             }
             catch(StringIndexOutOfBoundsException e)

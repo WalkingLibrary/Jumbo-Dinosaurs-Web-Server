@@ -6,6 +6,9 @@ public abstract class CoordinateBased extends MinecraftObject
 {
     private Point3D location;
     
+    //0 = overworld - 1 = nether 1 = end????
+    private int dimension;
+    
     public Point3D getLocation()
     {
         return location;
@@ -30,12 +33,17 @@ public abstract class CoordinateBased extends MinecraftObject
         {
             return false;
         }
-        
+    
         if(this.location.getY() > vanillaWorldHeight || this.location.getY() < 0)
         {
             return false;
         }
-        
+    
+        if(dimension < -1 || dimension > 1)
+        {
+            return false;
+        }
+    
         return super.isValidObject();
     }
 }

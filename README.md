@@ -16,6 +16,8 @@ Java Based Web Server
 - GZIP?
 - ZIP Chunking
 - Add localHost "Support"
+- updating index page
+- file sync?
 - prep for Trom-Bone Integration
 
 License

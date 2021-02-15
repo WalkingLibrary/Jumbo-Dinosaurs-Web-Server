@@ -41,5 +41,14 @@ public class ResponseHeaderUtil
         return applicationFileTypes;
     }
     
+    public static ArrayList<String> getModelTypes()
+    {
+        ArrayList<String> modelTypes = new ArrayList<String>();
+        modelTypes.add("glb");
+        modelTypes.add("obj");
+        modelTypes.add("babylon");
+        modelTypes.add("json");
+        return modelTypes;
+    }
     
 }
