@@ -97,6 +97,7 @@ public class CreateTable extends CRUDCommand
         try
         {
             CRUDUtil.manipulateObjectDataBase(insertQuery);
+            insertQuery.getStatementObject().getConnection().close();
         }
         catch(SQLException | NoSuchDataBaseException e)
         {

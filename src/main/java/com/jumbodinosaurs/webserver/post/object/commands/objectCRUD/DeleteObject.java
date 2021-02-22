@@ -54,6 +54,7 @@ public class DeleteObject extends CRUDCommand
         try
         {
             CRUDUtil.manipulateObjectDataBase(deleteQuery);
+            deleteQuery.getStatementObject().getConnection().close();
         }
         catch(NoSuchDataBaseException e)
         {

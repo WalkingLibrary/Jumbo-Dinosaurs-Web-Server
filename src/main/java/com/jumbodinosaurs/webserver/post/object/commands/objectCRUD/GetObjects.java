@@ -103,6 +103,7 @@ public class GetObjects extends CRUDCommand
         try
         {
             foundObjects = CRUDUtil.getObjects(objectQuery, crudRequest.getTypeToken());
+            objectQuery.getResultSet().close();
             System.out.println(objectQuery.getResultSet().toString());
         }
         catch(NoSuchDataBaseException e)

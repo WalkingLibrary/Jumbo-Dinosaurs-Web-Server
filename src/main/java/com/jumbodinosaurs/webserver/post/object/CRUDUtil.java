@@ -38,7 +38,7 @@ public class CRUDUtil
         query.setParameters(parameters);
         
         ArrayList<PostObject> objectList = DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), typeToken);
-        
+        query.getStatementObject().getConnection().close();
         if(objectList.size() > 1)
         {
             throw new IllegalStateException("More than one Object in " + tableName + " with ID " + id);
@@ -67,8 +67,7 @@ public class CRUDUtil
         
         tablesList = DataBaseUtil.getObjectsDataBase(query, getObjectDataBase(), new TypeToken<Table>()
         {});
-        
-        
+        //Don't need to call a close here as getObjectsDataBase Closes the connection for us
         if(tablesList.size() > 1)
         {
             throw new IllegalStateException("More than one Table with ID " + id);
@@ -128,18 +127,28 @@ public class CRUDUtil
     public static boolean updateTable(Table oldTable, Table newTable)
     {
         Query updateQuery = DataBaseUtil.getUpdateObjectQuery(tableTablesName, oldTable, newTable);
-
+    
         try
         {
             DataBaseUtil.manipulateDataBase(updateQuery, getObjectDataBase());
         }
-        catch (SQLException | NoSuchDataBaseException e)
+        catch(SQLException | NoSuchDataBaseException e)
         {
             return false;
         }
-
+    
         int status = updateQuery.getResponseCode();
-        if (status > 1)
+    
+        try
+        {
+            updateQuery.getStatementObject().getConnection().close();
+        }
+        catch(SQLException e)
+        {
+            return status == 1;
+        }
+    
+        if(status > 1)
         {
             throw new IllegalStateException("More than one table effected by update query");
         }
