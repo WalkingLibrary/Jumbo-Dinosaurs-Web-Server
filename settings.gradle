@@ -1,4 +1,4 @@
 rootProject.name = 'Jumbo-Dinosaurs-Web-Server-Netty'
 include 'ExtraPostUtilities'
-include 'JourneyMapUploader'
+include 'ObjectUploader'
 

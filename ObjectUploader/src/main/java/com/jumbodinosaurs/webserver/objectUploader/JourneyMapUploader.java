@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.webserver.uploader.journeymap;
+package com.jumbodinosaurs.webserver.objectUploader;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -33,15 +33,11 @@ import java.util.HashMap;
 
 public class JourneyMapUploader
 {
-    public static void main(String[] args)
+    public void uploadJourneyMapDir(String dirPath)
     {
-        if(args.length <= 0)
-        {
-            System.out.println("No Journey Map Dir Passed");
-            System.exit(1);
-        }
         
-        String journeyMapDirPath = args[0];
+        
+        String journeyMapDirPath = dirPath;
         System.out.println(journeyMapDirPath);
         File journeyMapDir = new File(journeyMapDirPath);
         

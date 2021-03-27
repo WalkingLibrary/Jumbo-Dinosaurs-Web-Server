@@ -12,6 +12,8 @@ Java Based Web Server
 - Console Commands
 
 ### Todos
+- fix the whitelist
+- fix email verification to link?
 - Front end js api??
 - GZIP?
 - ZIP Chunking

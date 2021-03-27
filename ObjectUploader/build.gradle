@@ -9,7 +9,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                "Main-Class": "com.jumbodinosaurs.webserver.uploader.journeymap.JourneyMapUploader",
+                "Main-Class": "com.jumbodinosaurs.webserver.objectUploader.Main",
                 "Jumbo-Dinosaurs-WebServer-Version": version
         )
     }
