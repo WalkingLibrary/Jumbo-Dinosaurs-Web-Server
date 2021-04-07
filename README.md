@@ -12,6 +12,9 @@ Java Based Web Server
 - Console Commands
 
 ### Todos
+- add hidden dir list
+- add discord webhook integration ??
+- fix hard drive filling
 - fix the whitelist
 - fix email verification to link?
 - Front end js api??
