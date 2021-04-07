@@ -12,17 +12,19 @@ Java Based Web Server
 - Console Commands
 
 ### Todos
-- add hidden dir list
-- add discord webhook integration ??
 - fix hard drive filling
 - fix the whitelist
+- add easier to use console commands
+- add hidden dir list
+- add discord webhook integration ??
 - fix email verification to link?
 - Front end js api??
+- statistics/health report??
 - GZIP?
 - ZIP Chunking
 - Add localHost "Support"
 - updating index page
-- file sync?
+- file sync? proxy?
 - prep for Trom-Bone Integration
 
 License
