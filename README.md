@@ -12,7 +12,7 @@ Java Based Web Server
 - Console Commands
 
 ### Todos
-- fix hard drive filling
+
 - fix the whitelist
 - add easier to use console commands
 - add hidden dir list
@@ -26,6 +26,13 @@ Java Based Web Server
 - updating index page
 - file sync? proxy?
 - prep for Trom-Bone Integration
+
+
+
+Reference:
+http://logback.qos.ch/manual/appenders.html
+
+
 
 License
 ----
