@@ -23,8 +23,11 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
             //TODO add Server Specific White List Decoder
             if(OptionUtil.isWhiteListOn())
             {
-                if(!OptionUtil.getWhiteList().contains(msg.getWho()))
+                LogManager.consoleLogger.debug("Whitelist IP: " + msg.getWho());
+                String compareWho = msg.getWho().replace("/", "");
+                if(!OptionUtil.getWhiteList().contains(compareWho))
                 {
+                    LogManager.consoleLogger.debug("Blocked: " + msg.getWho());
                     return;
                 }
             }

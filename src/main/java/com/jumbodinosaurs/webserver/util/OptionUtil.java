@@ -54,8 +54,11 @@ public class OptionUtil
     
     public static ArrayList<String> getGETDirPaths()
     {
-        ArrayList<String> getDirPath = new ArrayList<String>();
-        return optionsManager.getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPath).getOption();
+        ArrayList<String> getDirPaths = new ArrayList<String>();
+        getDirPaths = optionsManager.getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPaths).getOption();
+        //We add the Main Get Dir
+        getDirPaths.add(ServerUtil.getDirectory.getAbsolutePath());
+        return getDirPaths;
     }
     
     

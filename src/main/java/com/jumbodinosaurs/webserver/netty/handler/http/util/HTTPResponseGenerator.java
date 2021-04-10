@@ -30,55 +30,61 @@ public class HTTPResponseGenerator
              * If we Don't have the file they are looking for we return a 404 message with the 404 page
              * Next we need to form our headers for the message which depends on the type of file we are sending
              */
-            
-            
+    
+    
             //We first need to analyze the file they are requesting and change it if need be
             String filePath = message.getPath();
             if(filePath.equals("/"))
             {
                 filePath = "/home.html";
             }
-            
-            // We then need to search our GET dir for the specified file
+    
+    
+            /* Search Order
+             * First we search the Domain Folder and return that if it find the file that was request
+             * if not then we search the Listed GET Dirs and return that if we find the request file.
+             * */
             File fileToServe = null;
     
-            for(String getDir : OptionUtil.getGETDirPaths())
-            {
-                fileToServe = ServerUtil.safeSearchDir(new File(getDir), filePath, false);
-                if(fileToServe != null)
-                {
-                    break;
-                }
-            }
     
-            File dirToSearch = ServerUtil.getDirectory;
-    
+            /*Domain Specific Search*/
             Domain messageHost = message.getDomain();
-    
             if(messageHost != null)
             {
-                dirToSearch = messageHost.getGetDir();
-            }
-    
-    
-            if(fileToServe == null)
-            {
-                fileToServe = ServerUtil.safeSearchDir(ServerUtil.getDirectory, filePath, false);
-        
-                //If we Don't have the file they are looking for we return a 404 message with the 404 page
-                if(fileToServe == null)
+                if(messageHost.getGetDir() != null)
                 {
-                    HTTPResponse response = new HTTPResponse();
-                    response.setMessage404();
-                    return response;
+                    fileToServe = ServerUtil.safeSearchDir(messageHost.getGetDir(), filePath, false);
                 }
             }
-            
+    
+            /*Search all the Get Dirs for the request file if it's null*/
+            if(fileToServe == null)
+            {
+                for(String getDir : OptionUtil.getGETDirPaths())
+                {
+                    fileToServe = ServerUtil.safeSearchDir(new File(getDir), filePath, false);
+                    if(fileToServe != null)
+                    {
+                        break;
+                    }
+                }
+            }
+    
+    
+            //If we Don't have the file they are looking for we return a 404 message with the 404 page
+            if(fileToServe == null)
+            {
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage404();
+                return response;
+            }
+    
+    
             //Next we need to form our headers for the message which depends on the type of file we are sending
             String headers = "";
             String type = GeneralUtil.getType(fileToServe);
-            
-            
+    
+    
             if(ResponseHeaderUtil.getImageFileTypes().contains(type))
             {
                 byte[] photoBytes = ServerUtil.readPhoto(fileToServe);

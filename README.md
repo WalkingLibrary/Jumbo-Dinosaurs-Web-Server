@@ -13,7 +13,6 @@ Java Based Web Server
 
 ### Todos
 
-- fix the whitelist
 - add easier to use console commands
 - add hidden dir list
 - add discord webhook integration ??

@@ -1,3 +1,4 @@
+/*Build ShadowJar for working jar*/
 buildscript {
     repositories {
         jcenter()
