@@ -38,7 +38,7 @@ public class addGETDir extends Command
         
         OptionUtil.setOption(getDirPaths);
         
-        return new MessageResponse(path + " was add to GET Paths List");
+        return new MessageResponse(path + " was added to GET Paths List");
     }
     
     @Override

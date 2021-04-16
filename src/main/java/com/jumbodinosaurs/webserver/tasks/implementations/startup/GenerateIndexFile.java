@@ -21,12 +21,13 @@ public class GenerateIndexFile extends StartUpTask
     
         for(File file : GeneralUtil.listFilesRecursive(ServerUtil.getDirectory))
         {
-            String allowedHiddenDir = ".well-known";
+            String allowedIndexableHiddenDir = ".well-known";
             String hiddenDirPattern = File.separator + ".";
-            if(!file.getAbsolutePath().contains(hiddenDirPattern) || file.getAbsolutePath().contains(allowedHiddenDir))
+            if(!file.getAbsolutePath().contains(hiddenDirPattern) ||
+               file.getAbsolutePath().contains(allowedIndexableHiddenDir))
             {
-                String relitivePath = file.getParentFile().getName() + File.separator + file.getName();
-                indexHTML += "<a href = ./" + file.getName() + ">" + relitivePath + "</a><br>";
+                String relativePath = file.getParentFile().getName() + File.separator + file.getName();
+                indexHTML += "<a href = ./" + file.getName() + ">" + relativePath + "</a><br>";
             }
         }
     

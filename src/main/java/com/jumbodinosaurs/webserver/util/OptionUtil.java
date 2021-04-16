@@ -61,6 +61,13 @@ public class OptionUtil
         return getDirPaths;
     }
     
+    public static ArrayList<String> getAllowedHiddenDirs()
+    {
+        ArrayList<String> hiddenDirs = new ArrayList<String>();
+        hiddenDirs.add(".well-known");
+        hiddenDirs = optionsManager.getOption(OptionIdentifier.hiddenDirs.getIdentifier(), hiddenDirs).getOption();
+        return hiddenDirs;
+    }
     
     public static <E> void setOption(Option<E> option)
     {

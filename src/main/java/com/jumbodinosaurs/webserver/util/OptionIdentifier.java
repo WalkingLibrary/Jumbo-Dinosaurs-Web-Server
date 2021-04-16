@@ -9,7 +9,8 @@ public enum OptionIdentifier
     email("email"),
     shouldUpgradeInsecureConnections("shouldUpgradeInsecureConnections"),
     userDataBaseName("userDataBaseName"),
-    getDirPath("getDirPath");
+    getDirPath("getDirPath"),
+    hiddenDirs("hiddenDirs");
     private String identifier;
     
     OptionIdentifier(String identifier)
