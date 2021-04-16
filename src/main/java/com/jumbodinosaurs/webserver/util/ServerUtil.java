@@ -16,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,21 +66,22 @@ public class ServerUtil
         {
             localPath = File.separator + localPath;
         }
-        
-        
+    
+    
         File fileToGive = null;
         //Gets all files in allowedDir
         File[] filesInAllowedDir = GeneralUtil.listFilesRecursive(dirToSearch);
         //If count is greater than 1 might have duplicate files and could be a problem
         int count = 0;
-        
+    
         String pathOfRequestedFile = dirToSearch.getAbsolutePath() + localPath;
-        
-        String allowedHiddenDir = ".well-known";
+    
+        ArrayList<String> allowedHiddenDirs = OptionUtil.getAllowedHiddenDirs();
         String hiddenDirPattern = File.separator + ".";
         for(File file : filesInAllowedDir)
         {
-            if(!file.getAbsolutePath().contains(hiddenDirPattern) || file.getAbsolutePath().contains(allowedHiddenDir))
+            if(!file.getAbsolutePath().contains(hiddenDirPattern) ||
+               containsContains(allowedHiddenDirs, file.getAbsolutePath()))
             {
                 if(matchPath)
                 {
@@ -114,14 +116,33 @@ public class ServerUtil
         return fileToGive;
     }
     
+    public static boolean containsContains(ArrayList<String> strings, String string)
+    {
+        for(String str : strings)
+        {
+            if(string.contains(str))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     
     public static File getLogFileFromDate(LocalDateTime sessionDate)
     {
         try
         {
-            String localPath = "/Session Logs/" + sessionDate.getYear() + "/" + sessionDate.getMonth() + "/" + sessionDate
-                                                                                                                       .getDayOfMonth() + "/" + sessionDate
-                                                                                                                                                        .getHour() + "/" + "logs.json";
+            String localPath = "/Session Logs/" +
+                               sessionDate.getYear() +
+                               "/" +
+                               sessionDate.getMonth() +
+                               "/" +
+                               sessionDate.getDayOfMonth() +
+                               "/" +
+                               sessionDate.getHour() +
+                               "/" +
+                               "logs.json";
             File logFile = GeneralUtil.checkForLocalPath(logsDirectory, localPath);
             return logFile;
         }
