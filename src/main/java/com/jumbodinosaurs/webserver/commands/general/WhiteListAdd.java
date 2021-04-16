@@ -4,7 +4,7 @@ import com.jumbodinosaurs.devlib.commands.Command;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.devlib.options.Option;
-import com.jumbodinosaurs.webserver.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 import com.jumbodinosaurs.webserver.util.OptionIdentifier;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
 

@@ -2,7 +2,7 @@ package com.jumbodinosaurs.webserver.tasks.implementations.startup;
 
 
 import com.jumbodinosaurs.devlib.task.StartUpTask;
-import com.jumbodinosaurs.webserver.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 
 public class StartOperatorConsole extends StartUpTask
 {

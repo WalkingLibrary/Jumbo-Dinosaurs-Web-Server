@@ -2,7 +2,7 @@ package com.jumbodinosaurs.webserver.commands.domain;
 
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
-import com.jumbodinosaurs.webserver.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 import com.jumbodinosaurs.webserver.domain.DomainManager;
 
 public class RemoveDomain extends DomainCommand

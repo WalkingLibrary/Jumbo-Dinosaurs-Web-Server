@@ -5,7 +5,7 @@ import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException
 import com.jumbodinosaurs.devlib.database.DataBase;
 import com.jumbodinosaurs.devlib.database.DataBaseManager;
 import com.jumbodinosaurs.devlib.database.DataBaseUser;
-import com.jumbodinosaurs.webserver.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 
 public class AddDataBase extends DataBaseCommand
 {

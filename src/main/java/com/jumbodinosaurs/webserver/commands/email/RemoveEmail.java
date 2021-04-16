@@ -5,7 +5,7 @@ import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException
 import com.jumbodinosaurs.devlib.email.DefaultEmail;
 import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.devlib.email.EmailManager;
-import com.jumbodinosaurs.webserver.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 
 public class RemoveEmail extends EmailCommand
 {

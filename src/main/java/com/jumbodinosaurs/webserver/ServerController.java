@@ -5,6 +5,7 @@ import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.reflection.exceptions.NoSuchJarAttribute;
 import com.jumbodinosaurs.devlib.task.ScheduledTask;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
 import com.jumbodinosaurs.webserver.tasks.implementations.startup.SetupServer;
 
@@ -31,7 +32,10 @@ public class ServerController
         {
             version = "Development Environment";
         }
-        LogManager.consoleLogger.info("Starting Jumbo Dinosaurs " + version);//G
+        LogManager.consoleLogger.info("Starting Jumbo Dinosaurs " +
+                                      OperatorConsole.ANSI_PURPLE +
+                                      version +
+                                      OperatorConsole.ANSI_RESET);//G
     
         SetupServer task = new SetupServer();
         task.run();

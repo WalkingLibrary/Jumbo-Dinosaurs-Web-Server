@@ -3,7 +3,7 @@ package com.jumbodinosaurs.webserver.commands.database;
 import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.devlib.database.DataBaseManager;
-import com.jumbodinosaurs.webserver.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 
 public class DeleteDataBase extends DataBaseCommand
 {

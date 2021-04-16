@@ -4,7 +4,7 @@ import com.jumbodinosaurs.devlib.commands.MessageResponse;
 import com.jumbodinosaurs.devlib.commands.exceptions.WaveringParametersException;
 import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.options.NoSuchOptionException;
-import com.jumbodinosaurs.webserver.commands.OperatorConsole;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 import com.jumbodinosaurs.webserver.domain.DomainManager;
 import com.jumbodinosaurs.webserver.domain.util.SecureDomain;
 import com.jumbodinosaurs.webserver.netty.CertificateManager;
