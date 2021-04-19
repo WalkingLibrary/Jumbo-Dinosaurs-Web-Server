@@ -14,7 +14,6 @@ Java Based Web Server
 ### Todos
 
 - add easier to use console commands
-- add discord webhook integration ??
 - fix email verification to link?
 - Front end js api??
 - statistics/health report??

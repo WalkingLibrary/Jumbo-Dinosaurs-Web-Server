@@ -10,7 +10,8 @@ public enum OptionIdentifier
     shouldUpgradeInsecureConnections("shouldUpgradeInsecureConnections"),
     userDataBaseName("userDataBaseName"),
     getDirPath("getDirPath"),
-    hiddenDirs("hiddenDirs");
+    hiddenDirs("hiddenDirs"),
+    webhook("webhook");
     private String identifier;
     
     OptionIdentifier(String identifier)

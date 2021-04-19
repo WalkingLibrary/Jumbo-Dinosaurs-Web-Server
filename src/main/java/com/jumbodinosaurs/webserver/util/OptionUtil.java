@@ -69,6 +69,11 @@ public class OptionUtil
         return hiddenDirs;
     }
     
+    public static String getWebHook()
+    {
+        return optionsManager.getOption(OptionIdentifier.webhook.getIdentifier(), "").getOption();
+    }
+    
     public static <E> void setOption(Option<E> option)
     {
         optionsManager.setOption(option);
