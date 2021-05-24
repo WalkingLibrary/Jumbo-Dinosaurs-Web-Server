@@ -30,7 +30,7 @@ public class ServerUtil
     public static File timeOutHelperDir;
     public static File userInfoDirectory;
     public static File logsDirectory;
-   
+    
     
     static
     {
@@ -80,26 +80,21 @@ public class ServerUtil
         String hiddenDirPattern = File.separator + ".";
         for(File file : filesInAllowedDir)
         {
-            if(!file.getAbsolutePath().contains(hiddenDirPattern) ||
-               containsContains(allowedHiddenDirs, file.getAbsolutePath()))
+            String cutPath = file.getAbsolutePath().substring(dirToSearch.getAbsolutePath().length());
+            if(matchPath)
             {
-                if(matchPath)
+                if(cutPath.equals(pathOfRequestedFile))
                 {
-                    if(file.getAbsolutePath().equals(pathOfRequestedFile))
-                    {
-                        fileToGive = file;
-                        count++;
-                    }
+                    fileToGive = file;
+                    count++;
                 }
-                else
+            }
+            else
+            {
+                if(cutPath.contains(localPath))
                 {
-        
-                    String pathToCheck = file.getAbsolutePath().substring(dirToSearch.getAbsolutePath().length());
-                    if(pathToCheck.contains(localPath))
-                    {
-                        fileToGive = file;
-                        count++;
-                    }
+                    fileToGive = file;
+                    count++;
                 }
             }
         }
@@ -176,7 +171,7 @@ public class ServerUtil
     
     public static String rewriteHTMLEscapeCharacters(String postData)
     {
-        String[][] charsToChange = {{"&", "&amp;"}, {"<", "&lt;"}, {">", "&gt;"}, {"\"", "&quot;"}, {"\'", "&apos;"}};
+        String[][] charsToChange = {{"&", "&amp;"}, {"<", "&lt;"}, {">", "&gt;"}, {"\"", "&quot;"}, {"'", "&apos;"}};
         
         String temp = postData;
         
@@ -266,8 +261,8 @@ public class ServerUtil
             HttpURLConnection connection = (HttpURLConnection) address.openConnection();
             HttpResponse ipResponse = WebUtil.getResponse(connection);
             host = ipResponse.getResponse();
-            host = host.replace("\n","" );
-            host =  host.replace("\r","" );
+            host = host.replace("\n", "");
+            host = host.replace("\r", "");
             LogManager.consoleLogger.info("Public IP: " + host);
     
         }
