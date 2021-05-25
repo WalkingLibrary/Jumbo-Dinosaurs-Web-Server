@@ -14,7 +14,7 @@ public class ListOptions extends Command
     {
         System.out.println("Options: ");
         String output = "";
-        for(Option option: OptionUtil.optionsManager.getOptions())
+        for(Option option : OptionUtil.getOptionsManager().getOptions())
         {
             output += option.getIdentifier();
         }

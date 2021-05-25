@@ -16,8 +16,8 @@ public class SetWebHook extends Command
     {
         System.out.println("Enter the Webhook: ");
         String webHook = OperatorConsole.getEnsuredAnswer();
-        Option<String> currentWebHook = OptionUtil.optionsManager.getOption(OptionIdentifier.webhook.getIdentifier(),
-                                                                            "");
+        Option<String> currentWebHook = OptionUtil.getOptionsManager()
+                                                  .getOption(OptionIdentifier.webhook.getIdentifier(), "");
         currentWebHook.setOption(webHook);
         OptionUtil.setOption(currentWebHook);
         return new MessageResponse("Set the Web Hook");
