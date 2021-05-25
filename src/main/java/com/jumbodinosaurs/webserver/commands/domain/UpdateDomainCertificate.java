@@ -27,7 +27,7 @@ public class UpdateDomainCertificate extends DomainCommand
     
             return new MessageResponse("Done Renewing " + domain + "'s certificate");
         }
-        catch(IOException e)
+        catch(IOException | InterruptedException e)
         {
             return new MessageResponse(e.getMessage());
         }

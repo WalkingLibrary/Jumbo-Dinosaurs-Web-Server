@@ -26,7 +26,7 @@ public class ConvertDomainPEMToKS extends DomainCommand
             CertificateManager.convertPemToKS(secureDomain);
             return new MessageResponse("Converted Certificate for " + domain);
         }
-        catch(IOException e)
+        catch(IOException | InterruptedException e)
         {
             return new MessageResponse(e.getMessage());
         }

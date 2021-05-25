@@ -31,7 +31,7 @@ public class CertificateManager
             convertPemToKS(domain);
             moveCertificateFile(domain);
         }
-        catch(IOException e)
+        catch(IOException | InterruptedException e)
         {
             LogManager.consoleLogger.error(e.getMessage(), e);
         }
@@ -49,7 +49,7 @@ public class CertificateManager
             convertPemToKS(domain);
             moveCertificateFile(domain);
         }
-        catch(IOException e)
+        catch(IOException | InterruptedException e)
         {
             e.printStackTrace();
         }
@@ -72,10 +72,11 @@ public class CertificateManager
         {
             LogManager.consoleLogger.error(e.getMessage(), e);
         }
-        
+    
     }
     
-    public static void renewCertificate(SecureDomain domain) throws IOException
+    public static void renewCertificate(SecureDomain domain)
+            throws IOException, InterruptedException
     {
         String renewCommand = "sudo bash renew_certificate.sh";
         ArrayList<String> arguments = new ArrayList<String>();
@@ -85,7 +86,8 @@ public class CertificateManager
         LogManager.consoleLogger.debug(output);
     }
     
-    private static void makeCertificate(SecureDomain domain, Email email) throws IOException
+    private static void makeCertificate(SecureDomain domain, Email email)
+            throws IOException, InterruptedException
     {
         String createCommand = "sudo bash create_certificate.sh";
         ArrayList<String> arguments = new ArrayList<String>();
@@ -96,7 +98,8 @@ public class CertificateManager
         LogManager.consoleLogger.debug(output);
     }
     
-    public static void convertPemToKS(SecureDomain domain) throws IOException
+    public static void convertPemToKS(SecureDomain domain)
+            throws IOException, InterruptedException
     {
         String convertCommand = "sudo bash convert_pem_to_ks.sh";
         ArrayList<String> arguments = new ArrayList<String>();

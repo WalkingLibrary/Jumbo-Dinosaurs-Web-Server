@@ -47,7 +47,7 @@ public class LinuxUtil
                 LogManager.consoleLogger.debug(output);
             }
         }
-        catch(IOException e)
+        catch(IOException | InterruptedException e)
         {
             LogManager.consoleLogger.error(e.getMessage(), e);
         }
