@@ -6,6 +6,7 @@ import com.jumbodinosaurs.devlib.util.GeneralUtil;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class OptionUtil
 {
@@ -52,9 +53,9 @@ public class OptionUtil
     }
     
     
-    public static ArrayList<String> getGETDirPaths()
+    public static CopyOnWriteArrayList<String> getGETDirPaths()
     {
-        ArrayList<String> getDirPaths = new ArrayList<String>();
+        CopyOnWriteArrayList<String> getDirPaths = new CopyOnWriteArrayList<String>();
         getDirPaths = getOptionsManager().getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPaths)
                                          .getOption();
         //We add the Main Get Dir
@@ -77,7 +78,7 @@ public class OptionUtil
     
     public static <E> void setOption(Option<E> option)
     {
-        optionsManager.setOption(option);
+        getOptionsManager().setOption(option);
     }
     
     public synchronized static OptionsManager getOptionsManager()
