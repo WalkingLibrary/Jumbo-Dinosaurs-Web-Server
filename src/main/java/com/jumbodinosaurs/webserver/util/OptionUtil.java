@@ -6,11 +6,10 @@ import com.jumbodinosaurs.devlib.util.GeneralUtil;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class OptionUtil
 {
-    private static File optionsJson = GeneralUtil.checkFor(ServerUtil.serverDataDir, "options.json");
+    public static File optionsJson = GeneralUtil.checkFor(ServerUtil.serverDataDir, "options.json");
     private static OptionsManager optionsManager = new OptionsManager(optionsJson);
     
     
@@ -53,9 +52,9 @@ public class OptionUtil
     }
     
     
-    public static CopyOnWriteArrayList<String> getGETDirPaths()
+    public static ArrayList<String> getGETDirPaths()
     {
-        CopyOnWriteArrayList<String> getDirPaths = new CopyOnWriteArrayList<String>();
+        ArrayList<String> getDirPaths = new ArrayList<String>();
         getDirPaths = getOptionsManager().getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPaths)
                                          .getOption();
         //We add the Main Get Dir

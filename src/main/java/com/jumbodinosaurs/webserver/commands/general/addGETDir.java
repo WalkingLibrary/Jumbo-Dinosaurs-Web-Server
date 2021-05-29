@@ -9,7 +9,7 @@ import com.jumbodinosaurs.webserver.util.OptionIdentifier;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
 
 import java.io.File;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
 
 public class addGETDir extends Command
 {
@@ -20,9 +20,8 @@ public class addGETDir extends Command
         System.out.println("Enter a new Dir");
         String path = OperatorConsole.getEnsuredAnswer();
     
-        Option<CopyOnWriteArrayList<String>> getDirPaths = new Option<CopyOnWriteArrayList<String>>(OptionUtil.getGETDirPaths(),
-                                                                                                    OptionIdentifier.getDirPath
-                                                                                                            .getIdentifier());
+        Option<ArrayList<String>> getDirPaths = new Option<ArrayList<String>>(OptionUtil.getGETDirPaths(),
+                                                                              OptionIdentifier.getDirPath.getIdentifier());
         try
         {
             File newDir = new File(path);
