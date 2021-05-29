@@ -3,6 +3,7 @@ package com.jumbodinosaurs.webserver.util;
 import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.reflection.ResourceLoaderUtil;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.devlib.util.objects.ProcessOutput;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,8 +44,9 @@ public class LinuxUtil
             //run dos2unix command on all of them
             for(File file: unpackedScriptsDir.listFiles())
             {
-                String output = GeneralUtil.execute("sudo dos2unix " + file.getName(),null, unpackedScriptsDir);
-                LogManager.consoleLogger.debug(output);
+                ProcessOutput output = GeneralUtil.execute("sudo dos2unix " + file.getName(), null, unpackedScriptsDir);
+                LogManager.consoleLogger.debug(output.getSuccessOutput());
+                LogManager.consoleLogger.debug(output.getFailureOutput());
             }
         }
         catch(IOException | InterruptedException e)

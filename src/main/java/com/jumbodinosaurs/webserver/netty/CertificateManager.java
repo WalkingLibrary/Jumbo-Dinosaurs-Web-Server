@@ -6,6 +6,7 @@ import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
 import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.options.NoSuchOptionException;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.devlib.util.objects.ProcessOutput;
 import com.jumbodinosaurs.webserver.domain.util.SecureDomain;
 import com.jumbodinosaurs.webserver.util.LinuxUtil;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
@@ -82,8 +83,9 @@ public class CertificateManager
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(domain.getDomain());
         arguments.add(domain.getGetDir().getAbsolutePath());
-        String output = GeneralUtil.execute(renewCommand, arguments, LinuxUtil.unpackedScriptsDir);
-        LogManager.consoleLogger.debug(output);
+        ProcessOutput output = GeneralUtil.execute(renewCommand, arguments, LinuxUtil.unpackedScriptsDir);
+        LogManager.consoleLogger.debug(output.getSuccessOutput());
+        LogManager.consoleLogger.debug(output.getFailureOutput());
     }
     
     private static void makeCertificate(SecureDomain domain, Email email)
@@ -94,8 +96,9 @@ public class CertificateManager
         arguments.add(domain.getGetDir().getAbsolutePath());
         arguments.add(domain.getDomain());
         arguments.add(email.getUsername());
-        String output = GeneralUtil.execute(createCommand, arguments, LinuxUtil.unpackedScriptsDir);
-        LogManager.consoleLogger.debug(output);
+        ProcessOutput output = GeneralUtil.execute(createCommand, arguments, LinuxUtil.unpackedScriptsDir);
+        LogManager.consoleLogger.debug(output.getSuccessOutput());
+        LogManager.consoleLogger.debug(output.getFailureOutput());
     }
     
     public static void convertPemToKS(SecureDomain domain)
@@ -105,7 +108,8 @@ public class CertificateManager
         ArrayList<String> arguments = new ArrayList<String>();
         arguments.add(domain.getDomain());
         arguments.add(domain.getCertificatePassword());
-        String output = GeneralUtil.execute(convertCommand, arguments, LinuxUtil.unpackedScriptsDir);
-        LogManager.consoleLogger.debug(output);
+        ProcessOutput output = GeneralUtil.execute(convertCommand, arguments, LinuxUtil.unpackedScriptsDir);
+        LogManager.consoleLogger.debug(output.getSuccessOutput());
+        LogManager.consoleLogger.debug(output.getFailureOutput());
     }
 }
