@@ -1,4 +1,4 @@
-<configuration debug="false">
+<configuration>
     <property name="LOG_DIR" value="Server Data/Log"/>
     <property name="LOG_FILE_SESSION" value="sessionLogFile"/>
 

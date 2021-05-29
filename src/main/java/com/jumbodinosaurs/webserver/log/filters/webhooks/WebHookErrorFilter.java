@@ -7,6 +7,7 @@ import com.jumbodinosaurs.devlib.discord.DiscordWebHookAPIMessage;
 import com.jumbodinosaurs.devlib.log.filters.webhook.objects.WebHookSubscriber;
 import com.jumbodinosaurs.devlib.util.WebUtil;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
+import com.jumbodinosaurs.webserver.util.ServerUtil;
 
 import java.io.IOException;
 
@@ -18,7 +19,7 @@ public class WebHookErrorFilter extends WebHookSubscriber
         if(event.getLevel().toInt() == Level.ERROR_INT)
         {
             String avatarUrl = "https://cdn.discordapp.com/attachments/689414999395139658/833506775604920340/doom-guy-59c95c9a5a880.png";
-            String username = "Web Server";
+            String username = "Web Server \"" + ServerUtil.host + "\"";
             String error = event.getMessage();
             
             DiscordWebHookAPIMessage message = new DiscordWebHookAPIMessage(username, avatarUrl, error);

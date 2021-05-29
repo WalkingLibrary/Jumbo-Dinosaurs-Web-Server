@@ -79,7 +79,7 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
         }
         catch(Exception e)
         {
-            LogManager.consoleLogger.error("Uncaught Exception in HTTP Handler", e);
+            LogManager.consoleLogger.error("Uncaught Exception in HTTP Handler: " + e.getMessage(), e);
         }
         
     }
