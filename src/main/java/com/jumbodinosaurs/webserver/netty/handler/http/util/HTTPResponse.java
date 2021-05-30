@@ -24,9 +24,11 @@ public class HTTPResponse
     //headers
     private final String locationHeader = "\r\nLocation:";
     private final String closeHeader = " \r\nConnection: Close\r\n\r\n";
+    private final String keepAliveHeader = "\r\nConnection: keep-alive\r\n\r\n";
     
     private String messageOut;
     private byte[] bytesOut;
+    private boolean keepConnectionAlive = false;
     
     public HTTPResponse()
     {
@@ -49,12 +51,17 @@ public class HTTPResponse
         this.bytesOut = bytesOut;
     }
     
+    public String getCloseHeader()
+    {
+        return this.keepConnectionAlive ? this.keepAliveHeader : this.closeHeader;
+    }
+    
     
     public void setMessage200(String headers, byte[] bytesOut)
     {
         this.messageOut = this.sC200;
         this.messageOut += headers;
-        this.messageOut += closeHeader;
+        this.messageOut += this.getCloseHeader();
         this.bytesOut = bytesOut;
     }
     
@@ -62,21 +69,21 @@ public class HTTPResponse
     {
         this.messageOut = this.sC200;
         this.messageOut += headers;
-        this.messageOut += closeHeader;
+        this.messageOut += this.getCloseHeader();
         this.messageOut += payload;
     }
     
     public void setMessage200(String payload)
     {
         this.messageOut = this.sC200;
-        this.messageOut += closeHeader;
+        this.messageOut += this.getCloseHeader();
         this.messageOut += payload;
     }
     
     public void setMessage200()
     {
         this.messageOut = this.sC200;
-        this.messageOut += closeHeader;
+        this.messageOut += this.getCloseHeader();
     }
     
     public void setMessageToRedirectToHTTPS(HTTPMessage request)
@@ -89,34 +96,34 @@ public class HTTPResponse
         }
         this.messageOut = this.sC301;
         this.messageOut += this.locationHeader + " https://" + messageHost + request.getPath();
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
     }
     
     public void setMessage400()
     {
         this.messageOut = this.sC400;
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
         setDebug();
     }
     
     public void setMessage400(String payload)
     {
         this.messageOut = this.sC400;
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
         this.messageOut += payload;
     }
     
     public void setMessage403()
     {
         this.messageOut = this.sC403;
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
     }
     
     //Sets the message to send as 404
     public void setMessage404()
     {
         this.messageOut = this.sC404;
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
         this.messageOut += GeneralUtil.scanFileContents(ServerUtil.safeSearchDir(ServerUtil.getDirectory,
                                                                                  "/404.html",
                                                                                  true));
@@ -125,19 +132,19 @@ public class HTTPResponse
     public void setMessage409()
     {
         this.messageOut = this.sC409;
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
     }
     
     public void setMessage500()
     {
         this.messageOut = this.sC500;
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
     }
     
     public void setMessage501()
     {
         this.messageOut = this.sC501;
-        this.messageOut += this.closeHeader;
+        this.messageOut += this.getCloseHeader();
     }
     
     public void addPayload(String payload)
@@ -186,10 +193,19 @@ public class HTTPResponse
     }
     
     
-    
     @Override
     public String toString()
     {
         return "HTTPResponse{" + "messageOut='" + messageOut + '\'' + '}';
+    }
+    
+    public boolean shouldKeepConnectionAlive()
+    {
+        return keepConnectionAlive;
+    }
+    
+    public void setKeepConnectionAlive(boolean keepConnectionAlive)
+    {
+        this.keepConnectionAlive = keepConnectionAlive;
     }
 }

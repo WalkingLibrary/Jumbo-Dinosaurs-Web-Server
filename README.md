@@ -13,7 +13,8 @@ Java Based Web Server
 
 ### Todos
 
-- add easier to use console commands
+
+- keep alive post commands?
 - fix email verification to link?
 - Front end js api??
 - statistics/health report??
@@ -22,6 +23,7 @@ Java Based Web Server
 - Add localHost "Support"
 - updating index page
 - file sync? proxy?
+- add easier to use console commands
 - prep for Trom-Bone Integration
 
 

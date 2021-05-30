@@ -21,7 +21,7 @@ public class HTTPMessageFramer extends StringDecoder
         //Write the buffer to the pipeline
         ChannelFuture promise = context.close();
         //Add Futures to close the connection when the bytes are sent
-        promise.addListener(new CompletionFuture());
+        promise.addListener(new CompletionFuture(true));
         promise.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
     
