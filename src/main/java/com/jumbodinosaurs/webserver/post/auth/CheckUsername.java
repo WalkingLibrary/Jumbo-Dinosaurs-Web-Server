@@ -5,7 +5,7 @@ import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 
 public class CheckUsername extends PostCommand
@@ -17,9 +17,11 @@ public class CheckUsername extends PostCommand
         String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         JsonObject reason = new JsonObject();
         reason.addProperty("isUserNameTaken", AuthUtil.isUserNameTaken(request.getUsername()));
-        response.setMessage200(jsonApplicationTypeHeader, reason.toString());
+        response.setMessage200();
+        response.addHeaders(jsonApplicationTypeHeader);
+        response.setBytesOut(reason.toString().getBytes());
         return response;
-        
+    
     }
     
     @Override

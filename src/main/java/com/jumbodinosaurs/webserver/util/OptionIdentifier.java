@@ -11,7 +11,8 @@ public enum OptionIdentifier
     userDataBaseName("userDataBaseName"),
     getDirPath("getDirPath"),
     hiddenDirs("hiddenDirs"),
-    webhook("webhook");
+    webhook("webhook"),
+    maxAmountOfConnections("maxAmountOfConnections");
     private String identifier;
     
     OptionIdentifier(String identifier)

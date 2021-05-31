@@ -6,6 +6,7 @@ import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.domain.DomainManager;
 import com.jumbodinosaurs.webserver.domain.util.Domain;
 import com.jumbodinosaurs.webserver.netty.handler.http.exceptions.NoSuchHeaderException;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ClientHeaderPatterns;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;

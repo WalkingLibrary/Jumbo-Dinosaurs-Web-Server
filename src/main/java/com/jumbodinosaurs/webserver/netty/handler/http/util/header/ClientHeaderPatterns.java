@@ -1,4 +1,4 @@
-package com.jumbodinosaurs.webserver.netty.handler.http.util;
+package com.jumbodinosaurs.webserver.netty.handler.http.util.header;
 
 public enum ClientHeaderPatterns
 {

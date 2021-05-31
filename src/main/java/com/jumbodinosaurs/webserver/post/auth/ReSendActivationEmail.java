@@ -9,7 +9,7 @@ import com.jumbodinosaurs.webserver.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 import com.jumbodinosaurs.webserver.util.PasswordStorage;
 
@@ -42,7 +42,9 @@ public class ReSendActivationEmail extends PostCommand
             String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
             JsonObject object = new JsonObject();
             object.addProperty("isActive", true);
-            response.setMessage200(jsonApplicationTypeHeader, object.toString());
+            response.setMessage200();
+            response.addHeaders(jsonApplicationTypeHeader);
+            response.setBytesOut(object.toString().getBytes());
             return response;
         }
     
@@ -155,7 +157,9 @@ public class ReSendActivationEmail extends PostCommand
         String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         JsonObject object = new JsonObject();
         object.addProperty("isActive", false);
-        response.setMessage200(jsonApplicationTypeHeader, object.toString());
+        response.setMessage200();
+        response.addHeaders(jsonApplicationTypeHeader);
+        response.setBytesOut(object.toString().getBytes());
         return response;
     }
     

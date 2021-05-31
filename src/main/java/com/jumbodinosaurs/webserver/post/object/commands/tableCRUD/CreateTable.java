@@ -80,7 +80,7 @@ public class CreateTable extends CRUDCommand
             response.setMessage409();
             JsonObject reason = new JsonObject();
             reason.addProperty("failureReason", "Table Display Name Not Valid");
-            response.addPayload(reason.toString());
+            response.setBytesOut(reason.toString().getBytes());
             return response;
         }
     

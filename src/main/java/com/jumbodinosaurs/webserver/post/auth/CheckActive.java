@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 
 public class CheckActive extends PostCommand
@@ -21,10 +21,12 @@ public class CheckActive extends PostCommand
         HTTPResponse response = new HTTPResponse();
         String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         boolean isActive = authSession.getUser().isActive();
-        
+    
         JsonObject object = new JsonObject();
         object.addProperty("isActive", isActive);
-        response.setMessage200(jsonApplicationTypeHeader, object.toString());
+        response.setMessage200();
+        response.addHeaders(jsonApplicationTypeHeader);
+        response.setBytesOut(object.toString().getBytes());
         return response;
     }
     

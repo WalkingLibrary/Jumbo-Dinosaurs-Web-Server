@@ -51,8 +51,15 @@ public class OptionUtil
                                   .getOption();
     }
     
+    public static int getMaxAmountOfConnections()
+    {
+        int defaultMaxAmountOfConnections = 32000;
+        return getOptionsManager().getOption(OptionIdentifier.maxAmountOfConnections.getIdentifier(),
+                                             defaultMaxAmountOfConnections).getOption();
+    }
     
-    public static ArrayList<String> getGETDirPaths()
+    
+    public synchronized static ArrayList<String> getGETDirPaths()
     {
         ArrayList<String> getDirPaths = new ArrayList<String>();
         getDirPaths = getOptionsManager().getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPaths)

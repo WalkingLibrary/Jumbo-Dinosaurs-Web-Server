@@ -7,9 +7,11 @@ import com.jumbodinosaurs.webserver.post.PostCommand;
 
 public class KeepAliveCommand extends PostCommand
 {
+    
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
+    
         return null;
     }
     

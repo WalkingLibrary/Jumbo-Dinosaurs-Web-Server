@@ -5,7 +5,7 @@ import com.jumbodinosaurs.devlib.reflection.ReflectionUtil;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 import com.jumbodinosaurs.webserver.post.object.ObjectTypeList;
 import com.jumbodinosaurs.webserver.post.object.PostObject;
@@ -25,18 +25,20 @@ public class GetObjectTypes extends PostCommand
          *  */
         HTTPResponse response = new HTTPResponse();
         //Check/Verify CRUDRequest Attributes
-        
-        
+    
+    
         ArrayList<Class> objectClassTypes = ReflectionUtil.getSubClasses(PostObject.class);
         ArrayList<String> objectTypes = new ArrayList<String>();
         for(Class clazz : objectClassTypes)
         {
             objectTypes.add(clazz.getSimpleName());
         }
-        
+    
         String listResponse = new Gson().toJson(new ObjectTypeList(objectTypes));
         String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
-        response.setMessage200(jsonApplicationTypeHeader, listResponse);
+        response.setMessage200();
+        response.addHeaders(jsonApplicationTypeHeader);
+        response.setBytesOut(listResponse.getBytes());
         return response;
     }
     

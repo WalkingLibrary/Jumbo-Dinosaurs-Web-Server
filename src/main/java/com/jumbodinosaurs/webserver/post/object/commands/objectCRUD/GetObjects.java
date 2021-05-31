@@ -9,7 +9,7 @@ import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.object.*;
 
 import java.lang.reflect.Modifier;
@@ -117,7 +117,7 @@ public class GetObjects extends CRUDCommand
             response.setMessage500();
             return response;
         }
-        
+    
         //By default Json escapes HTML
         // static final boolean DEFAULT_ESCAPE_HTML = true;
         // NOTE: the client needs to have the ID of the Objects for manipulation purposes
@@ -125,10 +125,12 @@ public class GetObjects extends CRUDCommand
         //So we make a special Gson Object
         Gson transientIgnorableGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE).create();
         String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
-        response.setMessage200(jsonApplicationTypeHeader, transientIgnorableGson.toJson(foundObjects));
+        response.setMessage200();
+        response.addHeaders(jsonApplicationTypeHeader);
+        response.setBytesOut(transientIgnorableGson.toJson(foundObjects).getBytes());
         return response;
-        
-        
+    
+    
     }
     
     @Override

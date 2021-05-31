@@ -80,7 +80,7 @@ public class CreateAccount extends PostCommand
             response.setMessage409();
             JsonObject reason = new JsonObject();
             reason.addProperty("failureReason", "Invalid Email");
-            response.addPayload(reason.toString());
+            response.setBytesOut(reason.toString().getBytes());
             return response;
         }
         
@@ -90,7 +90,7 @@ public class CreateAccount extends PostCommand
             response.setMessage409();
             JsonObject reason = new JsonObject();
             reason.addProperty("failureReason", "Username Taken");
-            response.addPayload(reason.toString());
+            response.setBytesOut(reason.toString().getBytes());
             return response;
         }
         
@@ -101,7 +101,7 @@ public class CreateAccount extends PostCommand
             response.setMessage409();
             JsonObject reason = new JsonObject();
             reason.addProperty("failureReason", "Username given was not valid");
-            response.addPayload(reason.toString());
+            response.setBytesOut(reason.toString().getBytes());
             return response;
         }
     

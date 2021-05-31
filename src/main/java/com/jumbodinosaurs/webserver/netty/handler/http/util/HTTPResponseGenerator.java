@@ -10,6 +10,8 @@ import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
 import com.jumbodinosaurs.webserver.auth.util.FailureReasons;
 import com.jumbodinosaurs.webserver.auth.util.WatchListUtil;
 import com.jumbodinosaurs.webserver.domain.util.Domain;
+import com.jumbodinosaurs.webserver.log.Session;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 import com.jumbodinosaurs.webserver.post.PostCommandUtil;
 import com.jumbodinosaurs.webserver.post.exceptions.NoSuchPostCommand;
@@ -20,7 +22,14 @@ import java.io.File;
 
 public class HTTPResponseGenerator
 {
-    public static HTTPResponse generateResponse(HTTPMessage message)
+    private Session sessionContext;
+    
+    public HTTPResponseGenerator(Session sessionContext)
+    {
+        this.sessionContext = sessionContext;
+    }
+    
+    public HTTPResponse generateResponse(HTTPMessage message)
     {
         if(message.getMethod().equals(Method.GET))
         {
@@ -78,56 +87,17 @@ public class HTTPResponseGenerator
                 response.setMessage404();
                 return response;
             }
-    
-    
-            //Next we need to form our headers for the message which depends on the type of file we are sending
+            
+            
             String headers = "";
             String type = GeneralUtil.getType(fileToServe);
-    
-    
-            if(ResponseHeaderUtil.getImageFileTypes().contains(type))
-            {
-                byte[] photoBytes = ServerUtil.readPhoto(fileToServe);
-                headers += ResponseHeaderUtil.contentImageHeader + type;
-                headers += ResponseHeaderUtil.contentLengthHeader + photoBytes.length;
-                HTTPResponse response = new HTTPResponse();
-                response.setMessage200(headers, photoBytes);
-                return response;
-            }
-    
-    
-            if(ResponseHeaderUtil.getApplicationFileTypes().contains(type))
-            {
-                byte[] applicationBytes = ServerUtil.readZip(fileToServe);
-                headers += ResponseHeaderUtil.contentApplicationHeader + type;
-                headers += ResponseHeaderUtil.contentLengthHeader + applicationBytes.length;
-                HTTPResponse response = new HTTPResponse();
-                response.setMessage200(headers, applicationBytes);
-                return response;
-            }
-    
-            if(ResponseHeaderUtil.getModelTypes().contains(type))
-            {
-                byte[] modelBytes = ServerUtil.readZip(fileToServe);
-                headers += ResponseHeaderUtil.contentApplicationHeader + type;
-                headers += ResponseHeaderUtil.contentLengthHeader + modelBytes.length;
-                HTTPResponse response = new HTTPResponse();
-                response.setMessage200(headers, modelBytes);
-                return response;
-            }
-    
-            if(ResponseHeaderUtil.getScriptFileTypes().contains(type))
-            {
-                headers += ResponseHeaderUtil.contentApplicationHeader + "x-javascript";
-                HTTPResponse response = new HTTPResponse();
-                response.setMessage200(headers, GeneralUtil.scanFileContents(fileToServe));
-                return response;
-            }
-    
-    
-            headers += ResponseHeaderUtil.contentTextHeader + type;
+            
+            byte[] fileBytes = ServerUtil.scanFile(fileToServe);
+            headers += ResponseHeaderUtil.getContentHeader(type);
             HTTPResponse response = new HTTPResponse();
-            response.setMessage200(headers, GeneralUtil.scanFileContents(fileToServe));
+            response.setMessage200();
+            response.addHeaders(headers);
+            response.setBytesOut(fileBytes);
             return response;
         }
         else if(message.getMethod().equals(Method.POST))

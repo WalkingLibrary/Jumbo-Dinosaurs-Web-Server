@@ -6,7 +6,7 @@ import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.domain.DomainManager;
 import com.jumbodinosaurs.webserver.domain.util.Domain;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 
 public class GetPublicCaptchaCode extends PostCommand
@@ -68,18 +68,20 @@ public class GetPublicCaptchaCode extends PostCommand
     
             return response;
         }
-        
+    
         if(domainSpecified.getCaptchaKey() == null)
         {
             response.setMessage400();
-    
-    
+        
+        
             return response;
         }
         String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
         JsonObject captchaCodeResponse = new JsonObject();
         captchaCodeResponse.addProperty("publicCaptchaCode", domainSpecified.getCaptchaKey().getSiteKey());
-        response.setMessage200(jsonApplicationTypeHeader, captchaCodeResponse.toString());
+        response.setMessage200();
+        response.addHeaders(jsonApplicationTypeHeader);
+        response.setBytesOut(captchaCodeResponse.toString().getBytes());
         return response;
     }
     

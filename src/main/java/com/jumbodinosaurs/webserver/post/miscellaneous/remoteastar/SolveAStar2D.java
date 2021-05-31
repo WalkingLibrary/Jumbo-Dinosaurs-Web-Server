@@ -13,7 +13,7 @@ import com.jumbodinosaurs.devlib.util.objects.Point2D;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 
 import java.util.ArrayList;
@@ -146,13 +146,13 @@ public class SolveAStar2D extends PostCommand
             {
             
             }
-        
+    
             @Override
             public void buildingLoopHookMiddle()
             {
             
             }
-        
+    
             @Override
             public void buildingLoopHookEnd()
             {
@@ -171,7 +171,9 @@ public class SolveAStar2D extends PostCommand
             JsonObject object = new JsonObject();
             object.addProperty("failureReason", "NoPath");
             String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
-            response.setMessage200(jsonApplicationTypeHeader, object.toString());
+            response.setMessage200();
+            response.addHeaders(jsonApplicationTypeHeader);
+            response.setBytesOut(object.toString().getBytes());
             return response;
         }
         catch(PreMatureStopException e)
@@ -197,7 +199,9 @@ public class SolveAStar2D extends PostCommand
         JsonObject object = new JsonObject();
         object.addProperty("solvedMap", new Gson().toJson(aStar2DIntArrayMap));
         String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
-        response.setMessage200(jsonApplicationTypeHeader, object.toString());
+        response.setMessage200();
+        response.addHeaders(jsonApplicationTypeHeader);
+        response.setBytesOut(object.toString().getBytes());
         return response;
     }
     

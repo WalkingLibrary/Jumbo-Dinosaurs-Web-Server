@@ -10,6 +10,7 @@ import com.jumbodinosaurs.webserver.util.OptionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHandlerHolder
@@ -35,17 +36,28 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
             try
             {
                 HTTPMessage message = HTTPParser.parseResponse(msg);
-                
+    
                 HTTPResponse response = new HTTPResponse();
-                
+    
                 if(!msg.isSecureConnection() && OptionUtil.shouldUpgradeInsecureConnections())
                 {
                     response.setMessageToRedirectToHTTPS(message);
                 }
                 else
                 {
-                    response = HTTPResponseGenerator.generateResponse(message);
+                    String startTime = LocalDateTime.now().toString();
+        
+                    HTTPResponseGenerator httpResponseGenerator = new HTTPResponseGenerator(msg);
+                    response = httpResponseGenerator.generateResponse(message);
+        
+        
+                    if(message.getMethod() == Method.POST)
+                    {
+                        System.out.println("Start Time: " + startTime);
+                        System.out.println("End Time: " + LocalDateTime.now());
+                    }
                 }
+                response.setClosingHeaders();
     
                 //Would be kinda point less to hash a password if we saved it over in logs.json :P
                 msg.setMessage(message.getCensoredMessage());
@@ -83,6 +95,7 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
         }
         
     }
+    
     
     @Override
     public void exceptionCaught(ChannelHandlerContext context, Throwable cause)

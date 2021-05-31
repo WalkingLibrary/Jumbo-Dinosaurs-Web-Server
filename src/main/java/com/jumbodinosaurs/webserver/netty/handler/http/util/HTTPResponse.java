@@ -2,6 +2,7 @@ package com.jumbodinosaurs.webserver.netty.handler.http.util;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.webserver.domain.util.Domain;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
 import com.jumbodinosaurs.webserver.util.ServerUtil;
 
 import java.util.Objects;
@@ -46,110 +47,19 @@ public class HTTPResponse
         return bytesOut;
     }
     
-    public void setBytesOut(byte[] bytesOut)
+    public void setBytesOut(byte[] payload)
     {
-        this.bytesOut = bytesOut;
+        this.bytesOut = payload;
     }
     
-    public String getCloseHeader()
+    public void setClosingHeaders()
     {
-        return this.keepConnectionAlive ? this.keepAliveHeader : this.closeHeader;
-    }
-    
-    
-    public void setMessage200(String headers, byte[] bytesOut)
-    {
-        this.messageOut = this.sC200;
-        this.messageOut += headers;
-        this.messageOut += this.getCloseHeader();
-        this.bytesOut = bytesOut;
-    }
-    
-    public void setMessage200(String headers, String payload)
-    {
-        this.messageOut = this.sC200;
-        this.messageOut += headers;
-        this.messageOut += this.getCloseHeader();
-        this.messageOut += payload;
-    }
-    
-    public void setMessage200(String payload)
-    {
-        this.messageOut = this.sC200;
-        this.messageOut += this.getCloseHeader();
-        this.messageOut += payload;
-    }
-    
-    public void setMessage200()
-    {
-        this.messageOut = this.sC200;
-        this.messageOut += this.getCloseHeader();
-    }
-    
-    public void setMessageToRedirectToHTTPS(HTTPMessage request)
-    {
-        Domain messageHost = request.getDomain();
-        if(messageHost == null)
+        if(bytesOut != null)
         {
-            setMessage400();
-            return;
+            this.messageOut += ResponseHeaderUtil.contentLengthHeader + this.bytesOut.length;
         }
-        this.messageOut = this.sC301;
-        this.messageOut += this.locationHeader + " https://" + messageHost + request.getPath();
-        this.messageOut += this.getCloseHeader();
-    }
-    
-    public void setMessage400()
-    {
-        this.messageOut = this.sC400;
-        this.messageOut += this.getCloseHeader();
-        setDebug();
-    }
-    
-    public void setMessage400(String payload)
-    {
-        this.messageOut = this.sC400;
-        this.messageOut += this.getCloseHeader();
-        this.messageOut += payload;
-    }
-    
-    public void setMessage403()
-    {
-        this.messageOut = this.sC403;
-        this.messageOut += this.getCloseHeader();
-    }
-    
-    //Sets the message to send as 404
-    public void setMessage404()
-    {
-        this.messageOut = this.sC404;
-        this.messageOut += this.getCloseHeader();
-        this.messageOut += GeneralUtil.scanFileContents(ServerUtil.safeSearchDir(ServerUtil.getDirectory,
-                                                                                 "/404.html",
-                                                                                 true));
-    }
-    
-    public void setMessage409()
-    {
-        this.messageOut = this.sC409;
-        this.messageOut += this.getCloseHeader();
-    }
-    
-    public void setMessage500()
-    {
-        this.messageOut = this.sC500;
-        this.messageOut += this.getCloseHeader();
-    }
-    
-    public void setMessage501()
-    {
-        this.messageOut = this.sC501;
-        this.messageOut += this.getCloseHeader();
-    }
-    
-    public void addPayload(String payload)
-    {
-        messageOut += payload;
+        this.messageOut += this.keepConnectionAlive ? this.keepAliveHeader : this.closeHeader;
+        
     }
     
     public String getMessageToLog()
@@ -170,6 +80,74 @@ public class HTTPResponse
             System.out.println(element[i]);
         }
     }
+    
+    
+    public void addHeaders(String headers)
+    {
+        this.messageOut += headers;
+    }
+    
+    
+    public void setMessageToRedirectToHTTPS(HTTPMessage request)
+    {
+        Domain messageHost = request.getDomain();
+        if(messageHost == null)
+        {
+            setMessage400();
+            return;
+        }
+        this.messageOut = this.sC301;
+        this.messageOut += this.locationHeader + " https://" + messageHost + request.getPath();
+    }
+    
+    public void setMessage200()
+    {
+        this.messageOut = this.sC200;
+    }
+    
+    public void setMessage400()
+    {
+        this.messageOut = this.sC400;
+    }
+    
+    public void setMessage403()
+    {
+        this.messageOut = this.sC403;
+    }
+    
+    //Sets the message to send as 404
+    public void setMessage404()
+    {
+        this.messageOut = this.sC404;
+        try
+        {
+            String fourOFourFileContents = GeneralUtil.scanFileContents(ServerUtil.safeSearchDir(ServerUtil.getDirectory,
+                                                                                                 "/404.html",
+                                                                                                 true));
+            this.bytesOut = fourOFourFileContents.getBytes();
+        }
+        catch(NullPointerException ignored)
+        {
+        
+        }
+    }
+    
+    public void setMessage409()
+    {
+        this.messageOut = this.sC409;
+    }
+    
+    public void setMessage500()
+    {
+        this.messageOut = this.sC500;
+    }
+    
+    public void setMessage501()
+    {
+        this.messageOut = this.sC501;
+    }
+    
+    
     
     @Override
     public boolean equals(Object o)

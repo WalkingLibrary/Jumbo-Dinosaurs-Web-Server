@@ -123,16 +123,30 @@ public class ServerUtil
         return false;
     }
     
+    public static byte[] scanFile(File file)
+    {
+        byte[] fileContents = new byte[(int) file.length()];
+        try
+        {
+            
+            FileInputStream fileInputStream = new FileInputStream(file);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+            bufferedInputStream.read(fileContents, 0, fileContents.length);
+            fileInputStream.close();
+        }
+        catch(IOException e)
+        {
+            LogManager.consoleLogger.error(e.getMessage(), e);
+        }
+        return fileContents;
+    }
+    
     
     public static File getLogFileFromDate(LocalDateTime sessionDate)
     {
         try
         {
-            String localPath = "/Session Logs/" +
-                               sessionDate.getYear() +
-                               "/" +
-                               sessionDate.getMonth() +
-                               "/" +
+            String localPath = "/Session Logs/" + sessionDate.getYear() + "/" + sessionDate.getMonth() + "/" +
                                sessionDate.getDayOfMonth() +
                                "/" +
                                sessionDate.getHour() +

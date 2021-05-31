@@ -121,7 +121,7 @@ public abstract class CRUDCommand extends PostCommand
             response.setMessage400();
             JsonObject object = new JsonObject();
             object.addProperty("failureReason", "Table with ID: " + crudRequest.getTableID() + " does not exist");
-            response.addPayload(object.toString());
+            response.setBytesOut(object.toString().getBytes());
             return response;
         }
         
