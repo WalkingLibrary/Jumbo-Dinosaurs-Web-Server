@@ -57,6 +57,7 @@ public class ContentTypeUtil
     private static String getDefaultMappings()
     {
         ConcurrentHashMap<String, String> defaultMappings = new ConcurrentHashMap<String, String>();
+        defaultMappings.put("txt", "text/text");
         defaultMappings.put("html", "text/%s");
         defaultMappings.put("css", "text/%s");
         defaultMappings.put("png", "image/%s");

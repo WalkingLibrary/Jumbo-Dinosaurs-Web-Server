@@ -11,6 +11,7 @@ public class HTTPResponse
 {
     //Status Codes
     private final String sC100 = "HTTP/1.1 100 Continue";
+    private final String sC101 = "HTTP/1.1 101 Switching Protocols";
     private final String sC200 = "HTTP/1.1 200 OK";
     private final String sC301 = "HTTP/1.1 301  Permanently";
     private final String sC303 = "HTTP/1.1 303 Temporary";
@@ -58,13 +59,18 @@ public class HTTPResponse
         {
             this.messageOut += ResponseHeaderUtil.contentLengthHeader + this.bytesOut.length;
         }
-        this.messageOut += this.keepConnectionAlive ? this.keepAliveHeader : this.closeHeader;
+        this.messageOut += getCloseHeader();
         
+    }
+    
+    public String getCloseHeader()
+    {
+        return this.keepConnectionAlive ? this.keepAliveHeader : this.closeHeader;
     }
     
     public String getMessageToLog()
     {
-        return this.messageOut.substring(0, this.messageOut.indexOf(this.closeHeader));
+        return this.messageOut.substring(0, this.messageOut.indexOf(getCloseHeader()));
     }
     
     public void setDebug()
@@ -98,6 +104,16 @@ public class HTTPResponse
         }
         this.messageOut = this.sC301;
         this.messageOut += this.locationHeader + " https://" + messageHost + request.getPath();
+    }
+    
+    public void setMessage100()
+    {
+        this.messageOut = this.sC100;
+    }
+    
+    public void setMessage101()
+    {
+        this.messageOut = this.sC101;
     }
     
     public void setMessage200()
@@ -146,7 +162,6 @@ public class HTTPResponse
     {
         this.messageOut = this.sC501;
     }
-    
     
     
     @Override
