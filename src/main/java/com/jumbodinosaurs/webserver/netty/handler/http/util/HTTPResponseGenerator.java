@@ -99,8 +99,7 @@ public class HTTPResponseGenerator
                     pipeline.remove("handler");
                     pipeline.addFirst("webSocketHandler", new WebSocketHandler());
                     pipeline.addFirst("wsEncoder", new WebSocket13FrameEncoder(false));
-                    pipeline.addAfter("framer", "wsDecoder", new WebSocket13FrameDecoder(true, true, 1000));
-                    System.out.println(pipeline.toString());
+                    pipeline.addFirst("wsDecoder", new WebSocket13FrameDecoder(true, true, 1000));
                     //Create Handshake Response
                     HTTPResponse response = new HTTPResponse();
                     response.setMessage101();
@@ -110,7 +109,6 @@ public class HTTPResponseGenerator
                     headers.add(HeaderUtil.upgradeHeader.setValue("websocket"));
                     headers.add(HeaderUtil.secWebSocketAcceptHeader.setValue(serverKey));
                     response.addHeaders(headers);
-                    System.out.println("Response: " + response.toString());
                     return response;
                 }
             

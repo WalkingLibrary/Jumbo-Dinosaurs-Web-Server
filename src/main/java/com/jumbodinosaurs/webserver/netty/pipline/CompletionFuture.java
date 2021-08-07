@@ -7,9 +7,9 @@ public class CompletionFuture implements GenericFutureListener<ChannelFuture>
 {
     private boolean closeChannel;
     
-    public CompletionFuture(boolean closeChannel)
+    public CompletionFuture(boolean shouldCloseChannel)
     {
-        this.closeChannel = closeChannel;
+        this.closeChannel = shouldCloseChannel;
     }
     
     @Override
