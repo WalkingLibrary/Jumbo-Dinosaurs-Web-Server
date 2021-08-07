@@ -153,20 +153,23 @@ public class HTTPResponseGenerator
                     String webSocketUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                     byte[] sha1Key = WebSocketUtil.sha1((clientKey.trim() + webSocketUUID).getBytes());
                     String serverKey = Base64.getEncoder().encodeToString(sha1Key);
-        
-        
+    
+    
                     //Edit Pipeline
                     ChannelPipeline pipeline = sessionContext.getChannel().pipeline();
                     pipeline.remove("sessionDecoder");
+                    pipeline.remove("framer");
                     pipeline.remove("handler");
-                    pipeline.addFirst("webSocketHandler", new WebSocketHandler());
-                    pipeline.addFirst("websocketEncoder", webSocketEncoder);
-                    pipeline.addFirst("websocketDecoder", webSocketDecoder);
+    
+                    //Note: When changing the order in how pipeline is add be aware of the SSL Handler for secure pipes
+                    pipeline.addLast("websocketDecoder", webSocketDecoder);
+                    pipeline.addLast("websocketEncoder", webSocketEncoder);
+                    pipeline.addLast("webSocketHandler", new WebSocketHandler());
                     //Create Handshake Response
                     HTTPResponse response = new HTTPResponse();
                     response.setMessage101();
                     response.setKeepConnectionAlive(true);
-        
+    
                     ArrayList<HTTPHeader> headers = new ArrayList<HTTPHeader>();
                     headers.add(HeaderUtil.upgradeHeader.setValue("websocket"));
                     headers.add(HeaderUtil.secWebSocketAcceptHeader.setValue(serverKey));

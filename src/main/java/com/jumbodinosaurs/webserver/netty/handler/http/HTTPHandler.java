@@ -88,23 +88,15 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
         {
             String stackTrace = "";
             StackTraceElement[] elements = e.getStackTrace();
-            int linesToInclude = 3;
-            for(int i = elements.length - 1; i > elements.length - linesToInclude && i > 0; i--)
+            int linesToInclude = 6;
+            for(int i = 0; i < linesToInclude && i < elements.length; i++)
             {
                 StackTraceElement element = elements[i];
-                stackTrace += element;
+                stackTrace += element.toString() + "\n";
             }
             LogManager.consoleLogger.error("Uncaught Exception in HTTP Handler: ```" + stackTrace + "```");
         }
         
-    }
-    
-    protected String getWebSocketURL(HTTPMessage req)
-    {
-        System.out.println("Req URI : " + req.getPath());
-        String url = "ws://localhost/";
-        System.out.println("Constructed URL : " + url);
-        return url;
     }
     
     @Override
