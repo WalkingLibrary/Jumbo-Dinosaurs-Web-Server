@@ -7,7 +7,8 @@ import com.jumbodinosaurs.devlib.database.exceptions.WrongStorageFormatException
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HTTPHeader;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HeaderUtil;
 import com.jumbodinosaurs.webserver.post.object.CRUDCommand;
 import com.jumbodinosaurs.webserver.post.object.CRUDRequest;
 import com.jumbodinosaurs.webserver.post.object.CRUDUtil;
@@ -70,10 +71,10 @@ public class GetTables extends CRUDCommand
         // NOTE: the client needs to have the ID of the Table for manipulation purposes
         // The id Field is Transient and needs to be added to the serialized JSON Objects
         //So we make a special Gson Object
-        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+        HTTPHeader jsonApplicationTypeHeader = HeaderUtil.contentTypeHeader.setValue("json");
         Gson transientIgnorableGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.VOLATILE).create();
         response.setMessage200();
-        response.addHeaders(jsonApplicationTypeHeader);
+        response.addHeader(jsonApplicationTypeHeader);
         response.setBytesOut(transientIgnorableGson.toJson(tablesToReturn).getBytes());
         return response;
     }

@@ -8,7 +8,8 @@ import com.jumbodinosaurs.webserver.auth.server.User;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HTTPHeader;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 import com.jumbodinosaurs.webserver.util.PasswordStorage;
 
@@ -58,12 +59,12 @@ public class GetAuthToken extends PostCommand
         
         if(AuthUtil.updateUser(authSession, currentUser))
         {
-            String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+            HTTPHeader jsonApplicationTypeHeader = HeaderUtil.contentTypeHeader.setValue("json");
             JsonObject object = new JsonObject();
             object.addProperty("token", token);
             object.addProperty("tokenUse", AuthUtil.authUseName);
             response.setMessage200();
-            response.addHeaders(jsonApplicationTypeHeader);
+            response.addHeader(jsonApplicationTypeHeader);
             response.setBytesOut(object.toString().getBytes());
             return response;
         }

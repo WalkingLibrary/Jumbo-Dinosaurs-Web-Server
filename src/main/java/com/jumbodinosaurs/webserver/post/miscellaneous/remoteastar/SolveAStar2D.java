@@ -13,7 +13,8 @@ import com.jumbodinosaurs.devlib.util.objects.Point2D;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HTTPHeader;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 
 import java.util.ArrayList;
@@ -170,9 +171,9 @@ public class SolveAStar2D extends PostCommand
     
             JsonObject object = new JsonObject();
             object.addProperty("failureReason", "NoPath");
-            String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+            HTTPHeader jsonApplicationTypeHeader = HeaderUtil.contentTypeHeader.setValue("json");
             response.setMessage200();
-            response.addHeaders(jsonApplicationTypeHeader);
+            response.addHeader(jsonApplicationTypeHeader);
             response.setBytesOut(object.toString().getBytes());
             return response;
         }
@@ -198,9 +199,9 @@ public class SolveAStar2D extends PostCommand
         }
         JsonObject object = new JsonObject();
         object.addProperty("solvedMap", new Gson().toJson(aStar2DIntArrayMap));
-        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+        HTTPHeader jsonApplicationTypeHeader = HeaderUtil.contentTypeHeader.setValue("json");
         response.setMessage200();
-        response.addHeaders(jsonApplicationTypeHeader);
+        response.addHeader(jsonApplicationTypeHeader);
         response.setBytesOut(object.toString().getBytes());
         return response;
     }

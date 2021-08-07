@@ -2,9 +2,11 @@ package com.jumbodinosaurs.webserver.netty.handler.http.util;
 
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
 import com.jumbodinosaurs.webserver.domain.util.Domain;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HTTPHeader;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HeaderUtil;
 import com.jumbodinosaurs.webserver.util.ServerUtil;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class HTTPResponse
@@ -23,14 +25,12 @@ public class HTTPResponse
     private final String sC409 = "HTTP/1.1 409 Conflict";
     private final String sC500 = "HTTP/1.1 500 Internal Server Error";
     private final String sC501 = "HTTP/1.1 501 Not Implemented";
-    //headers
-    private final String locationHeader = "\r\nLocation:";
-    private final String closeHeader = " \r\nConnection: Close\r\n\r\n";
-    private final String keepAliveHeader = "\r\nConnection: keep-alive\r\n\r\n";
+    
     
     private String messageOut;
     private byte[] bytesOut;
     private boolean keepConnectionAlive = false;
+    public static final String headerSeparator = "\r\n";
     
     public HTTPResponse()
     {
@@ -57,20 +57,33 @@ public class HTTPResponse
     {
         if(bytesOut != null)
         {
-            this.messageOut += ResponseHeaderUtil.contentLengthHeader + this.bytesOut.length;
+            addHeader(HeaderUtil.contentLengthHeader.setValue("" + this.bytesOut.length));
         }
-        this.messageOut += getCloseHeader();
-        
+        addHeader(getCloseHeader());
+        this.messageOut += headerSeparator + headerSeparator;
     }
     
-    public String getCloseHeader()
+    public HTTPHeader getCloseHeader()
     {
-        return this.keepConnectionAlive ? this.keepAliveHeader : this.closeHeader;
+        return HeaderUtil.connectionHeader.setValue(this.keepConnectionAlive ? "keep-alive, upgrade" : "close");
+    }
+    
+    public void addHeader(HTTPHeader header)
+    {
+        this.messageOut += headerSeparator + header.toString();
+    }
+    
+    public void addHeaders(ArrayList<HTTPHeader> headers)
+    {
+        for(HTTPHeader header : headers)
+        {
+            this.messageOut += headerSeparator + header.toString();
+        }
     }
     
     public String getMessageToLog()
     {
-        return this.messageOut.substring(0, this.messageOut.indexOf(getCloseHeader()));
+        return this.messageOut.substring(0, this.messageOut.indexOf(getCloseHeader().toString()));
     }
     
     public void setDebug()
@@ -88,11 +101,6 @@ public class HTTPResponse
     }
     
     
-    public void addHeaders(String headers)
-    {
-        this.messageOut += headers;
-    }
-    
     
     public void setMessageToRedirectToHTTPS(HTTPMessage request)
     {
@@ -103,7 +111,7 @@ public class HTTPResponse
             return;
         }
         this.messageOut = this.sC301;
-        this.messageOut += this.locationHeader + " https://" + messageHost + request.getPath();
+        addHeader(HeaderUtil.locationHeader.setValue("https://" + messageHost + request.getPath()));
     }
     
     public void setMessage100()

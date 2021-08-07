@@ -9,7 +9,8 @@ import com.jumbodinosaurs.webserver.auth.server.captcha.CaptchaResponse;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
 import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
-import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ResponseHeaderUtil;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HTTPHeader;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HeaderUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 import com.jumbodinosaurs.webserver.util.PasswordStorage;
 
@@ -39,11 +40,11 @@ public class ReSendActivationEmail extends PostCommand
         // Make sure the account is not activated
         if(authSession.getUser().isActive())
         {
-            String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+            HTTPHeader jsonApplicationTypeHeader = HeaderUtil.contentTypeHeader.setValue("json");
             JsonObject object = new JsonObject();
             object.addProperty("isActive", true);
             response.setMessage200();
-            response.addHeaders(jsonApplicationTypeHeader);
+            response.addHeader(jsonApplicationTypeHeader);
             response.setBytesOut(object.toString().getBytes());
             return response;
         }
@@ -154,11 +155,11 @@ public class ReSendActivationEmail extends PostCommand
         }
     
         //Send 200 okay
-        String jsonApplicationTypeHeader = ResponseHeaderUtil.contentApplicationHeader + "json";
+        HTTPHeader jsonApplicationTypeHeader = HeaderUtil.contentTypeHeader.setValue("json");
         JsonObject object = new JsonObject();
         object.addProperty("isActive", false);
         response.setMessage200();
-        response.addHeaders(jsonApplicationTypeHeader);
+        response.addHeader(jsonApplicationTypeHeader);
         response.setBytesOut(object.toString().getBytes());
         return response;
     }
