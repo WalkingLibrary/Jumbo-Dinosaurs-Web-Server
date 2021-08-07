@@ -10,3 +10,9 @@
 /out/
 /JourneyMapUploader/out/
 /ExtraPostUtilities/out/
+/src/main/java/com/jumbodinosaurs/webserver/util/
+/ObjectUploader/journeymapDataDir/
+/ObjectUploader/Chunked Images/
+/ObjectUploader/build/
+/ObjectUploader/out/
+/ExtraPostUtilities/build/

@@ -86,7 +86,13 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
         }
         catch(Exception e)
         {
-            LogManager.consoleLogger.error("Uncaught Exception in HTTP Handler: " + e.getMessage(), e);
+            String stackTrace = "";
+    
+            for(StackTraceElement element : e.getStackTrace())
+            {
+                stackTrace += element;
+            }
+            LogManager.consoleLogger.error("Uncaught Exception in HTTP Handler: ```" + stackTrace + "```");
         }
         
     }
