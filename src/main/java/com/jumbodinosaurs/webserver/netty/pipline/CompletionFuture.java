@@ -5,11 +5,11 @@ import io.netty.util.concurrent.GenericFutureListener;
 
 public class CompletionFuture implements GenericFutureListener<ChannelFuture>
 {
-    private boolean closeChannel;
+    private boolean keepConnectionAlive;
     
-    public CompletionFuture(boolean shouldCloseChannel)
+    public CompletionFuture(boolean keepConnectionAlive)
     {
-        this.closeChannel = shouldCloseChannel;
+        this.keepConnectionAlive = keepConnectionAlive;
     }
     
     @Override
@@ -18,20 +18,20 @@ public class CompletionFuture implements GenericFutureListener<ChannelFuture>
     {
         if(future.isDone())
         {
-            if(shouldCloseChannel())
+            if(!keepConnectionAlive())
             {
                 future.channel().close();
             }
         }
     }
     
-    public boolean shouldCloseChannel()
+    public boolean keepConnectionAlive()
     {
-        return closeChannel;
+        return keepConnectionAlive;
     }
     
-    public void setCloseChannel(boolean closeChannel)
+    public void keepConnectionAlive(boolean keepConnectionAlive)
     {
-        this.closeChannel = closeChannel;
+        this.keepConnectionAlive = keepConnectionAlive;
     }
 }

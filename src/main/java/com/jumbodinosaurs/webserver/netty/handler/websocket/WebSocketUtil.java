@@ -1,12 +1,17 @@
 package com.jumbodinosaurs.webserver.netty.handler.websocket;
 
+import com.jumbodinosaurs.webserver.log.Session;
 import io.netty.util.concurrent.FastThreadLocal;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class WebSocketUtil
 {
+    
+    public static CopyOnWriteArrayList<Session> openWebSocketConnections = new CopyOnWriteArrayList<Session>();
+    
     private static final FastThreadLocal<MessageDigest> SHA1 = new FastThreadLocal<MessageDigest>()
     {
         @Override

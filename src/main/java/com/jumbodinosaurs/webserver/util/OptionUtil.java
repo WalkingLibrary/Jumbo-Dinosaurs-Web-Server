@@ -23,6 +23,12 @@ public class OptionUtil
         return getOptionsManager().getOption(OptionIdentifier.debugMode.getIdentifier(), false).getOption();
     }
     
+    public static boolean allowWebSocketConnections()
+    {
+        return getOptionsManager().getOption(OptionIdentifier.allowWebSocketConnections.getIdentifier(), true)
+                                  .getOption();
+    }
+    
     public static boolean allowPost()
     {
         return getOptionsManager().getOption(OptionIdentifier.allowPost.getIdentifier(), false).getOption();

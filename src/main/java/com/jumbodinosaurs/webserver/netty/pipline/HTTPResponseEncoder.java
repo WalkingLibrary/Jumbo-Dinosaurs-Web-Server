@@ -42,7 +42,7 @@ public class HTTPResponseEncoder extends MessageToMessageEncoder<HTTPResponse>
         //Write the buffer to the pipeline
         ChannelFuture promise = context.writeAndFlush(byteBuf);
         //Add Futures to close the connection when the bytes are sent
-        promise.addListener(new CompletionFuture(!response.shouldKeepConnectionAlive()));
+        promise.addListener(new CompletionFuture(response.shouldKeepConnectionAlive()));
         promise.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     
         if(response.shouldKeepConnectionAlive())

@@ -12,7 +12,8 @@ public enum OptionIdentifier
     getDirPath("getDirPath"),
     hiddenDirs("hiddenDirs"),
     webhook("webhook"),
-    maxAmountOfConnections("maxAmountOfConnections");
+    maxAmountOfConnections("maxAmountOfConnections"),
+    allowWebSocketConnections("allowWebSocketConnections");
     private String identifier;
     
     OptionIdentifier(String identifier)

@@ -23,9 +23,9 @@ import com.jumbodinosaurs.webserver.post.PostCommandUtil;
 import com.jumbodinosaurs.webserver.post.exceptions.NoSuchPostCommand;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
 import com.jumbodinosaurs.webserver.util.ServerUtil;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder;
-import io.netty.handler.codec.http.websocketx.WebSocket13FrameEncoder;
+import io.netty.handler.codec.http.websocketx.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import java.util.Base64;
 
 public class HTTPResponseGenerator
 {
-    private Session sessionContext;
+    private final Session sessionContext;
     
     public HTTPResponseGenerator(Session sessionContext)
     {
@@ -53,14 +53,22 @@ public class HTTPResponseGenerator
              * If we Don't have the file they are looking for we return a 404 message with the 404 page
              * Next we need to form our headers for the message which depends on the type of file we are sending
              */
-        
-        
+    
+    
             //We First need to check for upgrade requests
             //Detect Upgrade Requests
             try
             {
                 HTTPHeader upgradeHeader = HeaderUtil.extractHeader(message, ClientHeaderPatterns.UPGRADE_HEADER);
-            
+    
+                //We check to see if the server options allow Web Socket Connections
+                if(!OptionUtil.allowWebSocketConnections())
+                {
+                    HTTPResponse response = new HTTPResponse();
+                    response.setMessage409();
+                    return response;
+                }
+    
                 /*
                  * Process For Starting Websocket Session
                  * Parse Request info
@@ -71,8 +79,12 @@ public class HTTPResponseGenerator
                  *  */
                 if(upgradeHeader.getValue().equals("websocket"))
                 {
-                
-                    //Parse Request Info
+                    /* Process for Parsing Request Info
+                     * Get Client Key
+                     * Get Web Socket Version Default is 00
+                     *
+                     * */
+                    //Get Client Key
                     String clientKey;
                     try
                     {
@@ -86,47 +98,97 @@ public class HTTPResponseGenerator
                         response.setMessage400();
                         return response;
                     }
-                
+        
+                    /* Get Web Socket Version Default is 00
+                     * Netty Supported Versions
+                     * 00
+                     * 07
+                     * 08
+                     * 13
+                     *  */
+        
+                    int defaultMaxFrameSize = 1000;
+                    boolean expectMaskedFrames = true;
+                    boolean allowExtensions = true;
+                    boolean maskPayload = false;
+                    ChannelHandler webSocketDecoder, webSocketEncoder;
+        
+                    webSocketDecoder = new WebSocket00FrameDecoder(defaultMaxFrameSize);
+                    webSocketEncoder = new WebSocket00FrameEncoder();
+        
+                    try
+                    {
+                        HTTPHeader clientWebSocketVersionHeader = HeaderUtil.extractHeader(message,
+                                                                                           ClientHeaderPatterns.WEB_SOCKET_VERSION);
+            
+                        int version = Integer.parseInt(clientWebSocketVersionHeader.getValue());
+                        System.out.println("Version: " + version);
+                        switch(version)
+                        {
+                            case 7:
+                                webSocketDecoder = new WebSocket07FrameDecoder(expectMaskedFrames,
+                                                                               allowExtensions,
+                                                                               defaultMaxFrameSize);
+                                webSocketEncoder = new WebSocket07FrameEncoder(maskPayload);
+                            case 8:
+                                webSocketDecoder = new WebSocket08FrameDecoder(expectMaskedFrames,
+                                                                               allowExtensions,
+                                                                               defaultMaxFrameSize);
+                                webSocketEncoder = new WebSocket08FrameEncoder(maskPayload);
+                            case 13:
+                                webSocketDecoder = new WebSocket13FrameDecoder(expectMaskedFrames,
+                                                                               allowExtensions,
+                                                                               defaultMaxFrameSize);
+                                webSocketEncoder = new WebSocket13FrameEncoder(maskPayload);
+                        }
+            
+                    }
+                    catch(NoSuchHeaderException | NumberFormatException ignored)
+                    {
+            
+                    }
+        
+        
                     //Create response Key
                     String webSocketUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
                     byte[] sha1Key = WebSocketUtil.sha1((clientKey.trim() + webSocketUUID).getBytes());
                     String serverKey = Base64.getEncoder().encodeToString(sha1Key);
-                
-                
+        
+        
                     //Edit Pipeline
                     ChannelPipeline pipeline = sessionContext.getChannel().pipeline();
                     pipeline.remove("sessionDecoder");
                     pipeline.remove("handler");
                     pipeline.addFirst("webSocketHandler", new WebSocketHandler());
-                    pipeline.addFirst("wsEncoder", new WebSocket13FrameEncoder(false));
-                    pipeline.addFirst("wsDecoder", new WebSocket13FrameDecoder(true, true, 1000));
+                    pipeline.addFirst("websocketEncoder", webSocketEncoder);
+                    pipeline.addFirst("websocketDecoder", webSocketDecoder);
                     //Create Handshake Response
                     HTTPResponse response = new HTTPResponse();
                     response.setMessage101();
                     response.setKeepConnectionAlive(true);
-                
+        
                     ArrayList<HTTPHeader> headers = new ArrayList<HTTPHeader>();
                     headers.add(HeaderUtil.upgradeHeader.setValue("websocket"));
                     headers.add(HeaderUtil.secWebSocketAcceptHeader.setValue(serverKey));
                     response.addHeaders(headers);
                     return response;
                 }
-            
+    
             }
             catch(NoSuchHeaderException ignored)
             {
             
             }
-        
-        
+    
+    
             //We then need to analyze the file they are requesting and change it if need be
             String filePath = message.getPath();
             if(filePath.equals("/"))
             {
                 filePath = "/home.html";
             }
-        
-        
+    
+    
             /* Search Order
              * First we search the Domain Folder and return that if it find the file that was request
              * if not then we search the Listed GET Dirs and return that if we find the request file.
@@ -165,8 +227,8 @@ public class HTTPResponseGenerator
                 response.setMessage404();
                 return response;
             }
-        
-        
+    
+    
             ArrayList<HTTPHeader> headers = new ArrayList<HTTPHeader>();
             String type = GeneralUtil.getType(fileToServe);
             
