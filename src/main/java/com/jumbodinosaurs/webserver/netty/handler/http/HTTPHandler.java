@@ -87,9 +87,11 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
         catch(Exception e)
         {
             String stackTrace = "";
-    
-            for(StackTraceElement element : e.getStackTrace())
+            StackTraceElement[] elements = e.getStackTrace();
+            int linesToInclude = 3;
+            for(int i = elements.length - 1; i > elements.length - linesToInclude && i > 0; i--)
             {
+                StackTraceElement element = elements[i];
                 stackTrace += element;
             }
             LogManager.consoleLogger.error("Uncaught Exception in HTTP Handler: ```" + stackTrace + "```");
