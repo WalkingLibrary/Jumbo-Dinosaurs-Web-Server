@@ -122,7 +122,6 @@ public class HTTPResponseGenerator
                                                                                            ClientHeaderPatterns.WEB_SOCKET_VERSION);
             
                         int version = Integer.parseInt(clientWebSocketVersionHeader.getValue());
-                        System.out.println("Version: " + version);
                         switch(version)
                         {
                             case 7:

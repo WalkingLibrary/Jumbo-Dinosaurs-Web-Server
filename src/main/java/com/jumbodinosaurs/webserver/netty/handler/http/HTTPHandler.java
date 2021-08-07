@@ -49,7 +49,6 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 {
                     HTTPResponseGenerator httpResponseGenerator = new HTTPResponseGenerator(msg);
                     response = httpResponseGenerator.generateResponse(message);
-                    System.out.println(ctx.pipeline().toString());
         
                 }
                 response.setClosingHeaders();
@@ -95,6 +94,7 @@ public class HTTPHandler extends MessageToMessageDecoder<Session> implements IHa
                 stackTrace += element.toString() + "\n";
             }
             LogManager.consoleLogger.error("Uncaught Exception in HTTP Handler: ```" + stackTrace + "```");
+            e.printStackTrace();
         }
         
     }
