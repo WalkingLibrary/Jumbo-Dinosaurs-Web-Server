@@ -68,8 +68,8 @@ public class OptionUtil
     public synchronized static ArrayList<String> getGETDirPaths()
     {
         ArrayList<String> getDirPaths = new ArrayList<String>();
-        getDirPaths = getOptionsManager().getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPaths)
-                                         .getOption();
+        getDirPaths.addAll(getOptionsManager().getOption(OptionIdentifier.getDirPath.getIdentifier(), getDirPaths)
+                                              .getOption());
         //We add the Main Get Dir
         getDirPaths.add(ServerUtil.getDirectory.getAbsolutePath());
         return getDirPaths;
