@@ -112,7 +112,7 @@ public class HTTPParser
         {
             path = URLDecoder.decode(path, "UTF-8");
         }
-        catch(UnsupportedEncodingException e)
+        catch(UnsupportedEncodingException | IllegalArgumentException e)
         {
             throw new MalformedHTTPMessage(e.getMessage());
         }
