@@ -26,7 +26,18 @@ Java Based Web Server
 - add easier to use console commands
 - prep for Trom-Bone Integration
 
+Web Security
 
+- Secure cookies
+   - avoid using persistent cookies for session auth
+   - set the secure attribute
+   - Set the HttpOnly attribute
+   - set the samesite attribute
+
+- Reponse headers
+   - HTTP Strict Transport security
+     -cahce-control
+   - HSTS
 
 Reference:
 http://logback.qos.ch/manual/appenders.html
