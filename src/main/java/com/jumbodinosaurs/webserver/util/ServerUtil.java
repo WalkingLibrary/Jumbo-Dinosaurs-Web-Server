@@ -80,10 +80,16 @@ public class ServerUtil
         String hiddenDirPattern = File.separator + ".";
         for(File file : filesInAllowedDir)
         {
-            String cutPath = file.getAbsolutePath().substring(dirToSearch.getAbsolutePath().length());
-            if(matchPath)
+            String fileType = GeneralUtil.getType(file);
+            if (!localPath.endsWith(fileType))
             {
-                if(cutPath.equals(pathOfRequestedFile))
+                continue;
+            }
+
+            String cutPath = file.getAbsolutePath().substring(dirToSearch.getAbsolutePath().length());
+            if (matchPath)
+            {
+                if (cutPath.equals(pathOfRequestedFile))
                 {
                     fileToGive = file;
                     count++;
