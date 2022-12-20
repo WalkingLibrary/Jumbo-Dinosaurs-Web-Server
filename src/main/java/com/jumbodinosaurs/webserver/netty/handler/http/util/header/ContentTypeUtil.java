@@ -72,6 +72,7 @@ public class ContentTypeUtil
         defaultMappings.put("jar", "application/java-archive");
         defaultMappings.put("lua", "application/%s");
         defaultMappings.put("json", "application/%s");
+        defaultMappings.put("map", "application/json");
         defaultMappings.put("glb", "application/%s");
         defaultMappings.put("obj", "application/%s");
         defaultMappings.put("babylon", "application/%s");
