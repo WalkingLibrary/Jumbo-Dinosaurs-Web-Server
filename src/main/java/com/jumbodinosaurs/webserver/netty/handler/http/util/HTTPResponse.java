@@ -145,9 +145,9 @@ public class HTTPResponse
         this.messageOut = this.sC404;
         try
         {
-            String fourOFourFileContents = GeneralUtil.scanFileContents(ServerUtil.safeSearchDir(ServerUtil.getDirectory,
-                                                                                                 "/404.html",
-                                                                                                 true));
+            //We Can use Check for here as we aren't using User Input
+            String fourOFourFileContents = GeneralUtil.scanFileContents(
+                    GeneralUtil.checkFor(ServerUtil.getDirectory, "/404.html"));
             this.bytesOut = fourOFourFileContents.getBytes();
         }
         catch(NullPointerException ignored)
