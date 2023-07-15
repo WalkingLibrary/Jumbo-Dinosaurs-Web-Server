@@ -1,6 +1,15 @@
 package com.jumbodinosaurs.webserver.netty.handler.websocket;
 
 import com.jumbodinosaurs.webserver.log.Session;
+import com.jumbodinosaurs.webserver.netty.handler.http.exceptions.NoSuchHeaderException;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPMessage;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.HTTPResponse;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.ClientHeaderPatterns;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HTTPHeader;
+import com.jumbodinosaurs.webserver.netty.handler.http.util.header.HeaderUtil;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.concurrent.FastThreadLocal;
 
 import java.security.MessageDigest;
