@@ -129,24 +129,26 @@ public class HTTPResponseGenerator
     
     
             //If we Don't have the file they are looking for we return a 404 message with the 404 page
-            if(fileToServe == null)
+            if(fileToServe != null)
             {
+                ArrayList<HTTPHeader> headers = new ArrayList<HTTPHeader>();
+                String type = GeneralUtil.getType(fileToServe);
+
+                byte[] fileBytes = ServerUtil.scanFile(fileToServe);
+                headers.add(HeaderUtil.contentTypeHeader.setValue(ContentTypeUtil.getContentType(type)));
                 HTTPResponse response = new HTTPResponse();
-                response.setMessage404();
+                response.setMessage200();
+                response.addHeaders(headers);
+                response.setBytesOut(fileBytes);
                 return response;
             }
-    
-    
-            ArrayList<HTTPHeader> headers = new ArrayList<HTTPHeader>();
-            String type = GeneralUtil.getType(fileToServe);
-            
-            byte[] fileBytes = ServerUtil.scanFile(fileToServe);
-            headers.add(HeaderUtil.contentTypeHeader.setValue(ContentTypeUtil.getContentType(type)));
+
+
+
             HTTPResponse response = new HTTPResponse();
-            response.setMessage200();
-            response.addHeaders(headers);
-            response.setBytesOut(fileBytes);
+            response.setMessage404();
             return response;
+
         }
         else if(message.getMethod().equals(Method.POST))
         {
