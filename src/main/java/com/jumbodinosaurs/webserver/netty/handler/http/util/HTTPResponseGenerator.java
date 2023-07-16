@@ -154,7 +154,7 @@ public class HTTPResponseGenerator
             {
                 LogManager.consoleLogger.debug("Found API EndPoint: " + endPoint.getEndPointPath());
                 LogManager.consoleLogger.debug("Comparing to Requested Path: " + filePath);
-                if(filePath.equals(endPoint.getEndPointPath()) &&
+                if(filePath.startsWith(endPoint.getEndPointPath()) &&
                         endPoint.getHttpMethod().equals(Method.GET))
                 {
                     return endPoint.generateResponse(message);
@@ -190,25 +190,12 @@ public class HTTPResponseGenerator
             //Check for server's settings for post
             if(!OptionUtil.allowPost())
             {
+                LogManager.consoleLogger.debug("Post Not Enabled - returning 501");
                 HTTPResponse response = new HTTPResponse();
                 response.setMessage501();
                 return response;
             }
-    
-            //Check Server's Email Settings
-            Email defaultEmail;
-            try
-            {
-                defaultEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
-            }
-            catch(NoSuchEmailException e)
-            {
-                HTTPResponse response = new HTTPResponse();
-                response.setMessage501();
-                return response;
-            }
-    
-    
+
             //Verify Post requests integrity
             PostRequest request = message.getPostRequest();
             if(request == null || request.getCommand() == null)
@@ -217,6 +204,51 @@ public class HTTPResponseGenerator
                 response.setMessage400();
                 return response;
             }
+
+            if(!OptionUtil.isAuthServicesEnabled())
+            {
+                //Verify Post requests integrity
+                PostCommand commandToExecute;
+                try
+                {
+                    commandToExecute = PostCommandUtil.getPostCommand(request.getCommand());
+                }
+                catch(NoSuchPostCommand error)
+                {
+                    LogManager.consoleLogger.debug("Post -> No Such Post Command - returning 400");
+                    HTTPResponse response = new HTTPResponse();
+                    response.setMessage400();
+                    return response;
+                }
+
+                commandToExecute.setIp(message.getIp());
+
+                if(commandToExecute.requiresSuccessfulAuth() || commandToExecute.requiresUser())
+                {
+                    LogManager.consoleLogger.debug("Command Requested Requires Auth Services - returning 501");
+                    HTTPResponse response = new HTTPResponse();
+                    response.setMessage501();
+                    return response;
+                }
+
+                return commandToExecute.getResponse(request, null);
+            }
+            //Check Server's Email Settings
+            Email defaultEmail;
+            try
+            {
+                defaultEmail = EmailManager.getEmail(OptionUtil.getDefaultEmail());
+            }
+            catch(NoSuchEmailException e)
+            {
+                LogManager.consoleLogger.debug("Post -> No default Email Set - returning 501");
+                HTTPResponse response = new HTTPResponse();
+                response.setMessage501();
+                return response;
+            }
+    
+    
+
     
             //Check with watch list to see if we should accept the request
             if(!WatchListUtil.shouldAcceptRequest(message.getIp()))

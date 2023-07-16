@@ -13,7 +13,8 @@ public enum OptionIdentifier
     hiddenDirs("hiddenDirs"),
     webhook("webhook"),
     maxAmountOfConnections("maxAmountOfConnections"),
-    allowWebSocketConnections("allowWebSocketConnections");
+    allowWebSocketConnections("allowWebSocketConnections"),
+    enableAuthServices("enableAuthServices");
     private String identifier;
     
     OptionIdentifier(String identifier)

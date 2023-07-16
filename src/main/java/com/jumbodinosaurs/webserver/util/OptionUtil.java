@@ -11,7 +11,11 @@ public class OptionUtil
 {
     public static File optionsJson = GeneralUtil.checkFor(ServerUtil.serverDataDir, "options.json");
     private static OptionsManager optionsManager = new OptionsManager(optionsJson);
-    
+
+    public static boolean isAuthServicesEnabled()
+    {
+        return getOptionsManager().getOption(OptionIdentifier.enableAuthServices.getIdentifier(), false).getOption();
+    }
     
     public static String getDefaultEmail()
     {
