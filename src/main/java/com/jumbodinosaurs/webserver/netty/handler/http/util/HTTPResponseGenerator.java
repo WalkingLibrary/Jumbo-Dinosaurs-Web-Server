@@ -3,7 +3,9 @@ package com.jumbodinosaurs.webserver.netty.handler.http.util;
 import com.jumbodinosaurs.devlib.email.Email;
 import com.jumbodinosaurs.devlib.email.EmailManager;
 import com.jumbodinosaurs.devlib.email.NoSuchEmailException;
+import com.jumbodinosaurs.devlib.log.LogManager;
 import com.jumbodinosaurs.devlib.util.GeneralUtil;
+import com.jumbodinosaurs.devlib.util.OperatorConsole;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
 import com.jumbodinosaurs.webserver.auth.util.AuthUtil;
@@ -21,12 +23,15 @@ import com.jumbodinosaurs.webserver.netty.handler.websocket.WebSocketUtil;
 import com.jumbodinosaurs.webserver.post.PostCommand;
 import com.jumbodinosaurs.webserver.post.PostCommandUtil;
 import com.jumbodinosaurs.webserver.post.exceptions.NoSuchPostCommand;
+import com.jumbodinosaurs.webserver.rest.APIEndPoint;
+import com.jumbodinosaurs.webserver.rest.RESTAPIUtil;
 import com.jumbodinosaurs.webserver.util.OptionUtil;
 import com.jumbodinosaurs.webserver.util.ServerUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.websocketx.*;
 
+import java.io.Console;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -144,6 +149,17 @@ public class HTTPResponseGenerator
             }
 
 
+            LogManager.consoleLogger.debug("API EndPoint Searching: ");
+            for(APIEndPoint endPoint: RESTAPIUtil.getAPIEndPoints())
+            {
+                LogManager.consoleLogger.debug("Found API EndPoint: " + endPoint.getEndPointPath());
+                LogManager.consoleLogger.debug("Comparing to Requested Path: " + filePath);
+                if(filePath.equals(endPoint.getEndPointPath()) &&
+                        endPoint.getHttpMethod().equals(Method.GET))
+                {
+                    return endPoint.generateResponse(message);
+                }
+            }
 
             HTTPResponse response = new HTTPResponse();
             response.setMessage404();

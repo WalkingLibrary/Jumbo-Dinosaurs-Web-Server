@@ -1,4 +1,4 @@
-package com.jumbodinosaur.webserver.post.miscellaneous.img;
+package com.jumbodinosaurs.webserver.post.miscellaneous.img;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -85,7 +85,7 @@ public class ImageToTextGoogleAPI extends PostCommand
         
         ByteString imgBytes = ByteString.readFrom(new ByteArrayInputStream(imageBytes));
         
-        Image img = Image.newBuilder().setContent(imgBytes).build();
+        com.google.cloud.vision.v1.Image img = com.google.cloud.vision.v1.Image.newBuilder().setContent(imgBytes).build();
         Feature feat = Feature.newBuilder().setType(Feature.Type.TEXT_DETECTION).build();
         AnnotateImageRequest request = AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
         requests.add(request);

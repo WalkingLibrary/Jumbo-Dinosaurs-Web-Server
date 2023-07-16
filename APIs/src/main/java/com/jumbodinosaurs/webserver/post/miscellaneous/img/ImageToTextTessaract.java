@@ -1,4 +1,4 @@
-package com.jumbodinosaur.webserver.post.miscellaneous.img;
+package com.jumbodinosaurs.webserver.post.miscellaneous.img;
 
 
 import com.google.gson.Gson;
