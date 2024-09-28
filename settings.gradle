@@ -1,3 +1,9 @@
 rootProject.name = 'Jumbo-Dinosaurs-Web-Server-Netty'
 include 'APIs'
 include 'ObjectUploader'
+
+sourceControl {
+    gitRepository("https://github.com/WalkingLibrary/Java-Dev-Lib.git") {
+        producesModule("com.github.WalkingLibrary:Java-Dev-Lib")
+    }
+}
