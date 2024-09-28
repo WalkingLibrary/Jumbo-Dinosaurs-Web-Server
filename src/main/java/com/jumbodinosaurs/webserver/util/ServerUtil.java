@@ -59,10 +59,15 @@ public class ServerUtil
     //Works with local paths
     public static File safeSearchDir(File dirToSearch, String localPath, boolean matchPath)
     {
+        if (dirToSearch == null)
+        {
+            return null;
+        }
+
         localPath = GeneralUtil.fixPathSeparator(localPath);
-        
-        
-        if(localPath.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
+
+
+        if (localPath.indexOf(File.separator) != 0)// make helloworld/hello.json into /helloworld/hello.json
         {
             localPath = File.separator + localPath;
         }
