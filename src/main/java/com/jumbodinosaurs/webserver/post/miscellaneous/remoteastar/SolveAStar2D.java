@@ -3,12 +3,14 @@ package com.jumbodinosaurs.webserver.post.miscellaneous.remoteastar;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.jumbodinosaurs.devlib.pathfinding.Node;
 import com.jumbodinosaurs.devlib.pathfinding.Path;
 import com.jumbodinosaurs.devlib.pathfinding.astar.AStarNode;
 import com.jumbodinosaurs.devlib.pathfinding.astar.AStarPathBuilder;
 import com.jumbodinosaurs.devlib.pathfinding.astar.TwoDIntArrayAStarMap;
 import com.jumbodinosaurs.devlib.pathfinding.exceptions.NoAvailablePathException;
 import com.jumbodinosaurs.devlib.pathfinding.exceptions.PreMatureStopException;
+import com.jumbodinosaurs.devlib.util.objects.Point;
 import com.jumbodinosaurs.devlib.util.objects.Point2D;
 import com.jumbodinosaurs.devlib.util.objects.PostRequest;
 import com.jumbodinosaurs.webserver.auth.util.AuthSession;
@@ -21,6 +23,19 @@ import java.util.ArrayList;
 
 public class SolveAStar2D extends PostCommand
 {
+    public static ArrayList<Point> getPoints(Node node)
+    {
+        ArrayList<Point> listPath = new ArrayList<>();
+        AStarNode<Point> currentNode = (AStarNode<Point>) node;
+        listPath.add(currentNode.getPoint());
+        while (currentNode.getParentNode() != null)
+        {
+            listPath.add(0, currentNode.getParentNode().getPoint());
+            currentNode = currentNode.getParentNode();
+        }
+        return listPath;
+    }
+
     @Override
     public HTTPResponse getResponse(PostRequest request, AuthSession authSession)
     {
@@ -30,17 +45,17 @@ public class SolveAStar2D extends PostCommand
          *  Solve the Map given
          *
          *  */
-        
+
         HTTPResponse response = new HTTPResponse();
         // Check/Verify PostRequest Attributes
-        
+
         //The AStar2DIntArrayMap should be stored in the content attribute
         if(request.getContent() == null)
         {
             response.setMessage400();
             return response;
         }
-        
+
         String content = request.getContent();
         AStar2DIntArrayMap aStar2DIntArrayMap;
         try
@@ -53,7 +68,7 @@ public class SolveAStar2D extends PostCommand
             e.printStackTrace();
             return response;
         }
-        
+
         /* Validate the
          *
          * Size
@@ -69,7 +84,7 @@ public class SolveAStar2D extends PostCommand
         hasGoalNode = false;
         for(int r = 0; r < map.length; r++)
         {
-    
+
             //Shape
             // Needs To be square for the AStarPathBuilder to work
             if(map[r].length != map.length)
@@ -77,7 +92,7 @@ public class SolveAStar2D extends PostCommand
                 response.setMessage400();
                 return response;
             }
-            
+
             for(int c = 0; c < map[r].length; c++)
             {
                 //Size
@@ -86,7 +101,7 @@ public class SolveAStar2D extends PostCommand
                     response.setMessage400();
                     return response;
                 }
-    
+
                 /* Map Makers
                  * 0 means the cell can be traversed
                  * 1 means the cell can not be traversed
@@ -105,7 +120,7 @@ public class SolveAStar2D extends PostCommand
                     }
                     hasStartNode = true;
                 }
-                
+
                 //Contents
                 if(map[r][c] == 3)
                 {
@@ -117,7 +132,7 @@ public class SolveAStar2D extends PostCommand
                     }
                     hasGoalNode = true;
                 }
-    
+
                 //Can't have path nodes in the map to solve
                 if(map[r][c] == 4)
                 {
@@ -126,49 +141,50 @@ public class SolveAStar2D extends PostCommand
                 }
             }
         }
-        
+
         //can't solve for the path without the start and goal nodes
-        if(!hasGoalNode || !hasStartNode)
+        if (!hasGoalNode || !hasStartNode)
         {
             response.setMessage400();
             return response;
         }
-    
+
         Point2D startPoint = TwoDIntArrayAStarMap.getStartPoint(map);
         Point2D goalPoint = TwoDIntArrayAStarMap.getGoalPoint(map);
-        AStarNode startNode = new AStarNode(null, startPoint, 0);
-        AStarNode goalNode = new AStarNode(null, goalPoint, Double.MAX_VALUE);
-    
+        AStarNode startNode = new AStarNode(null, startPoint);
+        AStarNode goalNode = new AStarNode(null, goalPoint);
+
         TwoDIntArrayAStarMap map2D = new TwoDIntArrayAStarMap(startNode, goalNode, map);
         AStarPathBuilder pathBuilder = new AStarPathBuilder(map2D)
         {
             @Override
             public void buildingLoopHookStart()
             {
-            
+
             }
-    
+
             @Override
             public void buildingLoopHookMiddle()
             {
-            
+
             }
-    
+
             @Override
             public void buildingLoopHookEnd()
             {
-    
+
             }
         };
-        
+
         Path path;
         try
         {
-            path = pathBuilder.buildPath();
+
+            path = new Path(getPoints(pathBuilder.buildPath()));
         }
         catch(NoAvailablePathException e)
         {
-    
+
             JsonObject object = new JsonObject();
             object.addProperty("failureReason", "NoPath");
             HTTPHeader jsonApplicationTypeHeader = HeaderUtil.contentTypeHeader.setValue("json");
@@ -182,7 +198,7 @@ public class SolveAStar2D extends PostCommand
             response.setMessage500();
             return response;
         }
-    
+
         /* Map Makers
          * 0 means the cell can be traversed
          * 1 means the cell can not be traversed
