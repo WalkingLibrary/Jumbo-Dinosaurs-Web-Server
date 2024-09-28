@@ -5,9 +5,9 @@ After=network.target
 [Service]
 Type=simple
 User=systemop
-WorkingDirectory=/home/systemop/WebServer/
+WorkingDirectory=/home/systemop/Jumbo-Dinosaurs-Web-Server/
 # Ensure the path is correctly typed and quotes are used if there are spaces:
-ExecStart=/usr/bin/java --add-opens java.base/java.time=ALL-UNNAMED -jar "/home/systemop/WebServer/jumbodinosaurswebserver.jar"
+ExecStart=/usr/bin/java --add-opens java.base/java.time=ALL-UNNAMED -jar "/home/systemop/Jumbo-Dinosaurs-Web-Server/jumbodinosaurswebserver.jar"
 Restart=always
 RestartSec=10
 
